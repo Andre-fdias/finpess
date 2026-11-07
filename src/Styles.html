@@ -2727,6 +2727,84 @@
     }
   }
 
+  /* Suporte Forçado para Dispositivos Móveis (Mesmo em Iframes / PWA Shell) */
+  html.is-mobile-device .app-shell,
+  body.is-mobile-device .app-shell {
+    padding-bottom: 64px !important;
+  }
+
+  html.is-mobile-device .main-area,
+  body.is-mobile-device .main-area {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  html.is-mobile-device .mobile-menu-toggle,
+  body.is-mobile-device .mobile-menu-toggle {
+    display: inline-flex !important;
+  }
+
+  html.is-mobile-device .sidebar,
+  body.is-mobile-device .sidebar {
+    position: fixed !important;
+    left: -260px !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 250px !important;
+    transition: left 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.4) !important;
+    z-index: 100 !important;
+  }
+
+  html.is-mobile-device .sidebar.mobile-open,
+  body.is-mobile-device .sidebar.mobile-open {
+    left: 0 !important;
+  }
+
+  html.is-mobile-device .kpi-grid,
+  body.is-mobile-device .kpi-grid,
+  html.is-mobile-device .grid-2col,
+  body.is-mobile-device .grid-2col,
+  html.is-mobile-device .form-grid,
+  body.is-mobile-device .form-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html.is-mobile-device .content-container,
+  body.is-mobile-device .content-container {
+    padding: 0.85rem 0.75rem !important;
+  }
+
+  html.is-mobile-device .topbar-search,
+  body.is-mobile-device .topbar-search {
+    display: none !important;
+  }
+
+  html.is-mobile-device .user-chip-name,
+  body.is-mobile-device .user-chip-name {
+    max-width: 100px !important;
+  }
+
+  html.is-mobile-device .form-control,
+  body.is-mobile-device .form-control,
+  html.is-mobile-device .btn,
+  body.is-mobile-device .btn {
+    min-height: 42px !important;
+    font-size: 0.9rem !important;
+  }
+
+  html.is-mobile-device .mobile-bottom-nav,
+  body.is-mobile-device .mobile-bottom-nav {
+    display: flex !important;
+  }
+
+  html.is-mobile-device .toast-container,
+  body.is-mobile-device .toast-container {
+    bottom: 4.8rem !important;
+    right: 0.75rem !important;
+    left: 0.75rem !important;
+  }
+
   @media print {
     body, html {
       background: #FFFFFF !important;

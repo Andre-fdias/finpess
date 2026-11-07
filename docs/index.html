@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Finpess — Finanças Inteligentes</title>
   
   <!-- Configurações PWA WebAPK & Mobile -->
@@ -33,18 +33,37 @@
     html, body {
       width: 100%;
       height: 100%;
+      margin: 0;
+      padding: 0;
       overflow: hidden;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background-color: #0f172a;
       color: #f8fafc;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
     }
 
     #app-frame {
-      width: 100vw;
-      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      min-width: 100%;
+      max-width: 100%;
+      min-height: 100%;
+      max-height: 100%;
       border: 0;
+      margin: 0;
+      padding: 0;
       display: block;
       background-color: #0f172a;
+      -webkit-overflow-scrolling: touch;
     }
 
     /* Splash / Loading Screen */
@@ -259,7 +278,7 @@
   <!-- Iframe em Tela Cheia do App do Google Apps Script -->
   <iframe
     id="app-frame"
-    src="https://script.google.com/macros/s/AKfycbyzjzX7GYRl-IGmJ0S8kgoCfA9i3G9zC2AuAzUgXFyEYEmrt_ivlaxE2gyul7TCcaAM7g/exec"
+    src="https://script.google.com/macros/s/AKfycbyo7GdmqSRMZ9ZrzEEoEU8ufjbohY5X9lXdxHnGMo2A7EIE0I2A3ixDNtP67GvcWzbj/exec?pwa=1"
     allow="camera; microphone; geolocation; clipboard-read; clipboard-write; fullscreen"
     sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"
     title="Finpess Sistema Financeiro">
@@ -301,6 +320,17 @@
         splash.classList.add('hidden');
       }, 300);
     });
+
+    // Trava e sincroniza dimensões exatas da janela física para evitar subframe 980px no Android
+    function adjustViewport() {
+      if (iframe) {
+        iframe.style.width = window.innerWidth + 'px';
+        iframe.style.height = window.innerHeight + 'px';
+      }
+    }
+    window.addEventListener('resize', adjustViewport);
+    window.addEventListener('orientationchange', adjustViewport);
+    adjustViewport();
 
     // Se demorar mais de 12 segundos, exibe botão de recarregar
     setTimeout(() => {
@@ -369,3 +399,4 @@
   </script>
 </body>
 </html>
+
