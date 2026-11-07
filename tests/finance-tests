@@ -1,0 +1,462 @@
+/**
+ * @file tests/finance-tests
+ * @description Testes automatizados do núcleo financeiro, saldos em centavos, separação entre
+ * realizado e previsto, transferências entre contas próprias, dívidas, empréstimos,
+ * investimentos, projeções e backup/restauração.
+ */
+
+const assert = require('assert');
+const { createGasContext } = require('./gas-mock-harness');
+
+function runFinanceTests() {
+  const ctx = createGasContext({ ownerEmail: 'admin@finpess.local', activeUserEmail: 'admin@finpess.local' });
+  const results = [];
+
+  // 1. Bootstrap e verificação das 28 abas obrigatórias
+  const boot = ctx.apiCall('session.getBootstrap', {});
+  assert.strictEqual(boot.ok, true, 'Bootstrap deve funcionar');
+  assert.strictEqual(boot.authorized, true, 'Owner deve nascer autorizado');
+  const schemaKeys = Object.keys(ctx.SpreadsheetRepository.SHEETS_SCHEMA);
+  assert.strictEqual(schemaKeys.length, 28, 'Deve conter as 28 abas obrigatórias (21 base + 6 cartões + 1 metas financeiras)');
+  results.push('Esquema de 28 abas do Google Sheets validado.');
+
+  // 2. Criar duas contas bancárias
+  const acc1Res = ctx.apiCall('bankAccounts.create', {
+    instituicao: 'Banco do Brasil',
+    nome_identificacao: 'Conta Principal',
+    tipo_conta: 'CORRENTE',
+    saldo_inicial_centavos: 100000, // R$ 1.000,00
+    data_saldo_inicial: '2026-10-01'
+  });
+  assert.strictEqual(acc1Res.ok, true);
+  const acc1 = acc1Res.data;
+  assert.strictEqual(acc1.saldo_confirmado_centavos, 100000);
+
+  const acc2Res = ctx.apiCall('bankAccounts.create', {
+    instituicao: 'Nubank',
+    nome_identificacao: 'Conta Reserva',
+    tipo_conta: 'PAGAMENTO',
+    saldo_inicial_centavos: 50000, // R$ 500,00
+    data_saldo_inicial: '2026-10-01'
+  });
+  const acc2 = acc2Res.data;
+
+  const categories = ctx.apiCall('categories.list', {}).data;
+  const catSalario = categories.find(c => c.nome === 'Salário');
+  const catAlimentacao = categories.find(c => c.nome === 'Alimentação');
+
+  // 3. Criar receita CONFIRMADA e verificar aumento no saldo
+  const recLaunch = ctx.apiCall('launches.create', {
+    tipo: 'ENTRADA',
+    descricao: 'Salário Outubro',
+    valor_centavos: 350000, // R$ 3.500,00
+    data_lancamento: '2026-10-05',
+    categoria_id: catSalario.id,
+    conta_bancaria_id: acc1.id,
+    forma_pagamento: 'TRANSFERENCIA',
+    situacao: 'CONFIRMADO'
+  });
+  assert.strictEqual(recLaunch.ok, true);
+
+  let dash = ctx.apiCall('dashboard.get', { mesReferencia: '2026-10' }).data;
+  assert.strictEqual(
+    dash.confirmados.saldo_bancario_consolidado_centavos,
+    100000 + 50000 + 350000,
+    'Receita confirmada deve somar exatamente 350000 centavos ao saldo consolidado'
+  );
+  results.push('Criação de receita confirmada e verificação de saldo aprovadas.');
+
+  // 4. Criar despesa CONFIRMADA (R$ 42,90 = 4290 centavos) e verificar redução exata em centavos
+  const despLaunch = ctx.apiCall('launches.create', {
+    tipo: 'SAIDA',
+    descricao: 'Supermercado',
+    valor_centavos: 4290, // R$ 42,90
+    data_lancamento: '2026-10-10',
+    categoria_id: catAlimentacao.id,
+    conta_bancaria_id: acc1.id,
+    forma_pagamento: 'DEBITO',
+    situacao: 'CONFIRMADO'
+  });
+  assert.strictEqual(despLaunch.ok, true);
+
+  dash = ctx.apiCall('dashboard.get', { mesReferencia: '2026-10' }).data;
+  assert.strictEqual(
+    dash.confirmados.saldo_bancario_consolidado_centavos,
+    500000 - 4290,
+    'Despesa confirmada deve reduzir exatamente 4290 centavos sem erro de ponto flutuante'
+  );
+  results.push('Criação de despesa confirmada e aritmética inteira em centavos aprovadas.');
+
+  // 5. Confirmar que lançamentos PREVISTOS NÃO alteram o saldo realizado
+  const saldoAntesPrevisto = dash.confirmados.saldo_bancario_consolidado_centavos;
+  const prevLaunch = ctx.apiCall('launches.create', {
+    tipo: 'SAIDA',
+    descricao: 'Manutenção prevista',
+    valor_centavos: 25000, // R$ 250,00
+    data_lancamento: '2026-10-28',
+    categoria_id: catAlimentacao.id,
+    conta_bancaria_id: acc1.id,
+    forma_pagamento: 'PIX',
+    situacao: 'PREVISTO'
+  });
+  assert.strictEqual(prevLaunch.ok, true);
+
+  dash = ctx.apiCall('dashboard.get', { mesReferencia: '2026-10' }).data;
+  assert.strictEqual(
+    dash.confirmados.saldo_bancario_consolidado_centavos,
+    saldoAntesPrevisto,
+    'Lançamento PREVISTO jamais pode alterar o saldo bancário confirmado'
+  );
+  assert.strictEqual(dash.previstos.despesas_previstas_mes_centavos, 25000);
+  results.push('Isolamento entre lançamentos previstos e saldo bancário realizado comprovado.');
+
+  // 6. Transferência entre contas próprias não pode inflar receitas nem despesas mensais
+  const receitasAntesTrf = dash.confirmados.receitas_realizadas_mes_centavos;
+  const despesasAntesTrf = dash.confirmados.despesas_pagas_mes_centavos;
+
+  const trfRes = ctx.apiCall('bankAccounts.transfer', {
+    conta_origem_id: acc1.id,
+    conta_destino_id: acc2.id,
+    valor_centavos: 30000, // R$ 300,00
+    data_lancamento: '2026-10-15',
+    descricao: 'Reserva mensal'
+  });
+  assert.strictEqual(trfRes.ok, true);
+
+  dash = ctx.apiCall('dashboard.get', { mesReferencia: '2026-10' }).data;
+  assert.strictEqual(
+    dash.confirmados.receitas_realizadas_mes_centavos,
+    receitasAntesTrf,
+    'Transferência própria não deve aumentar receitas do mês'
+  );
+  assert.strictEqual(
+    dash.confirmados.despesas_pagas_mes_centavos,
+    despesasAntesTrf,
+    'Transferência própria não deve aumentar despesas do mês'
+  );
+  assert.strictEqual(
+    dash.confirmados.saldo_bancario_consolidado_centavos,
+    saldoAntesPrevisto,
+    'Transferência entre contas próprias preserva o saldo consolidado total'
+  );
+  results.push('Transferência entre contas próprias sem duplicar receitas/despesas comprovada.');
+
+  // 7. Dívida antiga/protestada não deve entrar automaticamente como despesa mensal
+  const debtRes = ctx.apiCall('debts.create', {
+    credor: 'Banco Antigo S/A',
+    descricao: 'Cartão protestado 2021',
+    valor_original_centavos: 200000,
+    valor_atualizado_centavos: 280000,
+    data_origem: '2021-05-10',
+    situacao: 'PROTESTADA'
+  });
+  assert.strictEqual(debtRes.ok, true);
+  assert.strictEqual(debtRes.data.repercutir_fluxo_caixa, false, 'Dívida protestada não repercute no fluxo sem acordo');
+
+  // 8. Empréstimo consignado já deduzido do salário líquido não duplica saída na conta
+  const loanRes = ctx.apiCall('loans.create', {
+    instituicao: 'Banco Consignado',
+    descricao: 'Consignado Folha',
+    tipo_emprestimo: 'CONSIGNADO',
+    valor_contratado_centavos: 600000,
+    numero_parcelas: 12,
+    valor_parcela_centavos: 55000,
+    data_inicial: '2026-10-10',
+    desconto_em_folha_ja_deduzido_salario: true
+  });
+  assert.strictEqual(loanRes.ok, true);
+  const firstParcela = loanRes.data.parcelas[0];
+  const payLoanRes = ctx.apiCall('loans.payInstallment', { parcela_id: firstParcela.id });
+  assert.strictEqual(payLoanRes.ok, true);
+  assert.strictEqual(payLoanRes.data.lancamento_id, '', 'Consignado já deduzido no salário líquido não gera novo débito duplicado na conta');
+  results.push('Proteção contra dupla contagem de consignado e isolamento de dívidas antigas aprovados.');
+
+  // 8b. Empréstimo pago pelo usuário lista parcelas na aba Lançamentos (PREVISTO e CONFIRMADO)
+  const personalLoanRes = ctx.apiCall('loans.create', {
+    instituicao: 'Banco do Brasil',
+    descricao: 'Empréstimo Pessoal',
+    tipo_emprestimo: 'PESSOAL',
+    valor_contratado_centavos: 2500000,
+    numero_parcelas: 3,
+    valor_parcela_centavos: 100000,
+    data_inicial: '2026-11-05',
+    desconto_em_folha: false,
+    desconto_em_folha_ja_deduzido_salario: false
+  });
+  assert.strictEqual(personalLoanRes.ok, true);
+
+  const launchesBeforePay = ctx.apiCall('launches.list', { busca: 'Banco do Brasil' });
+  assert.strictEqual(launchesBeforePay.ok, true);
+  const loanLaunches = launchesBeforePay.data.items.filter(it => it.origem === 'EMPRESTIMO');
+  assert.strictEqual(loanLaunches.length, 3, 'As 3 parcelas do empréstimo pessoal devem constar em Lançamentos');
+  assert.strictEqual(loanLaunches[0].situacao, 'PREVISTO', 'Parcelas em aberto devem estar com situação PREVISTO');
+
+  const payPersonalRes = ctx.apiCall('loans.payInstallment', { parcela_id: personalLoanRes.data.parcelas[0].id });
+  assert.strictEqual(payPersonalRes.ok, true);
+
+  const launchesAfterPay = ctx.apiCall('launches.list', { busca: 'Banco do Brasil' });
+  const paidLaunch = launchesAfterPay.data.items.find(it => it.referencia_parcela_id === personalLoanRes.data.parcelas[0].id);
+  assert.ok(paidLaunch, 'Lançamento da parcela deve existir');
+  assert.strictEqual(paidLaunch.situacao, 'CONFIRMADO', 'Após pagamento, a situação deve ser CONFIRMADO');
+  results.push('Empréstimo pago pelo usuário listado em Lançamentos (previsto antes e confirmado após pagamento) comprovado.');
+
+  // 8.1 Gestão de Investimentos com Débito Bancário e Advisor IA
+  const invAssetRes = ctx.apiCall('investments.createAsset', {
+    nome_ativo: 'Tesouro IPCA+ 2029',
+    classe_ativo: 'TESOURO_DIRETO',
+    instituicao: 'Banco do Brasil',
+    valor_aplicado_centavos: 100000, // R$ 1.000,00
+    valor_mercado_informado_centavos: 105000, // R$ 1.050,00
+    data_referencia: '2026-10-15',
+    debitar_conta: true,
+    conta_bancaria_id: acc1.id
+  });
+  assert.strictEqual(invAssetRes.ok, true, 'Ativo de investimento deve ser criado com sucesso');
+
+  const invSummary = ctx.apiCall('investments.summary', {});
+  assert.strictEqual(invSummary.ok, true);
+  assert.strictEqual(invSummary.data.total_aplicado_centavos, 100000);
+  assert.strictEqual(invSummary.data.total_valor_mercado_informado_centavos, 105000);
+  assert.strictEqual(invSummary.data.variacao_patrimonial_centavos, 5000);
+
+  const aiAdviceRes = ctx.apiCall('investments.getAiAdvice', {});
+  assert.strictEqual(aiAdviceRes.ok, true, 'Advisor IA e Radar de Mercado devem responder com sucesso');
+  assert.ok(aiAdviceRes.data.diagnostico_carteira, 'Diagnóstico da carteira deve ser calculado');
+  assert.ok(aiAdviceRes.data.radar_mercado.indicadores_chave.length >= 5, 'Radar de mercado deve conter indicadores macro');
+  assert.ok(aiAdviceRes.data.radar_mercado.em_alta.length >= 2, 'Radar de mercado deve listar setores em alta');
+  assert.ok(aiAdviceRes.data.radar_mercado.em_baixa.length >= 2, 'Radar de mercado deve listar setores em baixa');
+  assert.ok(aiAdviceRes.data.recomendacoes.compra.length >= 1, 'Recomendações de compra devem ser geradas');
+
+  // Testes das Novas Funcionalidades: Radar Rotativo, Top 10, Suitability, Comparador e Dividendos
+  const radarHighlights = ctx.apiCall('investments.getMarketRadar', {});
+  assert.strictEqual(radarHighlights.ok, true);
+  assert.ok(radarHighlights.data.length >= 5, 'Banner rotativo deve carregar destaques de mercado');
+
+  const top10Div = ctx.apiCall('investments.getTop10', { categoria: 'DIVIDENDOS' });
+  assert.strictEqual(top10Div.ok, true);
+  assert.strictEqual(top10Div.data.categoria, 'DIVIDENDOS');
+  assert.ok(top10Div.data.itens.length >= 1, 'Top 10 Dividendos deve listar ativos da categoria');
+
+  const saveSuit = ctx.apiCall('investments.saveSuitability', {
+    perfil_risco: 'ARROJADO',
+    horizonte: 'LONGO_PRAZO',
+    objetivo_principal: 'RENDA_PASSIVA_DIVIDENDOS',
+    conhecimento_mercado: 'AVANCADO',
+    reserva_emergencia_concluida: true
+  });
+  assert.strictEqual(saveSuit.ok, true);
+  assert.strictEqual(saveSuit.data.perfil_risco, 'ARROJADO');
+
+  const getSuit = ctx.apiCall('investments.getSuitability', {});
+  assert.strictEqual(getSuit.ok, true);
+  assert.strictEqual(getSuit.data.perfil_risco, 'ARROJADO');
+
+  const compRes = ctx.apiCall('investments.compareAssets', { ticker1: 'BBAS3', ticker2: 'TAEE11' });
+  assert.strictEqual(compRes.ok, true);
+  assert.ok(compRes.data.comparativo_metricas.length >= 5, 'Matriz comparativa de ativos deve conter métricas');
+  assert.ok(compRes.data.parecer_ia.length > 10, 'Parecer comparativo da IA deve ser gerado');
+
+  const divProjRes = ctx.apiCall('investments.getDividendProjections', {});
+  assert.strictEqual(divProjRes.ok, true);
+  assert.ok(divProjRes.data.cronograma_12m.length === 12, 'Projeção de dividendos deve calcular os próximos 12 meses');
+
+  const newsRes = ctx.apiCall('investments.getNews', {});
+  assert.strictEqual(newsRes.ok, true);
+  assert.ok(newsRes.data.length >= 3, 'Informativo de notícias deve listar fatos relevantes com fonte');
+
+  const calRes = ctx.apiCall('investments.getEconomicCalendar', {});
+  assert.strictEqual(calRes.ok, true);
+  assert.ok(calRes.data.length >= 3, 'Calendário econômico oficial deve conter datas e órgãos');
+
+  const onlineRefreshRes = ctx.apiCall('investments.refreshMarketDataOnline', {});
+  assert.strictEqual(onlineRefreshRes.ok, true);
+  assert.ok(onlineRefreshRes.data.macro.length >= 5, 'Macro indicadores online devem ser retornados');
+  assert.ok(onlineRefreshRes.data.highlights.length >= 5, 'Destaques online com cotações devem ser retornados');
+  const ouroItem = onlineRefreshRes.data.highlights.find(h => h.ticker.startsWith('OURO') || h.categoria === 'COMMODITIES');
+  assert.ok(ouroItem && ouroItem.preco && ouroItem.preco.indexOf('/g') !== -1, 'Ouro deve ter cotação calculada em R$/g');
+  assert.ok(top10Div.data.itens.every(it => Boolean(it.preco)), 'Todos os ativos do Top 10 devem conter preço de compra');
+
+  results.push('Central de investimentos completa: Radar rotativo, Top 10 com critérios e preços reais, Cotações online em tempo real, Suitability, Comparador de ativos e Projeção de dividendos aprovados.');
+
+  // 9. Calendário financeiro adaptado às novas regras do sistema
+  const calFinRes = ctx.apiCall('calendar.get', { mes: '2026-10', visao: 'MENSAL', incluir_eventos_mercado: true });
+  assert.strictEqual(calFinRes.ok, true, 'calendar.get deve responder com sucesso');
+  assert.ok(calFinRes.data.eventos.length > 0, 'Deve conter eventos no mês');
+
+  // Verifica se parcelas de consignado têm afeta_saldo = false e tipo = CONSIGNADO_FOLHA
+  const consignadoEv = calFinRes.data.eventos.find(e => e.origem === 'CONSIGNADO' || e.is_consignado);
+  if (consignadoEv) {
+    assert.strictEqual(consignadoEv.afeta_saldo, false, 'Parcela de empréstimo consignado não deve afetar saldo de caixa');
+    assert.strictEqual(consignadoEv.tipo, 'CONSIGNADO_FOLHA');
+  }
+
+  // Verifica filtro por origem (ex: EMPRESTIMO)
+  const calEmpOnly = ctx.apiCall('calendar.get', { mes: '2026-10', visao: 'MENSAL', origem: 'EMPRESTIMO' });
+  assert.strictEqual(calEmpOnly.ok, true);
+  calEmpOnly.data.eventos.forEach(ev => {
+    assert.ok(ev.origem === 'EMPRESTIMO' || ev.origem === 'CONSIGNADO', 'Filtro por origem deve retornar apenas empréstimos');
+  });
+
+  results.push('Calendário adaptado: consignado isolado do saldo de caixa, filtro por origem e agenda de mercado validados.');
+
+  // 10. Relatórios Financeiros Avançados & BI (Business Intelligence)
+  const repRes = ctx.apiCall('reports.getComprehensiveReport', { periodo_tipo: 'MES_ATUAL', mes: '2026-10' });
+  assert.strictEqual(repRes.ok, true, 'reports.getComprehensiveReport deve responder com sucesso');
+  assert.ok(repRes.data.resumo_executivo, 'Deve conter resumo executivo consolidado');
+  assert.ok(repRes.data.resumo_executivo.total_receitas_centavos > 0, 'Receitas totais devem ser maiores que zero');
+  assert.ok(repRes.data.resumo_executivo.patrimonio_liquido_estimado_centavos !== undefined, 'Patrimônio líquido deve ser calculado');
+  assert.ok(Array.isArray(repRes.data.despesas_analise.distribuicao_por_categoria), 'Deve conter distribuição por categoria');
+  assert.ok(Array.isArray(repRes.data.orcamento_comparativo), 'Deve conter comparativo orçamentário');
+
+  const repAiRes = ctx.apiCall('reports.getAiNarrativeReport', { periodo_tipo: 'MES_ATUAL', mes: '2026-10' });
+  assert.strictEqual(repAiRes.ok, true, 'reports.getAiNarrativeReport deve responder com sucesso');
+  assert.ok(repAiRes.data.resumo_executivo, 'Deve conter narrativa executiva');
+  assert.ok(repAiRes.data.pontos_positivos.length > 0 || repAiRes.data.pontos_atencao.length > 0, 'Deve conter insights do período');
+  results.push('Relatórios avançados (BI): demonstrativos, fluxo, custos por categoria e parecer IA validados.');
+
+  // 11. Oráculo IA 2.0 (Saúde Financeira, Alertas Proativos, Gargalos e Simulação)
+  const healthRes = ctx.apiCall('oracle.getHealthScore', { mesReferencia: '2026-10' });
+  assert.strictEqual(healthRes.ok, true, 'oracle.getHealthScore deve responder com sucesso');
+  assert.ok(healthRes.data.nota >= 0 && healthRes.data.nota <= 100, 'Nota deve estar entre 0 e 100');
+  assert.ok(['EXCELENTE', 'SAUDAVEL', 'ATENCAO', 'VULNERAVEL', 'CRITICA'].indexOf(healthRes.data.classificacao) !== -1, 'Classificação válida');
+  assert.ok(healthRes.data.dimensoes.fluxo_caixa, 'Deve conter dimensão de fluxo de caixa');
+
+  const alertsRes = ctx.apiCall('oracle.getProactiveAlerts', { mesReferencia: '2026-10' });
+  assert.strictEqual(alertsRes.ok, true, 'oracle.getProactiveAlerts deve responder com sucesso');
+  assert.ok(Array.isArray(alertsRes.data.itens), 'Alertas devem ser um array');
+
+  const bottlenecksRes = ctx.apiCall('oracle.getFinancialBottlenecks', { mesReferencia: '2026-10' });
+  assert.strictEqual(bottlenecksRes.ok, true, 'oracle.getFinancialBottlenecks deve responder com sucesso');
+  assert.ok(bottlenecksRes.data.potencial_economia_mensal_centavos >= 0, 'Economia potencial calculada');
+
+  const simRes = ctx.apiCall('oracle.simulateScenario', {
+    mesReferencia: '2026-10',
+    tipo_simulacao: 'CORTE_DESPESA',
+    percentual_corte: 15
+  });
+  assert.strictEqual(simRes.ok, true, 'oracle.simulateScenario deve responder com sucesso');
+  assert.ok(simRes.data.cenario_simulado.impacto_mensal_centavos >= 0, 'Impacto da simulação calculado');
+
+  results.push('Oráculo IA 2.0: Saúde financeira auditada, alertas proativos, detector de gargalos e simulador hipotético validados.');
+
+  // 12. Backup e restauração preservando IDs e relacionamentos
+  dash = ctx.apiCall('dashboard.get', { mesReferencia: '2026-10' }).data;
+  const backupExport = ctx.apiCall('admin.exportBackup', {});
+  assert.strictEqual(backupExport.ok, true);
+  assert.ok(backupExport.data.tables.LANCAMENTOS.length >= 4);
+
+  // VULN-07: Redação estrita de tokens de sessão e hashes de credenciais no backup
+  const exportedUsers = backupExport.data.tables.USUARIOS || [];
+  exportedUsers.forEach(u => {
+    assert.strictEqual(u.token_sessao, '', 'token_sessao deve ser redactado com string vazia');
+    assert.strictEqual(u.token_sessao_expira_em, '', 'token_sessao_expira_em deve ser vazio');
+    assert.strictEqual(u.hash_senha, '[PROTECTED_CREDENTIAL]', 'hash_senha deve ser redactado');
+    assert.strictEqual(u.salt, '[PROTECTED_CREDENTIAL]', 'salt deve ser redactado');
+  });
+
+  const restoreRes = ctx.apiCall('admin.restoreBackup', { backup: backupExport.data });
+  assert.strictEqual(restoreRes.ok, true);
+  const dashAfterRestore = ctx.apiCall('dashboard.get', { mesReferencia: '2026-10' }).data;
+  assert.strictEqual(
+    dashAfterRestore.confirmados.saldo_bancario_consolidado_centavos,
+    dash.confirmados.saldo_bancario_consolidado_centavos,
+    'Restauração de backup deve preservar integralmente saldos, IDs e relacionamentos'
+  );
+  results.push('Exportação e restauração de backup preservando IDs e relacionamentos comprovadas.');
+
+  // 13. VULN-04: Sincronização bilateral atômica de transferências entre contas próprias
+  const trfCreate = ctx.apiCall('bankAccounts.transfer', {
+    conta_origem_id: acc1.id,
+    conta_destino_id: acc2.id,
+    valor_centavos: 10000,
+    data_lancamento: '2026-10-15',
+    descricao: 'Transferência de Teste Bilateral'
+  });
+  assert.strictEqual(trfCreate.ok, true);
+  const trfId = trfCreate.data.transferencia_id;
+  const saidaId = trfCreate.data.saida.id;
+  const entradaId = trfCreate.data.entrada.id;
+
+  // Atualiza a perna de saída alterando valor para 25000 centavos
+  const updateSaida = ctx.apiCall('launches.update', {
+    id: saidaId,
+    valor_centavos: 25000,
+    descricao: 'Transferência Atualizada'
+  });
+  assert.strictEqual(updateSaida.ok, true);
+  assert.strictEqual(updateSaida.data.valor_centavos, 25000);
+
+  // A contraparte de entrada (sibling) DEVE estar automaticamente sincronizada com 25000 centavos
+  const adminGrupoId = boot.profile.user.grupo_id;
+  const siblingEntrada = ctx.SpreadsheetRepository.findById('LANCAMENTOS', entradaId, adminGrupoId);
+  assert.strictEqual(siblingEntrada.valor_centavos, 25000, 'A perna de entrada deve sincronizar o novo valor da transferência');
+
+  // Cancelamento de uma ponta deve cancelar a outra ponta
+  const cancelSaida = ctx.apiCall('launches.cancel', { id: saidaId, motivo: 'Cancelamento bilateral teste' });
+  assert.strictEqual(cancelSaida.ok, true);
+  const siblingEntradaAfterCancel = ctx.SpreadsheetRepository.findById('LANCAMENTOS', entradaId, adminGrupoId);
+  assert.strictEqual(siblingEntradaAfterCancel.situacao, 'CANCELADO', 'A contraparte da transferência deve ser cancelada em conjunto');
+  results.push('VULN-04: Sincronização bilateral e cancelamento atômico de transferências entre contas comprovados.');
+
+  // 14. Reset Seguro do Sistema com Confirmação Obrigatória de Senha
+  const ownerSalt = ctx.AuthService.generateSecureSalt(16);
+  const ownerHash = ctx.AuthService.hashPassword('senhaMestre123', ownerSalt);
+  ctx.SpreadsheetRepository.updateById('USUARIOS', boot.profile.user.id, {
+    hash_senha: ownerHash,
+    salt: ownerSalt
+  });
+
+  // Tentativa 1: Senha incorreta deve ser categoricamente rejeitada
+  const wrongPwdAttempt = ctx.apiCall('admin.resetData', {
+    palavra_confirmacao: 'RESETAR',
+    senha: 'senhaIncorreta'
+  });
+  assert.strictEqual(wrongPwdAttempt.ok, false, 'Reset com senha errada deve falhar');
+  assert.ok(wrongPwdAttempt.error.includes('Senha de acesso incorreta'), 'Erro deve informar senha incorreta');
+
+  // Tentativa 2: Palavra de confirmação divergente deve ser rejeitada
+  const wrongWordAttempt = ctx.apiCall('admin.resetData', {
+    palavra_confirmacao: 'NAO_SEI',
+    senha: 'senhaMestre123'
+  });
+  assert.strictEqual(wrongWordAttempt.ok, false, 'Reset sem palavra RESETAR deve falhar');
+  assert.ok(wrongWordAttempt.error.includes('RESETAR'));
+
+  // Tentativa 3: Sucesso com senha correta e palavra RESETAR
+  const resetSuccess = ctx.apiCall('admin.resetData', {
+    palavra_confirmacao: 'RESETAR',
+    senha: 'senhaMestre123'
+  });
+  assert.strictEqual(resetSuccess.ok, true, 'Reset com credencial válida deve ser aprovado');
+  assert.ok(resetSuccess.data.backup, 'Deve retornar o backup automático antes da limpeza');
+
+  // Comprova que todos os lançamentos foram limpos
+  const launchesAfter = ctx.SpreadsheetRepository.findAll('LANCAMENTOS');
+  assert.strictEqual(launchesAfter.length, 0, 'Todos os lançamentos devem ter sido limpos');
+
+  // Comprova que uma nova conta principal com saldo zero foi criada
+  const accountsAfter = ctx.SpreadsheetRepository.findByGrupo('CONTAS_BANCARIAS', adminGrupoId);
+  assert.strictEqual(accountsAfter.length, 1, 'Deve existir exatamente 1 conta bancária padrão');
+  assert.strictEqual(accountsAfter[0].saldo_inicial_centavos, 0, 'Saldo inicial deve ser 0');
+
+  // Comprova que as categorias padrão foram recriadas
+  const catsAfter = ctx.SpreadsheetRepository.findByGrupo('CATEGORIAS', adminGrupoId);
+  assert.ok(catsAfter.length >= 8, 'Categorias oficiais devem estar re-semeadas');
+
+  // Comprova que o OWNER continua existindo e com suas credenciais intactas
+  const ownerAfter = ctx.SpreadsheetRepository.findById('USUARIOS', boot.profile.user.id);
+  assert.ok(ownerAfter, 'O usuário OWNER deve permanecer intacto');
+  assert.strictEqual(ownerAfter.hash_senha, ownerHash, 'O hash da senha do OWNER deve ser preservado');
+
+  results.push('Reset do sistema com backup automático e validação estrita de senha do OWNER comprovados.');
+
+  return results;
+}
+
+if (require.main === module) {
+  const out = runFinanceTests();
+  console.log('FINANCE TESTS PASSED:', out);
+}
+
+module.exports = { runFinanceTests };
+

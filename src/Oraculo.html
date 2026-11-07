@@ -1,0 +1,314 @@
+<section id="sec-oraculo" class="module-section" aria-labelledby="title-oraculo">
+  <!-- Cabeçalho Executivo Granazen -->
+  <div class="page-header-card" style="margin-bottom:1.25rem;">
+    <div style="display:flex; align-items:center; gap:0.85rem; flex-wrap:wrap; justify-content:space-between;">
+      <div style="display:flex; align-items:center; gap:0.75rem;">
+        <div style="width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg, #8b5cf6, #6366f1); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.35rem; box-shadow:0 4px 12px rgba(99,102,241,0.25);">
+          🔮
+        </div>
+        <div>
+          <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+            <h1 id="title-oraculo" class="card-title" style="font-size:1.35rem; margin:0;">Oráculo IA 2.0 — Analista Financeiro Autônomo</h1>
+            <span class="badge badge-confirmado" style="font-size:0.75rem;">Monitoramento Proativo & Preditivo</span>
+          </div>
+          <small style="color:var(--text-secondary);">Análise de saúde financeira, detecção contínua de riscos, simulação determinística de cenários e consultoria estratégica com IA.</small>
+        </div>
+      </div>
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadOraculo(true)" title="Executa nova varredura completa das finanças">
+          🔄 Reanalisar Agora
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Painel Consolidado: Índice de Saúde Financeira -->
+  <div class="card" style="margin-bottom:1.25rem; border-left:4px solid var(--primary);">
+    <div class="card-header" style="padding-bottom:0.5rem;">
+      <div>
+        <h2 class="card-title" style="font-size:1.15rem; display:flex; align-items:center; gap:0.5rem;">
+          🩺 Índice de Saúde Financeira
+          <span id="oracle-health-badge" class="badge badge-confirmado">Calculando...</span>
+        </h2>
+        <small style="color:var(--text-secondary);">Diagnóstico auditável baseado em 6 dimensões contábeis determinísticas calculadas no servidor.</small>
+      </div>
+      <div style="text-align:right;">
+        <span style="font-size:0.8rem; color:var(--text-muted);">Período de Referência:</span>
+        <strong id="oracle-health-periodo" style="display:block; font-size:0.95rem;">--/----</strong>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem; align-items:center; padding:0.5rem 0;">
+      <!-- Score Principal -->
+      <div style="background:var(--bg-secondary); padding:1.25rem; border-radius:12px; text-align:center;">
+        <span style="font-size:0.85rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Pontuação Geral</span>
+        <div style="display:flex; align-items:baseline; justify-content:center; gap:0.35rem; margin:0.35rem 0;">
+          <span id="oracle-health-score" style="font-size:2.8rem; font-weight:800; color:var(--primary); line-height:1;">--</span>
+          <span style="font-size:1.2rem; color:var(--text-muted); font-weight:600;">/ 100</span>
+        </div>
+        <div style="background:var(--border-color); border-radius:999px; height:8px; overflow:hidden; margin:0.5rem auto 0.75rem auto; max-width:200px;">
+          <div id="oracle-health-progress" style="width:0%; height:100%; background:var(--primary); transition:width 0.4s ease;"></div>
+        </div>
+        <small id="oracle-health-label" style="font-size:0.85rem; font-weight:600; color:var(--text-primary);">Aguardando cálculo...</small>
+      </div>
+
+      <!-- 6 Dimensões de Avaliação -->
+      <div id="oracle-dimensions-container" style="display:flex; flex-direction:column; gap:0.6rem;">
+        <div style="font-size:0.85rem; color:var(--text-muted);">Carregando dimensões financeiras...</div>
+      </div>
+    </div>
+
+    <!-- Pontos Fortes e Pontos de Atenção -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border-color);">
+      <div style="background:rgba(16, 185, 129, 0.08); border:1px solid rgba(16, 185, 129, 0.2); border-radius:8px; padding:0.85rem;">
+        <strong style="color:#059669; font-size:0.85rem; display:flex; align-items:center; gap:0.35rem; margin-bottom:0.4rem;">
+          ✅ Pontos Fortes Identificados
+        </strong>
+        <ul id="oracle-strengths-list" style="margin:0; padding-left:1.15rem; font-size:0.85rem; color:var(--text-secondary); line-height:1.5;">
+          <li>Nenhum ponto carregado.</li>
+        </ul>
+      </div>
+      <div style="background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.2); border-radius:8px; padding:0.85rem;">
+        <strong style="color:#dc2626; font-size:0.85rem; display:flex; align-items:center; gap:0.35rem; margin-bottom:0.4rem;">
+          ⚠️ Pontos de Atenção & Riscos
+        </strong>
+        <ul id="oracle-warnings-list" style="margin:0; padding-left:1.15rem; font-size:0.85rem; color:var(--text-secondary); line-height:1.5;">
+          <li>Nenhum alerta carregado.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navegação por Sub-abas do Oráculo -->
+  <div class="tabs-nav-container" style="margin-bottom:1.25rem;">
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
+      <button type="button" class="btn btn-sm btn-primary oracle-tab-btn" data-tab="consultor" onclick="App.switchOracleTab('consultor')">
+        💬 Consultor & Perguntas Livres
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary oracle-tab-btn" data-tab="alertas" onclick="App.switchOracleTab('alertas')">
+        🚨 Central de Alertas <span id="oracle-alerts-badge" class="badge badge-pendente" style="margin-left:0.35rem; font-size:0.7rem;">0</span>
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary oracle-tab-btn" data-tab="gargalos" onclick="App.switchOracleTab('gargalos')">
+        🔍 Detector de Gargalos
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary oracle-tab-btn" data-tab="simulador" onclick="App.switchOracleTab('simulador')">
+        🧮 Simulador de Cenários
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary oracle-tab-btn" data-tab="plano" onclick="App.switchOracleTab('plano')">
+        📋 Plano de Ação Estratégico
+      </button>
+    </div>
+  </div>
+
+  <!-- SUB-ABA 1: CONSULTOR INTERATIVO & RAG EM LINGUAGEM NATURAL (ESTILO GEMINI) -->
+  <div id="oracle-subtab-consultor" class="oracle-subtab-content">
+    <div class="card" style="margin-bottom:1.25rem; border:1px solid var(--border-color); box-shadow:var(--shadow-sm); border-radius:14px; overflow:hidden;">
+      
+      <!-- Cabeçalho do Chat -->
+      <div class="card-header" style="border-bottom:1px solid var(--border-color); padding:0.85rem 1.15rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; background:var(--bg-surface);">
+        <div style="display:flex; align-items:center; gap:0.65rem;">
+          <div style="width:36px; height:36px; border-radius:9px; background:linear-gradient(135deg, #8b5cf6, #6366f1); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.15rem; box-shadow:0 2px 8px rgba(99,102,241,0.25);">
+            💬
+          </div>
+          <div>
+            <h2 class="card-title" style="margin:0; font-size:1.1rem; font-weight:700;">Consultor IA em Linguagem Natural (RAG das Suas Finanças)</h2>
+            <small style="color:var(--text-secondary); font-size:0.8rem;">Converse livremente sobre saldos, contas a vencer, cartões, faturas, categorias e projeções.</small>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.clearOracleChat()" title="Limpar histórico da conversa">
+            🗑️ Limpar Conversa
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra de Sugestões de Perguntas Rápidas (Pills de 1-Clique) -->
+      <div style="padding:0.65rem 1rem; border-bottom:1px solid var(--border-color); background:var(--bg-elevated); display:flex; gap:0.45rem; overflow-x:auto; white-space:nowrap; scrollbar-width:thin;">
+        <button type="button" class="oracle-pill-btn" onclick="App.askQuickOracle('Apresente um diagnóstico completo e executivo da minha saúde financeira atual.')">📊 Diagnóstico Financeiro</button>
+        <button type="button" class="oracle-pill-btn" onclick="App.askQuickOracle('Qual a situação das minhas contas bancárias, saldos disponíveis e quem são os titulares?')">🏦 Contas & Titulares</button>
+        <button type="button" class="oracle-pill-btn" onclick="App.askQuickOracle('Quais contas e despesas ainda vencem este mês e há risco de saldo negativo?')">⏳ Contas a Vencer</button>
+        <button type="button" class="oracle-pill-btn" onclick="App.askQuickOracle('Qual a situação dos meus cartões de crédito, faturas abertas e limites disponíveis?')">💳 Cartões & Faturas</button>
+        <button type="button" class="oracle-pill-btn" onclick="App.askQuickOracle('Quais foram os maiores gastos do mês por categoria e como estão em relação ao orçamento?')">🍔 Gastos por Categoria</button>
+        <button type="button" class="oracle-pill-btn" onclick="App.askQuickOracle('Quais despesas aumentaram em relação ao mês anterior e onde posso cortar gastos?')">✂️ Onde Cortar Gastos</button>
+        <button type="button" class="oracle-pill-btn" onclick="App.askQuickOracle('Qual o impacto dos meus empréstimos, dívidas e parcelas na minha renda?')">📉 Impacto de Dívidas</button>
+      </div>
+
+      <!-- Feed de Mensagens do Chat -->
+      <div id="oracle-chat-feed" style="padding:1.15rem; min-height:300px; max-height:550px; overflow-y:auto; display:flex; flex-direction:column; gap:1.15rem; background:var(--bg-surface);">
+        <!-- Preenchido dinamicamente via App.renderOracleChat -->
+      </div>
+
+      <!-- Indicador de Carregamento (Digitando...) -->
+      <div id="oracle-typing-indicator" style="display:none; padding:0.65rem 1.15rem; color:var(--text-secondary); font-size:0.85rem; background:var(--bg-elevated); border-top:1px solid var(--border-color); align-items:center; gap:0.5rem;">
+        <span style="display:inline-block; animation:spin 1s linear infinite;">🔮</span>
+        <span>O Oráculo está consultando sua base de dados financeiros e gerando o parecer...</span>
+      </div>
+
+      <!-- Formulário de Entrada em Linguagem Natural -->
+      <div style="padding:0.85rem 1.15rem; border-top:1px solid var(--border-color); background:var(--bg-elevated);">
+        <form id="form-oracle" onsubmit="App.submitOracleQuestion(event)" style="display:flex; gap:0.6rem; align-items:center;">
+          <input type="text" id="oracle-question" class="form-control" style="flex:1; border-radius:8px; padding:0.65rem 0.95rem; font-size:0.92rem;" placeholder="Pergunte em linguagem natural (Ex: Quanto gastei no Santander? Qual fatura vence primeiro?)..." required autocomplete="off" />
+          <button type="submit" id="btn-oracle-submit" class="btn btn-primary" style="display:flex; align-items:center; gap:0.4rem; padding:0.65rem 1.25rem; font-weight:600; border-radius:8px; white-space:nowrap;">
+            <span>Consultar</span>
+            <span>🚀</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Contêineres ocultos para compatibilidade com rotinas legadas e testes -->
+    <div style="display:none;">
+      <div id="oracle-facts-container"></div>
+      <div id="oracle-recommendation-container"></div>
+    </div>
+  </div>
+
+  <!-- SUB-ABA 2: CENTRAL DE ALERTAS PROATIVOS -->
+  <div id="oracle-subtab-alertas" class="oracle-subtab-content" style="display:none;">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title" style="font-size:1.15rem;">Alertas Proativos & Riscos Detectados</h2>
+          <small style="color:var(--text-secondary);">Varredura autônoma contínua sobre liquidez, vencimentos, orçamentos e endividamento.</small>
+        </div>
+      </div>
+      <div id="oracle-alerts-list-container">
+        <p style="color:var(--text-muted);">Carregando alertas proativos...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB-ABA 3: DETECTOR DE GARGALOS & OTIMIZAÇÃO -->
+  <div id="oracle-subtab-gargalos" class="oracle-subtab-content" style="display:none;">
+    <!-- Comparativo Custos Fixos x Discricionários -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem; margin-bottom:1.25rem;">
+      <div class="card">
+        <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Custos Fixos / Recorrentes</span>
+        <div id="oracle-gargalo-fixos" style="font-size:1.5rem; font-weight:700; color:var(--text-primary); margin:0.35rem 0;">R$ 0,00</div>
+        <small id="oracle-gargalo-fixos-pct" style="color:var(--text-secondary);">0% do orçamento total</small>
+      </div>
+      <div class="card">
+        <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Custos Variáveis / Discricionários</span>
+        <div id="oracle-gargalo-variaveis" style="font-size:1.5rem; font-weight:700; color:var(--text-primary); margin:0.35rem 0;">R$ 0,00</div>
+        <small style="color:var(--text-secondary);">Gastos ajustáveis e avulsos</small>
+      </div>
+      <div class="card" style="border-left:4px solid var(--primary);">
+        <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Potencial de Economia Mensal</span>
+        <div id="oracle-gargalo-economia" style="font-size:1.5rem; font-weight:700; color:#10b981; margin:0.35rem 0;">R$ 0,00</div>
+        <small id="oracle-gargalo-economia-anual" style="color:#059669; font-weight:600;">Até R$ 0,00 ao ano</small>
+      </div>
+    </div>
+
+    <!-- Tabela de Oportunidades por Categoria -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title" style="font-size:1.1rem;">Oportunidades de Otimização sem Prejuízo ao Essencial</h2>
+        <small style="color:var(--text-secondary);">Redução recomendada de 5% a 15% conforme a natureza do gasto.</small>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Categoria</th>
+              <th>Natureza</th>
+              <th class="col-money">Gasto Atual</th>
+              <th>Participação</th>
+              <th>Corte Sugerido</th>
+              <th class="col-money">Economia Estimada</th>
+              <th>Recomendação Prática</th>
+            </tr>
+          </thead>
+          <tbody id="oracle-gargalos-table-body">
+            <tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Carregando categorias...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB-ABA 4: SIMULADOR DE CENÁRIOS HIPOTÉTICOS -->
+  <div id="oracle-subtab-simulador" class="oracle-subtab-content" style="display:none;">
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title" style="font-size:1.15rem;">Simulador Hipotético de Decisões Financeiras</h2>
+          <small style="color:var(--text-secondary);">Teste o impacto de cortes, quitação de dívidas ou renda extra antes de tomar qualquer decisão real.</small>
+        </div>
+      </div>
+      <form id="form-oracle-simulator" onsubmit="App.submitOracleSimulation(event)">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1rem;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="sim-tipo">Tipo de Hipótese:</label>
+            <select id="sim-tipo" class="form-control" onchange="App.onSimulationTypeChange()">
+              <option value="CORTE_DESPESA">Reduzir Gastos em uma Categoria</option>
+              <option value="AMORTIZACAO_DIVIDA">Quitar Parcela de Dívida / Empréstimo</option>
+              <option value="RENDA_EXTRA">Ingresso de Renda Extra Recorrente</option>
+            </select>
+          </div>
+          <div id="sim-group-categoria" class="form-group" style="margin-bottom:0;">
+            <label for="sim-categoria">Categoria:</label>
+            <select id="sim-categoria" class="form-control">
+              <option value="">Todas as categorias de saída</option>
+            </select>
+          </div>
+          <div id="sim-group-percentual" class="form-group" style="margin-bottom:0;">
+            <label for="sim-percentual">Percentual de Corte:</label>
+            <select id="sim-percentual" class="form-control">
+              <option value="10">10% de redução</option>
+              <option value="15" selected>15% de redução (Recomendado)</option>
+              <option value="20">20% de redução</option>
+              <option value="30">30% de redução</option>
+            </select>
+          </div>
+          <div id="sim-group-valor" class="form-group" style="margin-bottom:0; display:none;">
+            <label for="sim-valor">Valor Mensal (R$):</label>
+            <input type="text" id="sim-valor" class="form-control" placeholder="R$ 0,00" data-mask="currency" />
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <button type="submit" class="btn btn-primary">
+            <span>⚙️ Calcular Cenário Hipotético</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Resultado da Simulação -->
+    <div id="sim-result-card" class="card" style="display:none; border-left:4px solid #10b981;">
+      <div class="card-header">
+        <h3 class="card-title" style="font-size:1.1rem; color:#059669;">Resultado Projetado do Cenário</h3>
+        <span class="badge badge-confirmado">Simulação 100% Segura (Sem alterar dados reais)</span>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1rem;">
+        <div style="background:var(--bg-secondary); padding:1rem; border-radius:8px;">
+          <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Impacto Mensal no Saldo</span>
+          <div id="sim-res-mensal" style="font-size:1.4rem; font-weight:700; color:#10b981; margin-top:0.25rem;">+ R$ 0,00</div>
+        </div>
+        <div style="background:var(--bg-secondary); padding:1rem; border-radius:8px;">
+          <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Impacto Acumulado em 12 Meses</span>
+          <div id="sim-res-anual" style="font-size:1.4rem; font-weight:700; color:#10b981; margin-top:0.25rem;">+ R$ 0,00</div>
+        </div>
+        <div style="background:var(--bg-secondary); padding:1rem; border-radius:8px;">
+          <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Saúde Financeira Estimada</span>
+          <div id="sim-res-saude" style="font-size:1.4rem; font-weight:700; color:var(--primary); margin-top:0.25rem;">-- / 100</div>
+        </div>
+      </div>
+      <p id="sim-res-parecer" style="font-size:0.95rem; color:var(--text-secondary); line-height:1.5; margin:0;"></p>
+    </div>
+  </div>
+
+  <!-- SUB-ABA 5: PLANO DE AÇÃO ESTRATÉGICO -->
+  <div id="oracle-subtab-plano" class="oracle-subtab-content" style="display:none;">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title" style="font-size:1.15rem;">Plano de Ação Personalizado</h2>
+          <small style="color:var(--text-secondary);">Roteiro de tarefas práticas ordenadas por criticidade e retorno financeiro.</small>
+        </div>
+      </div>
+      <div id="oracle-action-plan-container" style="display:flex; flex-direction:column; gap:1rem;">
+        <p style="color:var(--text-muted);">Carregando plano de ação...</p>
+      </div>
+    </div>
+  </div>
+</section>

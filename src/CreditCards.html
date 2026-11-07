@@ -1,0 +1,500 @@
+<section id="sec-credit-cards" class="module-section" aria-labelledby="title-credit-cards">
+  <!-- Cabeçalho Principal do Módulo de Cartões de Crédito -->
+  <div class="page-header-card" style="margin-bottom:1.15rem; border-radius:var(--radius-md);">
+    <div class="page-header-content">
+      <div class="page-icon-badge" style="background:rgba(99, 102, 241, 0.14); color:#6366f1;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+          <line x1="1" y1="10" x2="23" y2="10"></line>
+        </svg>
+      </div>
+      <div>
+        <h1 id="title-credit-cards" class="card-title" style="font-size:1.3rem; margin:0; font-weight:700;">Cartões de Crédito & Faturas</h1>
+        <small style="color:var(--text-secondary); font-size:0.82rem;">Controle de limites em tempo real, melhor dia de compra, faturas mensais e parcelamentos sem duplicidade contábil.</small>
+      </div>
+    </div>
+    <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+      <button type="button" class="btn btn-primary btn-sm" id="btn-toggle-new-card" onclick="App.toggleNewCreditCardCard()" style="display:flex; align-items:center; gap:0.4rem;">
+        <span id="icon-toggle-new-card" style="font-weight:bold; font-size:1rem;">+</span>
+        <span>Novo Cartão</span>
+      </button>
+      <button type="button" class="btn btn-secondary btn-sm" id="btn-open-new-purchase" onclick="App.openNewPurchaseModal()" style="display:flex; align-items:center; gap:0.4rem;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
+        <span>Nova Compra</span>
+      </button>
+      <button type="button" class="btn btn-secondary btn-sm" id="btn-open-simulate-purchase" onclick="App.openSimulatePurchaseModal()" style="display:flex; align-items:center; gap:0.4rem;" title="Simular compras futuras e impacto no orçamento">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        <span>Simulador</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Cards de Resumo Executivo / KPIs do Módulo de Cartões -->
+  <div class="filter-summary-cards" id="cards-kpi-container" style="margin-bottom:1.25rem;">
+    <div class="filter-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span class="summary-label">Limite Disponível Geral</span>
+        <span class="badge badge-confirmado" style="font-size:0.65rem;">Livre</span>
+      </div>
+      <strong class="summary-value" id="cards-kpi-disponivel" style="color:var(--success);">R$ 0,00</strong>
+      <small style="color:var(--text-secondary); font-size:0.75rem;" id="cards-kpi-disponivel-sub">Soma dos limites livres</small>
+    </div>
+    <div class="filter-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span class="summary-label">Limite Comprometido</span>
+        <span class="badge" style="background:rgba(239,68,68,0.12); color:#ef4444; font-size:0.65rem;">Comprometido</span>
+      </div>
+      <strong class="summary-value" id="cards-kpi-comprometido" style="color:#ef4444;">R$ 0,00</strong>
+      <small style="color:var(--text-secondary); font-size:0.75rem;" id="cards-kpi-comprometido-sub">Parcelas futuras a vencer</small>
+    </div>
+    <div class="filter-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span class="summary-label">Faturas Deste Mês</span>
+        <span class="badge" style="background:rgba(245,158,11,0.12); color:#f59e0b; font-size:0.65rem;">Atual</span>
+      </div>
+      <strong class="summary-value" id="cards-kpi-faturas-mes" style="color:var(--text-primary);">R$ 0,00</strong>
+      <small style="color:var(--text-secondary); font-size:0.75rem;">A pagar no mês corrente</small>
+    </div>
+    <div class="filter-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span class="summary-label">Cartões Ativos</span>
+        <span class="badge" style="background:rgba(99,102,241,0.12); color:#6366f1; font-size:0.65rem;">Ativos</span>
+      </div>
+      <strong class="summary-value" id="cards-kpi-total-cards" style="color:var(--text-primary);">0 cartão(ões)</strong>
+      <small style="color:var(--text-secondary); font-size:0.75rem;" id="cards-kpi-total-limite">Limite total: R$ 0,00</small>
+    </div>
+  </div>
+
+  <!-- Card do Formulário de Novo Cartão de Crédito (Colapsável) -->
+  <div class="card" id="card-new-credit-card" style="display:none; margin-bottom:1.25rem;">
+    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+      <h3 class="card-title" style="margin:0; font-size:1.05rem;">Cadastrar Novo Cartão de Crédito</h3>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleNewCreditCardCard()">Fechar</button>
+    </div>
+    <div class="card-body">
+      <form id="form-new-credit-card" onsubmit="App.submitCreditCard(event)">
+        <div class="form-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:0.9rem;">
+          <div class="form-group">
+            <label for="crd-nome">Nome de Identificação *</label>
+            <input type="text" id="crd-nome" class="form-control" placeholder="Ex.: Nubank Ultravioleta" required maxlength="100" />
+          </div>
+          <div class="form-group">
+            <label for="crd-emissor">Banco / Emissor *</label>
+            <input type="text" id="crd-emissor" list="datalist-bancos" class="form-control" placeholder="Ex.: Nubank, Itaú, Santander" oninput="App.onCreditCardEmissorInput(this.value, 'new')" required maxlength="100" />
+            <div id="crd-emissor-preview" class="bank-preview-wrap"></div>
+          </div>
+          <div class="form-group">
+            <label for="crd-bandeira">Bandeira *</label>
+            <select id="crd-bandeira" class="form-control" onchange="App.onCreditCardBrandChange(this.value, 'new')" required>
+              <option value="MASTERCARD">Mastercard</option>
+              <option value="VISA">Visa</option>
+              <option value="ELO">Elo</option>
+              <option value="AMEX">American Express</option>
+              <option value="HIPERCARD">Hipercard</option>
+              <option value="DINERS">Diners Club</option>
+              <option value="OUTRA">Outra</option>
+            </select>
+            <div id="crd-bandeira-preview" class="bank-preview-wrap"></div>
+          </div>
+          <div class="form-group">
+            <label for="crd-titular">Titular do Cartão</label>
+            <input type="text" id="crd-titular" class="form-control" placeholder="Nome como no cartão" maxlength="100" />
+          </div>
+          <div class="form-group">
+            <label for="crd-ultimos-digitos">Últimos 4 Dígitos</label>
+            <input type="text" id="crd-ultimos-digitos" class="form-control" placeholder="Ex.: 4821" maxlength="4" pattern="\d{4}" title="Digite os 4 últimos dígitos para identificação visual" />
+          </div>
+          <div class="form-group">
+            <label for="crd-limite-total">Limite Total (R$) *</label>
+            <input type="text" id="crd-limite-total" class="form-control" placeholder="0,00" required oninput="UIHelpers.maskCurrencyInput(this)" />
+          </div>
+          <div class="form-group">
+            <label for="crd-dia-fechamento">Dia do Fechamento (Corte) *</label>
+            <input type="number" id="crd-dia-fechamento" class="form-control" min="1" max="31" placeholder="Ex.: 10" required />
+            <small style="color:var(--text-muted); font-size:0.7rem;">O melhor dia de compra será o dia seguinte.</small>
+          </div>
+          <div class="form-group">
+            <label for="crd-dia-vencimento">Dia do Vencimento *</label>
+            <input type="number" id="crd-dia-vencimento" class="form-control" min="1" max="31" placeholder="Ex.: 17" required />
+            <small style="color:var(--text-muted); font-size:0.7rem;">Data limite para pagamento da fatura.</small>
+          </div>
+          <div class="form-group">
+            <label for="crd-conta-bancaria">Conta Bancária Preferencial</label>
+            <select id="crd-conta-bancaria" class="form-control">
+              <option value="">Nenhuma / Escolher no pagamento</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="crd-cor">Cor Visual do Cartão</label>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <input type="color" id="crd-cor" value="#6366f1" style="height:38px; width:48px; border:none; border-radius:6px; cursor:pointer;" />
+              <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                <button type="button" class="btn-color-preset" style="background:#820ad1;" onclick="document.getElementById('crd-cor').value='#820ad1'" title="Nubank"></button>
+                <button type="button" class="btn-color-preset" style="background:#ec7000;" onclick="document.getElementById('crd-cor').value='#ec7000'" title="Itaú"></button>
+                <button type="button" class="btn-color-preset" style="background:#cc0000;" onclick="document.getElementById('crd-cor').value='#cc0000'" title="Santander"></button>
+                <button type="button" class="btn-color-preset" style="background:#003399;" onclick="document.getElementById('crd-cor').value='#003399'" title="Banco do Brasil"></button>
+                <button type="button" class="btn-color-preset" style="background:#1e293b;" onclick="document.getElementById('crd-cor').value='#1e293b'" title="Black / Platinum"></button>
+                <button type="button" class="btn-color-preset" style="background:#ff7a00;" onclick="document.getElementById('crd-cor').value='#ff7a00'" title="Inter"></button>
+              </div>
+            </div>
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label for="crd-obs">Observações</label>
+            <input type="text" id="crd-obs" class="form-control" placeholder="Anotações adicionais (opcional)" maxlength="500" />
+          </div>
+        </div>
+        <div style="margin-top:1rem; display:flex; gap:0.5rem; justify-content:flex-end;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleNewCreditCardCard()">Cancelar</button>
+          <button type="submit" class="btn btn-primary btn-sm">Salvar Cartão</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Grid / Carteira de Cartões de Crédito (Visual Nubank / Wallet) -->
+  <div id="credit-cards-wallet-container" class="cards-wallet-grid">
+    <div style="text-align:center; padding:2.5rem; color:var(--text-muted); grid-column: 1 / -1;">
+      Carregando cartões de crédito...
+    </div>
+  </div>
+
+  <!-- Modal de Gerenciamento de Faturas e Extrato do Cartão -->
+  <div id="modal-card-invoices" class="modal-overlay" style="display:none;">
+    <div class="modal-card" style="max-width:850px; width:95%; max-height:90vh; overflow-y:auto;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h3 id="modal-invoices-card-title" style="margin:0; font-size:1.15rem; font-weight:700;">Faturas do Cartão</h3>
+          <small id="modal-invoices-card-subtitle" style="color:var(--text-secondary); font-size:0.8rem;">Detalhamento de faturas, compras e parcelas</small>
+        </div>
+        <button type="button" class="btn-close-modal" onclick="App.closeCardInvoicesModal()" aria-label="Fechar">&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding:1.25rem 0;">
+        <!-- Seletor de Mês da Fatura -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem; padding:0 1.25rem;">
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <label for="select-card-invoice-month" style="font-weight:600; font-size:0.88rem; margin:0;">Mês da Fatura:</label>
+            <select id="select-card-invoice-month" class="form-control" style="min-width:180px;" onchange="App.onSelectInvoiceMonthChange(this.value)">
+              <!-- Opções de faturas populadas dinamicamente -->
+            </select>
+          </div>
+          <div id="invoice-status-badge-container">
+            <!-- Badge de situação da fatura -->
+          </div>
+        </div>
+
+        <!-- Mini-Painel de Resumo da Fatura Selecionada -->
+        <div class="invoice-summary-banner" id="invoice-summary-banner" style="margin:0 1.25rem 1.25rem 1.25rem; padding:1rem; border-radius:var(--radius-sm); background:var(--bg-card); border:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+          <div>
+            <span style="font-size:0.75rem; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;">Total da Fatura</span>
+            <div id="invoice-banner-total" style="font-size:1.4rem; font-weight:800; color:var(--text-primary);">R$ 0,00</div>
+            <small id="invoice-banner-dates" style="color:var(--text-muted); font-size:0.75rem;">Fechamento: --/-- | Vencimento: --/--</small>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.75rem;">
+            <div style="text-align:right;">
+              <span style="font-size:0.72rem; color:var(--text-secondary);">Valor Pago: <strong id="invoice-banner-paid" style="color:var(--success);">R$ 0,00</strong></span><br>
+              <span style="font-size:0.72rem; color:var(--text-secondary);">Saldo a Pagar: <strong id="invoice-banner-pending" style="color:#ef4444;">R$ 0,00</strong></span>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-pay-this-invoice" onclick="App.openPayInvoiceModalFromDetails()" style="display:inline-flex; align-items:center; gap:0.35rem;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>Pagar Fatura</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabela com os Itens / Compras e Parcelas desta Fatura -->
+        <div style="padding:0 1.25rem;">
+          <h4 style="font-size:0.9rem; margin-bottom:0.6rem; color:var(--text-primary); font-weight:600;">Lançamentos desta Fatura</h4>
+          <div id="invoice-items-table-container" style="overflow-x:auto;">
+            <p style="color:var(--text-muted); font-size:0.85rem;">Nenhum lançamento nesta fatura.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:0.5rem; padding:0.75rem 1.25rem; border-top:1px solid var(--border-color);">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeCardInvoicesModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Nova Compra no Cartão de Crédito -->
+  <div id="modal-new-card-purchase" class="modal-overlay" style="display:none;">
+    <div class="modal-card" style="max-width:560px; width:95%;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0; font-size:1.1rem; font-weight:700;">Nova Compra no Cartão de Crédito</h3>
+        <button type="button" class="btn-close-modal" onclick="App.closeNewPurchaseModal()" aria-label="Fechar">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:1rem 0;">
+        <form id="form-new-card-purchase" onsubmit="App.submitCardPurchase(event)" style="padding:0 1.25rem;">
+          <div class="form-group" style="margin-bottom:0.75rem;">
+            <label for="pur-card-id">Cartão de Crédito *</label>
+            <select id="pur-card-id" class="form-control" required onchange="App.onPurchaseCardOrDateChange()">
+              <!-- Populado dinamicamente -->
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0.75rem;">
+            <label for="pur-descricao">Descrição da Compra *</label>
+            <input type="text" id="pur-descricao" class="form-control" placeholder="Ex.: Supermercado, Passagem Aérea, Eletrônico" required maxlength="150" />
+          </div>
+          <div class="form-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+            <div class="form-group">
+              <label for="pur-valor-total">Valor Total (R$) *</label>
+              <input type="text" id="pur-valor-total" class="form-control" placeholder="0,00" required oninput="UIHelpers.maskCurrencyInput(this); App.updatePurchaseInstallmentPreview();" />
+            </div>
+            <div class="form-group">
+              <label for="pur-parcelas">Parcelamento *</label>
+              <select id="pur-parcelas" class="form-control" required onchange="App.updatePurchaseInstallmentPreview()">
+                <option value="1">1x (À Vista no Cartão)</option>
+                <option value="2">2x</option>
+                <option value="3">3x</option>
+                <option value="4">4x</option>
+                <option value="5">5x</option>
+                <option value="6">6x</option>
+                <option value="7">7x</option>
+                <option value="8">8x</option>
+                <option value="9">9x</option>
+                <option value="10">10x</option>
+                <option value="12">12x</option>
+                <option value="18">18x</option>
+                <option value="24">24x</option>
+                <option value="36">36x</option>
+                <option value="48">48x</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+            <div class="form-group">
+              <label for="pur-data">Data da Compra *</label>
+              <input type="date" id="pur-data" class="form-control" required onchange="App.onPurchaseCardOrDateChange()" />
+            </div>
+            <div class="form-group">
+              <label for="pur-categoria">Categoria *</label>
+              <select id="pur-categoria" class="form-control" required>
+                <!-- Categorias populadas dinamicamente -->
+              </select>
+            </div>
+          </div>
+
+          <!-- Banner Informativo Dinâmico de Parcela e Fatura -->
+          <div id="pur-preview-banner" style="background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:0.75rem; margin-bottom:0.85rem; font-size:0.82rem; color:var(--text-secondary);">
+            <div id="pur-preview-text">Preencha o valor e o cartão para visualizar o plano de faturas.</div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0.85rem;">
+            <label for="pur-obs">Observações</label>
+            <input type="text" id="pur-obs" class="form-control" placeholder="Anotações opcionais" maxlength="500" />
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeNewPurchaseModal()">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-sm">Confirmar Compra</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Pagamento de Fatura -->
+  <div id="modal-pay-card-invoice" class="modal-overlay" style="display:none;">
+    <div class="modal-card" style="max-width:500px; width:95%;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0; font-size:1.1rem; font-weight:700;">Quitar Fatura do Cartão</h3>
+        <button type="button" class="btn-close-modal" onclick="App.closePayInvoiceModal()" aria-label="Fechar">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:1rem 0;">
+        <form id="form-pay-card-invoice" onsubmit="App.submitPayInvoice(event)" style="padding:0 1.25rem;">
+          <input type="hidden" id="pay-inv-id" />
+          <div style="margin-bottom:0.85rem; padding:0.75rem; background:rgba(99,102,241,0.08); border-radius:var(--radius-sm); border:1px solid rgba(99,102,241,0.2);">
+            <div style="font-size:0.8rem; color:var(--text-secondary);" id="pay-inv-info-card">Cartão: --</div>
+            <div style="font-size:0.8rem; color:var(--text-secondary);" id="pay-inv-info-month">Competência: --</div>
+            <div style="font-size:1.15rem; font-weight:700; color:var(--text-primary); margin-top:4px;" id="pay-inv-info-balance">Saldo a Pagar: R$ 0,00</div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0.75rem;">
+            <label for="pay-inv-valor">Valor a Pagar (R$) *</label>
+            <input type="text" id="pay-inv-valor" class="form-control" placeholder="0,00" required oninput="UIHelpers.maskCurrencyInput(this)" />
+            <small style="color:var(--text-muted); font-size:0.72rem;">Permite quitação total ou pagamento parcial da fatura.</small>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0.75rem;">
+            <label for="pay-inv-conta">Conta Bancária de Débito *</label>
+            <select id="pay-inv-conta" class="form-control" required>
+              <!-- Populado com as contas bancárias -->
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0.75rem;">
+            <label for="pay-inv-data">Data do Pagamento *</label>
+            <input type="date" id="pay-inv-data" class="form-control" required />
+          </div>
+
+          <div class="form-group" style="margin-bottom:0.85rem;">
+            <label for="pay-inv-obs">Observações</label>
+            <input type="text" id="pay-inv-obs" class="form-control" placeholder="Opcional" maxlength="250" />
+          </div>
+
+          <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2); border-radius:var(--radius-sm); padding:0.65rem; margin-bottom:1rem; font-size:0.75rem; color:var(--text-secondary);">
+            🔒 <strong>Garantia Antiduplicidade:</strong> O pagamento desta fatura gerará uma única saída no seu saldo bancário, sem duplicar as despesas das compras registradas individualmente no cartão.
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="App.closePayInvoiceModal()">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-sm">Confirmar Pagamento</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal do Simulador de Compras e Limite -->
+  <div id="modal-simulate-purchase" class="modal-overlay" style="display:none;">
+    <div class="modal-card" style="max-width:620px; width:95%; max-height:90vh; overflow-y:auto;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0; font-size:1.1rem; font-weight:700;">Simulador de Compras & Planejamento</h3>
+        <button type="button" class="btn-close-modal" onclick="App.closeSimulatePurchaseModal()" aria-label="Fechar">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:1rem 0;">
+        <form id="form-simulate-purchase" onsubmit="App.runPurchaseSimulation(event)" style="padding:0 1.25rem;">
+          <div class="form-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+            <div class="form-group">
+              <label for="sim-card-id">Selecione o Cartão *</label>
+              <select id="sim-card-id" class="form-control" required>
+                <!-- Populado dinamicamente -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="sim-data">Data Pretendida *</label>
+              <input type="date" id="sim-data" class="form-control" required />
+            </div>
+          </div>
+          <div class="form-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+            <div class="form-group">
+              <label for="sim-valor">Valor Total da Compra (R$) *</label>
+              <input type="text" id="sim-valor" class="form-control" placeholder="0,00" required oninput="UIHelpers.maskCurrencyInput(this)" />
+            </div>
+            <div class="form-group">
+              <label for="sim-parcelas">Número de Parcelas *</label>
+              <select id="sim-parcelas" class="form-control" required>
+                <option value="1">1x (À vista)</option>
+                <option value="2">2x</option>
+                <option value="3">3x</option>
+                <option value="4">4x</option>
+                <option value="5">5x</option>
+                <option value="6">6x</option>
+                <option value="8">8x</option>
+                <option value="10">10x</option>
+                <option value="12">12x</option>
+                <option value="18">18x</option>
+                <option value="24">24x</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-bottom:1rem;">
+            <button type="submit" class="btn btn-primary btn-sm">Calcular Impacto</button>
+          </div>
+        </form>
+
+        <!-- Resultados da Simulação -->
+        <div id="sim-result-container" style="display:none; padding:0 1.25rem;">
+          <div class="divider" style="margin:0.75rem 0;"></div>
+          <h4 style="font-size:0.92rem; font-weight:700; margin-bottom:0.5rem; color:var(--text-primary);">Resultado da Simulação</h4>
+          <div id="sim-verdict-banner" style="padding:0.75rem; border-radius:var(--radius-sm); margin-bottom:0.75rem; font-size:0.85rem;"></div>
+          <div id="sim-schedule-table" style="max-height:220px; overflow-y:auto;"></div>
+        </div>
+      </div>
+      <div class="modal-footer" style="display:flex; justify-content:flex-end; padding:0.75rem 1.25rem; border-top:1px solid var(--border-color);">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeSimulatePurchaseModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Edição de Cartão de Crédito -->
+  <div id="modal-edit-credit-card" class="modal-overlay" style="display:none;" onclick="if(event.target===this) App.closeEditCreditCardModal()">
+    <div class="modal-card" style="max-width:560px; width:95%;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0; font-size:1.1rem; font-weight:700;">Editar Cartão de Crédito</h3>
+        <button type="button" class="btn-close-modal" onclick="App.closeEditCreditCardModal()" aria-label="Fechar">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:1rem 0;">
+        <form id="form-edit-credit-card" onsubmit="App.submitEditCreditCard(event)" style="padding:0 1.25rem;">
+          <input type="hidden" id="edit-crd-id" />
+          <div class="form-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+            <div class="form-group">
+              <label for="edit-crd-nome">Nome de Identificação *</label>
+              <input type="text" id="edit-crd-nome" class="form-control" required maxlength="100" />
+            </div>
+            <div class="form-group">
+              <label for="edit-crd-emissor">Banco / Emissor *</label>
+              <input type="text" id="edit-crd-emissor" list="datalist-bancos" class="form-control" oninput="App.onCreditCardEmissorInput(this.value, 'edit')" required maxlength="100" />
+              <div id="edit-crd-emissor-preview" class="bank-preview-wrap"></div>
+            </div>
+          </div>
+          <div class="form-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+            <div class="form-group">
+              <label for="edit-crd-bandeira">Bandeira *</label>
+              <select id="edit-crd-bandeira" class="form-control" onchange="App.onCreditCardBrandChange(this.value, 'edit')" required>
+                <option value="MASTERCARD">Mastercard</option>
+                <option value="VISA">Visa</option>
+                <option value="ELO">Elo</option>
+                <option value="AMEX">American Express</option>
+                <option value="HIPERCARD">Hipercard</option>
+                <option value="DINERS">Diners Club</option>
+                <option value="OUTRA">Outra</option>
+              </select>
+              <div id="edit-crd-bandeira-preview" class="bank-preview-wrap"></div>
+            </div>
+            <div class="form-group">
+              <label for="edit-crd-titular">Titular</label>
+              <input type="text" id="edit-crd-titular" class="form-control" maxlength="100" />
+            </div>
+          </div>
+          <div class="form-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+            <div class="form-group">
+              <label for="edit-crd-limite-total">Limite Total (R$) *</label>
+              <input type="text" id="edit-crd-limite-total" class="form-control" required oninput="UIHelpers.applyCurrencyMask(this)" />
+            </div>
+            <div class="form-group">
+              <label for="edit-crd-ultimos-digitos">Últimos 4 Dígitos</label>
+              <input type="text" id="edit-crd-ultimos-digitos" class="form-control" maxlength="4" />
+            </div>
+          </div>
+          <div class="form-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+            <div class="form-group">
+              <label for="edit-crd-dia-fechamento">Dia Fechamento *</label>
+              <input type="number" id="edit-crd-dia-fechamento" class="form-control" min="1" max="31" required />
+            </div>
+            <div class="form-group">
+              <label for="edit-crd-dia-vencimento">Dia Vencimento *</label>
+              <input type="number" id="edit-crd-dia-vencimento" class="form-control" min="1" max="31" required />
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0.75rem;">
+            <label for="edit-crd-conta-bancaria">Conta Bancária Preferencial</label>
+            <select id="edit-crd-conta-bancaria" class="form-control">
+              <option value="">Nenhuma / Escolher no pagamento</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0.75rem;">
+            <label for="edit-crd-cor">Cor do Cartão</label>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <input type="color" id="edit-crd-cor" style="height:38px; width:48px; border:none; border-radius:6px; cursor:pointer;" />
+              <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                <button type="button" class="btn-color-preset" style="background:#820ad1;" onclick="document.getElementById('edit-crd-cor').value='#820ad1'" title="Nubank"></button>
+                <button type="button" class="btn-color-preset" style="background:#ec7000;" onclick="document.getElementById('edit-crd-cor').value='#ec7000'" title="Itaú"></button>
+                <button type="button" class="btn-color-preset" style="background:#cc0000;" onclick="document.getElementById('edit-crd-cor').value='#cc0000'" title="Santander"></button>
+                <button type="button" class="btn-color-preset" style="background:#003399;" onclick="document.getElementById('edit-crd-cor').value='#003399'" title="Banco do Brasil"></button>
+                <button type="button" class="btn-color-preset" style="background:#1e293b;" onclick="document.getElementById('edit-crd-cor').value='#1e293b'" title="Black / Platinum"></button>
+                <button type="button" class="btn-color-preset" style="background:#ff7a00;" onclick="document.getElementById('edit-crd-cor').value='#ff7a00'" title="Inter"></button>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeEditCreditCardModal()">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-sm">Salvar Alterações</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+

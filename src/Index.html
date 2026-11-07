@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#059669" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Finpess" />
+  <meta name="application-name" content="Finpess" />
+  <meta name="msapplication-TileColor" content="#059669" />
+
+  <!-- PWA Ícones e Manifesto Embutido para Google Chrome & Android -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23059669%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23047857%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22115%22%20fill%3D%22url(%23g)%22%2F%3E%3Cpath%20d%3D%22M256%2090%20L390%20145%20V255%20C390%20340%20330%20405%20256%20430%20C182%20405%20122%20340%20122%20255%20V145%20Z%22%20fill%3D%22rgba(255%2C255%2C255%2C0.15)%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%2216%22%20stroke-linejoin%3D%22round%22%2F%3E%3Crect%20x%3D%22175%22%20y%3D%22270%22%20width%3D%2234%22%20height%3D%2290%22%20rx%3D%228%22%20fill%3D%22%23ffffff%22%2F%3E%3Crect%20x%3D%22239%22%20y%3D%22215%22%20width%3D%2234%22%20height%3D%22145%22%20rx%3D%228%22%20fill%3D%22%23ffffff%22%2F%3E%3Crect%20x%3D%22303%22%20y%3D%22165%22%20width%3D%2234%22%20height%3D%22195%22%20rx%3D%228%22%20fill%3D%22%2334d399%22%2F%3E%3Cpolyline%20points%3D%22160%20250%20230%20185%20285%20225%20355%20140%22%20fill%3D%22none%22%20stroke%3D%22%23fbbf24%22%20stroke-width%3D%2218%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpolygon%20points%3D%22365%2C140%20335%2C138%20355%2C165%22%20fill%3D%22%23fbbf24%22%2F%3E%3C%2Fsvg%3E" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23059669%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23047857%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22115%22%20fill%3D%22url(%23g)%22%2F%3E%3Cpath%20d%3D%22M256%2090%20L390%20145%20V255%20C390%20340%20330%20405%20256%20430%20C182%20405%20122%20340%20122%20255%20V145%20Z%22%20fill%3D%22rgba(255%2C255%2C255%2C0.15)%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%2216%22%20stroke-linejoin%3D%22round%22%2F%3E%3Crect%20x%3D%22175%22%20y%3D%22270%22%20width%3D%2234%22%20height%3D%2290%22%20rx%3D%228%22%20fill%3D%22%23ffffff%22%2F%3E%3Crect%20x%3D%22239%22%20y%3D%22215%22%20width%3D%2234%22%20height%3D%22145%22%20rx%3D%228%22%20fill%3D%22%23ffffff%22%2F%3E%3Crect%20x%3D%22303%22%20y%3D%22165%22%20width%3D%2234%22%20height%3D%22195%22%20rx%3D%228%22%20fill%3D%22%2334d399%22%2F%3E%3Cpolyline%20points%3D%22160%20250%20230%20185%20285%20225%20355%20140%22%20fill%3D%22none%22%20stroke%3D%22%23fbbf24%22%20stroke-width%3D%2218%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpolygon%20points%3D%22365%2C140%20335%2C138%20355%2C165%22%20fill%3D%22%23fbbf24%22%2F%3E%3C%2Fsvg%3E" />
+  <link rel="manifest" href="data:application/manifest+json;utf8,%7B%22name%22%3A%22Finpess%20%E2%80%94%20Finan%C3%A7as%20Inteligentes%22%2C%22short_name%22%3A%22Finpess%22%2C%22description%22%3A%22Controle%20financeiro%20pessoal%2C%20familiar%2C%20cart%C3%B5es%20de%20cr%C3%A9dito%20e%20investimentos.%22%2C%22start_url%22%3A%22.%2F%3Fsource%3Dpwa%22%2C%22scope%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%23059669%22%2C%22orientation%22%3A%22portrait-primary%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Butf8%2C%253Csvg%2520xmlns%253D%2522http%253A%252F%252Fwww.w3.org%252F2000%252Fsvg%2522%2520viewBox%253D%25220%25200%2520512%2520512%2522%253E%253Cdefs%253E%253ClinearGradient%2520id%253D%2522g%2522%2520x1%253D%25220%2525%2522%2520y1%253D%25220%2525%2522%2520x2%253D%2522100%2525%2522%2520y2%253D%2522100%2525%2522%253E%253Cstop%2520offset%253D%25220%2525%2522%2520stop-color%253D%2522%2523059669%2522%252F%253E%253Cstop%2520offset%253D%2522100%2525%2522%2520stop-color%253D%2522%2523047857%2522%252F%253E%253C%252FlinearGradient%253E%253C%252Fdefs%253E%253Crect%2520width%253D%2522512%2522%2520height%253D%2522512%2522%2520rx%253D%2522115%2522%2520fill%253D%2522url(%2523g)%2522%252F%253E%253Cpath%2520d%253D%2522M256%252090%2520L390%2520145%2520V255%2520C390%2520340%2520330%2520405%2520256%2520430%2520C182%2520405%2520122%2520340%2520122%2520255%2520V145%2520Z%2522%2520fill%253D%2522rgba(255%252C255%252C255%252C0.15)%2522%2520stroke%253D%2522%2523ffffff%2522%2520stroke-width%253D%252216%2522%2520stroke-linejoin%253D%2522round%2522%252F%253E%253Crect%2520x%253D%2522175%2522%2520y%253D%2522270%2522%2520width%253D%252234%2522%2520height%253D%252290%2522%2520rx%253D%25228%2522%2520fill%253D%2522%2523ffffff%2522%252F%253E%253Crect%2520x%253D%2522239%2522%2520y%253D%2522215%2522%2520width%253D%252234%2522%2520height%253D%2522145%2522%2520rx%253D%25228%2522%2520fill%253D%2522%2523ffffff%2522%252F%253E%253Crect%2520x%253D%2522303%2522%2520y%253D%2522165%2522%2520width%253D%252234%2522%2520height%253D%2522195%2522%2520rx%253D%25228%2522%2520fill%253D%2522%252334d399%2522%252F%253E%253Cpolyline%2520points%253D%2522160%2520250%2520230%2520185%2520285%2520225%2520355%2520140%2522%2520fill%253D%2522none%2522%2520stroke%253D%2522%2523fbbf24%2522%2520stroke-width%253D%252218%2522%2520stroke-linecap%253D%2522round%2522%2520stroke-linejoin%253D%2522round%2522%252F%253E%253Cpolygon%2520points%253D%2522365%252C140%2520335%252C138%2520355%252C165%2522%2520fill%253D%2522%2523fbbf24%2522%252F%253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%22192x192%20512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D" />
+
+  <title>Finanças Inteligentes — Controle Financeiro Pessoal e Familiar</title>
+  <?!= include('Styles'); ?>
+</head>
+<body>
+  <!-- Tela de Login & Cadastro SaaS Premium (Split-Screen) -->
+  <?!= include('Login'); ?>
+
+  <!-- Tela de bloqueio caso o usuário esteja PENDENTE, BLOQUEADO ou REVOGADO -->
+  <div id="unauthorized-lock-screen" style="display:none; max-width:540px; margin:4rem auto; padding:1.5rem;">
+    <div class="card" style="text-align:center; padding:2.5rem 1.75rem;">
+      <div style="font-size:3rem; margin-bottom:1rem;">⏳</div>
+      <h1 class="card-title" style="font-size:1.35rem; margin-bottom:0.75rem;">Acesso Aguardando Aprovação</h1>
+      <p style="color:var(--text-secondary); line-height:1.5; margin-bottom:1.25rem;">
+        Olá! Sua solicitação de acesso para a conta (<strong id="lock-user-email"></strong>) está com status
+        <span class="badge badge-pendente" id="lock-user-status">PENDENTE</span>.
+      </p>
+      <div style="background:var(--bg-primary); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:1rem; margin-bottom:1.5rem; text-align:left; font-size:0.85rem; color:var(--text-secondary);">
+        🛡️ <strong>Por que este bloqueio existe?</strong><br>
+        Por segurança e privacidade financeira, todo novo cadastro deve ser aprovado pelo proprietário da planilha antes que qualquer dado seja exibido. Uma notificação já foi enviada ao administrador via Telegram e e-mail.
+      </div>
+      <div style="display:flex; justify-content:center; gap:0.75rem; flex-wrap:wrap;">
+        <button type="button" class="btn btn-primary" onclick="App.checkApprovalAgain()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+          <span>Verificar se fui aprovado</span>
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="App.logout()">
+          <span>Sair / Entrar com outra conta</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conteúdo Principal Autorizado -->
+  <div id="main-authorized-content" class="app-shell">
+    <!-- Sidebar Desktop / Tablet e Drawer Mobile -->
+    <aside id="app-sidebar" class="sidebar" aria-label="Menu principal do sistema">
+      <div class="sidebar-brand">
+        <div class="brand-logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </div>
+        <div class="brand-info">
+          <span class="brand-name">Finanças Inteligentes</span>
+          <span class="brand-tagline">Seu futuro financeiro em boas mãos</span>
+        </div>
+      </div>
+
+      <ul class="nav-list">
+        <li class="nav-item">
+          <button type="button" class="active" data-nav-target="dashboard" onclick="App.navigate('dashboard')">
+            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect></svg>
+            <span>Dashboard</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" data-nav-target="launches" onclick="App.navigate('launches')">
+            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="7" y2="3"></line><polyline points="3 7 7 3 11 7"></polyline><line x1="17" y1="7" x2="17" y2="21"></line><polyline points="13 17 17 21 21 17"></polyline></svg>
+            <span>Lançamentos</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" data-nav-target="recurring" onclick="App.navigate('recurring')">
+            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            <span>Contas Recorrentes</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" data-nav-target="banks" onclick="App.navigate('banks')">
+            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 10v11M9 10v11M15 10v11M19 10v11M12 2L2 7h20L12 2z"></path></svg>
+            <span>Contas Bancárias</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" data-nav-target="credit-cards" onclick="App.navigate('credit-cards')">
+            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+            <span>Cartões de Crédito</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" data-nav-target="debts" onclick="App.navigate('debts')">
+            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            <span>Dívidas</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" data-nav-target="loans" onclick="App.navigate('loans')">
+            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            <span>Empréstimos</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" data-nav-target="investments" onclick="App.navigate('investments')">
+            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+            <span>Investimentos</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" data-nav-target="calendar" onclick="App.navigate('calendar')">
+            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span>Calendário</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" data-nav-target="planning" onclick="App.navigate('planning')">
+            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span>Planejamento e Projeções</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" data-nav-target="goals" onclick="App.navigate('goals')">
+            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+            <span>Metas & Reserva</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" data-nav-target="reports" onclick="App.navigate('reports')">
+            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            <span>Relatórios</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" data-nav-target="oraculo" onclick="App.navigate('oraculo')">
+            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path><path d="M4 11a8 8 0 0 1 16 0v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7z"></path><line x1="9" y1="16" x2="9" y2="16.01"></line><line x1="15" y1="16" x2="15" y2="16.01"></line></svg>
+            <span>Oráculo IA</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" data-nav-target="settings" onclick="App.navigate('settings')">
+            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Configurações & Telegram</span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="sidebar-trust-box">
+        <div class="trust-card">
+          <div class="trust-icon-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <polyline points="9 12 11 14 15 10"></polyline>
+            </svg>
+          </div>
+          <div class="trust-info">
+            <span class="trust-title">Finanças Inteligentes</span>
+            <span class="trust-desc">Mais controle, mais conquistas.</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Área Principal -->
+    <div class="main-area">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn btn-secondary btn-sm mobile-menu-toggle" onclick="App.toggleMobileSidebar()" aria-label="Alternar menu lateral">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            <span>Menu</span>
+          </button>
+
+          <div class="topbar-search" id="global-search-container">
+            <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input
+              type="text"
+              id="global-search-input"
+              class="topbar-search-input"
+              placeholder="Buscar no sistema... (Ctrl+K)"
+              autocomplete="off"
+              oninput="App.onGlobalSearchInput(event)"
+              onkeydown="App.onGlobalSearchKeyDown(event)"
+              onfocus="App.onGlobalSearchFocus()"
+            />
+            <button
+              type="button"
+              id="global-search-clear-btn"
+              class="global-search-clear"
+              onclick="App.clearGlobalSearch()"
+              style="display:none;"
+              title="Limpar texto"
+            >✕</button>
+            <button
+              type="button"
+              id="global-search-submit-btn"
+              class="global-search-submit-btn"
+              onclick="App.triggerGlobalSearch()"
+              title="Buscar em todo o sistema (ou pressione Enter)"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <span>Buscar</span>
+            </button>
+
+            <!-- Dropdown Flutuante de Resultados da Busca Global -->
+            <div id="global-search-dropdown" class="global-search-dropdown" style="display:none;"></div>
+          </div>
+
+          <span id="global-loader" style="display:none; font-size:0.8rem; color:var(--primary); font-weight:600;">Carregando...</span>
+        </div>
+
+        <div class="topbar-actions">
+          <!-- Botão do Sino de Notificações com Dropdown da Central -->
+          <div id="notifications-bell-container" class="notifications-wrapper" style="position:relative;">
+            <button type="button" id="btn-notifications-bell" class="btn btn-secondary btn-sm" onclick="App.toggleNotificationsPanel(event)" title="Central de Notificações e Alertas" style="padding:0.4rem 0.65rem; position:relative; display:inline-flex; align-items:center; justify-content:center;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+              <span id="notif-badge" class="notif-badge-pill" style="display:none;"></span>
+              <span id="notif-pulse-dot" class="notif-pulse-indicator" style="display:none;"></span>
+            </button>
+
+            <!-- Painel Expansível da Central de Notificações -->
+            <div id="notifications-dropdown-panel" class="notifications-dropdown" style="display:none;">
+              <div class="notif-panel-header">
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <h3 style="margin:0; font-size:0.95rem; font-weight:700;">Central de Notificações</h3>
+                  <span id="notif-panel-count-badge" class="badge badge-info" style="font-size:0.7rem;">0 novas</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.4rem;">
+                  <button type="button" class="btn-text-link" onclick="App.markAllNotificationsRead()" title="Marcar todas como lidas" style="font-size:0.75rem;">Marcar lidas</button>
+                  <span style="color:var(--border-color);">•</span>
+                  <button type="button" class="btn-text-link" onclick="App.clearReadNotifications()" title="Limpar notificações lidas" style="font-size:0.75rem;">Limpar</button>
+                  <button type="button" class="btn-close-sm" onclick="App.closeNotificationsPanel()" style="background:none; border:none; cursor:pointer; font-size:1rem; color:var(--text-muted); margin-left:4px;">✕</button>
+                </div>
+              </div>
+
+              <!-- Filtros de Categorias da Central -->
+              <div class="notif-filter-tabs">
+                <button type="button" class="notif-tab-btn active" data-ncat="TODAS" onclick="App.filterNotificationsCat('TODAS')">Todas</button>
+                <button type="button" class="notif-tab-btn" data-ncat="NAO_LIDAS" onclick="App.filterNotificationsCat('NAO_LIDAS')">Não Lidas</button>
+                <button type="button" class="notif-tab-btn" data-ncat="VENCIMENTOS" onclick="App.filterNotificationsCat('VENCIMENTOS')">Vencimentos</button>
+                <button type="button" class="notif-tab-btn" data-ncat="FINANCEIRAS" onclick="App.filterNotificationsCat('FINANCEIRAS')">Financeiras</button>
+                <button type="button" class="notif-tab-btn" data-ncat="INVESTIMENTOS" onclick="App.filterNotificationsCat('INVESTIMENTOS')">Investimentos</button>
+                <button type="button" class="notif-tab-btn" data-ncat="SISTEMA" onclick="App.filterNotificationsCat('SISTEMA')">Sistema</button>
+              </div>
+
+              <!-- Lista de Notificações com rolagem suave -->
+              <div id="notifications-list-container" class="notif-items-list">
+                <p style="text-align:center; color:var(--text-muted); padding:2rem 1rem; font-size:0.85rem;">Carregando notificações...</p>
+              </div>
+
+              <div class="notif-panel-footer">
+                <button type="button" class="btn-text-link" onclick="App.navigate('settings'); App.switchSettingsTab('notificacoes'); App.closeNotificationsPanel();" style="font-size:0.78rem; display:flex; align-items:center; gap:0.3rem;">
+                  <span>⚙️ Configurar Preferências de Alertas</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botão PWA de Instalação no Celular / Computador -->
+          <button type="button" id="btn-pwa-install" class="btn btn-secondary btn-sm" onclick="App.installPwaApp()" title="Instalar aplicativo Finpess no celular ou computador" style="padding:0.4rem 0.65rem; display:inline-flex; align-items:center; gap:0.4rem; font-size:0.8rem; background:linear-gradient(135deg, rgba(16,185,129,0.12), rgba(5,150,105,0.22)); color:#059669; border:1px solid rgba(16,185,129,0.35);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+            <span class="desktop-only">Instalar App</span>
+          </button>
+
+          <button type="button" id="btn-sync-status" class="btn btn-secondary btn-sm" onclick="App.triggerManualSync()" title="Sincronização multiusuário ativa (Auto-sync a cada 10 min e tempo real)" style="padding:0.4rem 0.65rem; display:inline-flex; align-items:center; gap:0.4rem; font-size:0.8rem;">
+            <span id="sync-status-indicator" style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block; transition:all 0.3s ease;"></span>
+            <span id="sync-status-text" class="desktop-only" style="color:var(--text-secondary); font-size:0.78rem;">Sincronizado</span>
+          </button>
+
+          <button type="button" id="btn-privacy-toggle" class="btn btn-secondary btn-sm" onclick="App.togglePrivacyMode()" title="Ocultar ou exibir valores financeiros" style="padding:0.4rem 0.65rem;">
+            <svg id="privacy-icon-eye" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <span id="privacy-toggle-text" style="font-size:0.8rem;">Ocultar</span>
+          </button>
+
+          <button type="button" class="btn btn-primary btn-sm" onclick="App.navigate('launches')" style="padding:0.4rem 0.75rem; font-weight:600;" title="Criar novo lançamento financeiro">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span class="desktop-only">+ Lançamento</span>
+          </button>
+
+          <div class="theme-select-container">
+            <label for="topbar-theme-select" class="theme-label" aria-hidden="true" title="Alternar tema">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            </label>
+            <select id="topbar-theme-select" class="form-control" onchange="App.applyAndSaveTheme(this.value)" aria-label="Selecionar tema claro ou escuro">
+              <option value="light">☀️ Claro</option>
+              <option value="dark">🌙 Escuro</option>
+              <option value="auto">🖥️ Auto</option>
+            </select>
+          </div>
+
+          <!-- Indicador Google Sheets Style de Outros Usuários Editando Simultaneamente -->
+          <div id="active-presence-container" class="presence-users-group" title="Outras pessoas editando agora" style="display:none;"></div>
+
+          <div class="user-chip">
+            <div class="user-avatar-circle">AC</div>
+            <div class="user-chip-meta">
+              <span id="topbar-user-info" class="user-chip-name"></span>
+            </div>
+            <button type="button" class="btn-logout-icon" onclick="App.logout()" title="Sair da conta" style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:2px; margin-left:4px; display:flex; align-items:center;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main class="content-container">
+        <?!= include('Dashboard'); ?>
+        <?!= include('Launches'); ?>
+        <?!= include('RecurringAccounts'); ?>
+        <?!= include('BankAccounts'); ?>
+        <?!= include('CreditCards'); ?>
+        <?!= include('Debts'); ?>
+        <?!= include('Loans'); ?>
+        <?!= include('Investments'); ?>
+        <?!= include('Calendar'); ?>
+        <?!= include('Planning'); ?>
+        <?!= include('Goals'); ?>
+        <?!= include('Reports'); ?>
+        <?!= include('Oraculo'); ?>
+        <?!= include('Settings'); ?>
+      </main>
+    </div>
+
+    <!-- Barra de Navegação Inferior para Android / Telas Móveis -->
+    <nav class="mobile-bottom-nav" aria-label="Navegação rápida móvel">
+      <button type="button" class="active" data-nav-target="dashboard" onclick="App.navigate('dashboard')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        <span>Início</span>
+      </button>
+      <button type="button" data-nav-target="launches" onclick="App.navigate('launches')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="7" y2="3"></line><polyline points="3 7 7 3 11 7"></polyline><line x1="17" y1="7" x2="17" y2="21"></line><polyline points="13 17 17 21 21 17"></polyline></svg>
+        <span>Lançar</span>
+      </button>
+      <button type="button" data-nav-target="calendar" onclick="App.navigate('calendar')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        <span>Agenda</span>
+      </button>
+      <button type="button" data-nav-target="oraculo" onclick="App.navigate('oraculo')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path><path d="M4 11a8 8 0 0 1 16 0v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7z"></path></svg>
+        <span>Oráculo</span>
+      </button>
+      <button type="button" data-nav-target="settings" onclick="App.navigate('settings')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <span>Mais</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Modal de Confirmação para Operações Financeiras e Ações Destrutivas -->
+  <div id="confirm-modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
+    <div class="modal-dialog">
+      <h2 id="confirm-modal-title" class="card-title" style="margin-bottom:0.75rem;">Confirmação</h2>
+      <p id="confirm-modal-body" style="color:var(--text-secondary); margin-bottom:1.25rem;"></p>
+      <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+        <button type="button" class="btn btn-secondary" onclick="App.closeConfirmModal()">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="App.executeConfirmedAction()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE POP-UP AUTOMÁTICO DE RESUMO DA SESSÃO PÓS-LOGIN -->
+  <div id="modal-initial-notifications-summary" class="modal-backdrop" role="dialog" aria-modal="true" style="display:none; z-index:9999;">
+    <div class="modal-dialog" style="max-width:580px; max-height:85vh; display:flex; flex-direction:column;">
+      <div class="card-header" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #0284c7, #2563eb); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.15rem; flex-shrink:0;">🔔</div>
+          <div>
+            <h2 class="card-title" style="font-size:1.1rem; margin:0;">Resumo Financeiro & Alertas</h2>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Compromissos e acontecimentos relevantes para sua sessão</span>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeInitialNotificationsPopup()">✕</button>
+      </div>
+
+      <div id="initial-notifications-popup-body" style="padding:1rem 0; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:0.85rem;">
+        <!-- Preenchido dinamicamente com grupos (Vencidas, Vencem Hoje, Próximos Dias, Investimentos/Oráculo) -->
+      </div>
+
+      <div class="modal-footer" style="padding-top:0.75rem; border-top:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:0.75rem; color:var(--text-muted);">Não será reapresentado repetidamente nesta sessão.</span>
+        <button type="button" class="btn btn-primary btn-sm" onclick="App.closeInitialNotificationsPopup()">Entendido / Ir ao Painel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE ADIAMENTO (SNOOZE) -->
+  <div id="modal-snooze-notification" class="modal-backdrop" role="dialog" aria-modal="true" style="display:none; z-index:10000;">
+    <div class="modal-dialog" style="max-width:400px;">
+      <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+        <h3 class="card-title" style="font-size:1.05rem; margin:0;">⏰ Adiar Notificação</h3>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeSnoozeModal()">✕</button>
+      </div>
+      <input type="hidden" id="snooze-target-id" />
+      <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;">
+        Escolha quando deseja que este alerta seja reapresentado. O vencimento contábil da sua conta não será alterado.
+      </p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:1rem;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.executeSnooze({ hours: 1 })">⏰ 1 Hora</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.executeSnooze({ hours: 3 })">⏰ 3 Horas</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.executeSnooze({ days: 1 })">📅 Amanhã</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.executeSnooze({ days: 3 })">📅 Em 3 Dias</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.executeSnooze({ days: 7 })" style="grid-column: span 2;">📅 Em 1 Semana (7 dias)</button>
+      </div>
+      <div class="form-group" style="margin-bottom:0.5rem;">
+        <label for="snooze-custom-date" style="font-size:0.78rem;">Ou escolha uma data específica:</label>
+        <div style="display:flex; gap:0.4rem;">
+          <input type="date" id="snooze-custom-date" class="form-control" style="font-size:0.85rem;" />
+          <button type="button" class="btn btn-primary btn-sm" onclick="App.executeSnoozeCustom()">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE INSTRUÇÕES DE INSTALAÇÃO DO APP PWA (ANDROID / CHROME / iOS) -->
+  <div id="modal-pwa-instructions" class="modal-backdrop" role="dialog" aria-modal="true" style="display:none; z-index:10001;">
+    <div class="modal-dialog" style="max-width:480px;">
+      <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <div style="width:38px; height:38px; border-radius:10px; background:linear-gradient(135deg, #059669, #047857); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow:0 3px 10px rgba(5,150,105,0.25);">
+            📱
+          </div>
+          <div>
+            <h3 class="card-title" style="font-size:1.1rem; margin:0; font-weight:700;">Instalar Aplicativo Finpess</h3>
+            <small style="color:var(--text-secondary); font-size:0.78rem;">Acesse em tela cheia com 1 toque no celular</small>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closePwaInstructionsModal()">✕</button>
+      </div>
+
+      <div style="margin-bottom:1.25rem;">
+        <div style="background:var(--bg-primary); border:1px solid var(--border-color); border-radius:10px; padding:0.9rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.75rem;">
+          <div style="font-size:2rem;">✨</div>
+          <div style="font-size:0.83rem; color:var(--text-secondary); line-height:1.4;">
+            <strong style="color:var(--text-primary); display:block; font-size:0.88rem; margin-bottom:2px;">Aplicativo Leve e Custo Zero</strong>
+            Instale diretamente via Google Chrome. O app funcionará sem a barra do navegador, com abertura rápida e ícone nativo na tela do celular.
+          </div>
+        </div>
+
+        <div style="background:rgba(5,150,105,0.08); border:1px solid rgba(5,150,105,0.25); border-radius:10px; padding:0.85rem; margin-bottom:1rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+            <strong style="font-size:0.85rem; color:#059669; display:flex; align-items:center; gap:0.35rem;">
+              <span>🌐</span> Link do Launcher PWA (Instalação 100% Liberada):
+            </strong>
+          </div>
+          <p style="font-size:0.78rem; color:var(--text-secondary); margin-bottom:0.6rem; line-height:1.4;">
+            Para instalar como WebAPK nativo no Chrome Android sem bloqueios do Google Apps Script, abra o endereço oficial no celular:
+          </p>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <input type="text" readonly value="https://andre-fdias.github.io/finpess/" style="flex:1; font-size:0.8rem; padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary); font-family:monospace;" id="input-pwa-url" />
+            <a href="https://andre-fdias.github.io/finpess/" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;">
+              <span>Abrir</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            </a>
+          </div>
+        </div>
+
+        <h4 style="font-size:0.9rem; margin:0 0 0.6rem 0; color:var(--text-primary);">Como instalar no Google Chrome (Android):</h4>
+        <ol style="font-size:0.84rem; color:var(--text-secondary); padding-left:1.25rem; margin:0 0 1rem 0; line-height:1.6;">
+          <li>Acesse <strong>https://andre-fdias.github.io/finpess/</strong> no Chrome do celular.</li>
+          <li>Toque no botão <strong>"Instalar"</strong> que aparece no rodapé ou no menu de <strong>três pontos (⋮)</strong> e escolha <strong>"Instalar aplicativo"</strong>.</li>
+          <li>Confirme tocando em <strong>"Instalar"</strong>.</li>
+          <li>Pronto! O app Finpess será instalado diretamente no seu Android.</li>
+        </ol>
+
+        <div style="background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.18); border-radius:8px; padding:0.75rem; font-size:0.78rem; color:var(--text-secondary);">
+          🍎 <strong>No iPhone / iPad (Safari):</strong> Toque no botão de compartilhamento (ícone com quadrado e seta para cima) e escolha <em>"Adicionar à Tela de Início"</em>.
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; flex-wrap:wrap; border-top:1px solid var(--border-color); padding-top:0.85rem;">
+        <button type="button" class="btn btn-primary" onclick="App.installPwaAppDirectly()" style="flex:1; justify-content:center;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+          <span>Instalar Agora</span>
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="App.closePwaInstructionsModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Container de Notificações Visuais (Toasts) -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Overlay Global de Carregamento (Tela Esmaecida com Logo Central e Girador ao Redor) -->
+  <div id="global-loading-overlay" class="global-loading-overlay" style="display:none;" aria-live="assertive" aria-label="Processando requisição">
+    <div class="global-loading-card">
+      <div class="global-spinner-wrap">
+        <div class="global-spinner-ring"></div>
+        <div class="global-spinner-logo">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </div>
+      </div>
+      <div id="global-loading-text" class="global-loading-text">Processando com segurança...</div>
+      <small style="color:var(--text-muted); font-size:0.75rem;">Finanças Inteligentes</small>
+    </div>
+  </div>
+
+  <script>
+    window.__INITIAL_SESSION_TOKEN__ = "<?= initialSessionToken ?>";
+  </script>
+  <?!= include('Components'); ?>
+  <?!= include('App'); ?>
+</body>
+</html>

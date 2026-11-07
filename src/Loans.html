@@ -1,0 +1,242 @@
+<section id="sec-loans" class="module-section" aria-labelledby="title-loans">
+  <!-- Cabeçalho Principal Granazen com Badge de Ícone e Ações Rápidas -->
+  <div class="page-header-card" style="margin-bottom:1.15rem; border-radius:var(--radius-md);">
+    <div class="page-header-content">
+      <div class="page-icon-badge" style="background:rgba(13, 148, 136, 0.14); color:#0d9488;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"></line>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+        </svg>
+      </div>
+      <div>
+        <h1 id="title-loans" class="card-title" style="font-size:1.3rem; margin:0; font-weight:700;">Empréstimos & Financiamentos</h1>
+        <small style="color:var(--text-secondary); font-size:0.82rem;">Controle de contratos, parcelas e proteção inteligente contra desconto duplo em folha.</small>
+      </div>
+    </div>
+    <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+      <button type="button" class="btn btn-primary btn-sm" id="btn-toggle-new-loan" onclick="App.toggleNewLoanCard()" style="display:flex; align-items:center; gap:0.4rem;">
+        <span id="icon-toggle-new-loan" style="font-weight:bold; font-size:1rem;">+</span>
+        <span>Novo Empréstimo</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Banner Didático: Consignado em Folha vs Pago pelo Usuário -->
+  <div class="recurring-sync-banner" style="background:rgba(13, 148, 136, 0.05); border:1px solid rgba(13, 148, 136, 0.22); border-radius:var(--radius-md); padding:0.85rem 1.15rem; margin-bottom:1.15rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
+    <div style="display:flex; align-items:flex-start; gap:0.75rem; max-width:920px;">
+      <div style="width:34px; height:34px; border-radius:50%; background:rgba(13, 148, 136, 0.14); color:#0d9488; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+      </div>
+      <div style="font-size:0.84rem; color:var(--text-primary); line-height:1.45;">
+        <strong>Regras Inteligentes de Empréstimo no Finpess:</strong>
+        <div style="margin-top:4px; display:flex; flex-direction:column; gap:4px; color:var(--text-secondary);">
+          <span>• <strong>🏢 Consignado (Desconto em Folha):</strong> O valor já é retido no contracheque antes de o salário cair na conta. <em>Não desconta da conta bancária</em> para não duplicar sua despesa.</span>
+          <span>• <strong>💳 Pago pelo Usuário (Débito em Conta / Boleto):</strong> O salário cai na conta e você realiza o pagamento da parcela. <em>Debita da conta bancária</em> e entra no fluxo de despesas.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards de Resumo Executivo / KPIs dos Empréstimos -->
+  <div class="filter-summary-cards" id="loans-kpi-container" style="margin-bottom:1.25rem;">
+    <div class="filter-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span class="summary-label">Total Contratado</span>
+        <span class="badge" style="background:var(--bg-hover); color:var(--text-secondary); font-size:0.65rem;">Principal</span>
+      </div>
+      <strong class="summary-value" id="loans-kpi-contratado">R$ 0,00</strong>
+      <small style="color:var(--text-secondary); font-size:0.75rem;">Soma dos valores contratados</small>
+    </div>
+    <div class="filter-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span class="summary-label">Saldo Devedor Restante</span>
+        <span class="badge badge-cancelado" style="font-size:0.65rem;">A Pagar</span>
+      </div>
+      <strong class="summary-value summary-val-saida" id="loans-kpi-devedor">R$ 0,00</strong>
+      <small style="color:var(--text-secondary); font-size:0.75rem;">Total de parcelas em aberto</small>
+    </div>
+    <div class="filter-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span class="summary-label">Progresso Geral</span>
+        <span class="badge" style="background:rgba(16,185,129,0.12); color:var(--success); font-size:0.65rem;">Quitação</span>
+      </div>
+      <strong class="summary-value" id="loans-kpi-progresso" style="color:var(--success);">0 / 0 pagas</strong>
+      <small id="loans-kpi-progresso-percent" style="color:var(--text-secondary); font-size:0.75rem;">0% concluído</small>
+    </div>
+    <div class="filter-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span class="summary-label">Contratos Ativos</span>
+        <span class="badge" style="background:rgba(13,148,136,0.12); color:#0d9488; font-size:0.65rem;">Status</span>
+      </div>
+      <strong class="summary-value" id="loans-kpi-ativos" style="color:var(--text-primary);">0 contrato(s)</strong>
+      <small id="loans-kpi-consignados-desc" style="color:var(--text-secondary); font-size:0.75rem;">0 consignado(s) em folha</small>
+    </div>
+  </div>
+
+  <!-- Card Retrátil: Cadastrar Contrato de Empréstimo (Oculto por padrão) -->
+  <div id="card-new-loan" class="card" style="display:none; margin-bottom:1.25rem; border-top:3px solid #0d9488;">
+    <div class="card-header" style="border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+      <div style="display:flex; align-items:center; gap:0.5rem;">
+        <div style="width:28px; height:28px; border-radius:6px; background:rgba(13, 148, 136, 0.14); color:#0d9488; display:flex; align-items:center; justify-content:center;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
+        </div>
+        <h2 class="card-title" style="margin:0; font-size:1.05rem;">Cadastrar Contrato de Empréstimo</h2>
+      </div>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleNewLoanCard(false)" title="Fechar formulário">✕ Fechar</button>
+    </div>
+
+    <form id="form-loan" onsubmit="App.submitLoan(event)">
+      <!-- Seletor em Destaque da Modalidade de Cobrança / Impacto no Saldo -->
+      <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:1rem; margin-bottom:1.15rem;">
+        <label for="emp-modalidade-cobranca" style="font-weight:700; font-size:0.88rem; color:var(--text-primary); margin-bottom:6px; display:block;">
+          Modalidade do Empréstimo & Impacto no Saldo Bancário *
+        </label>
+        <select id="emp-modalidade-cobranca" class="form-control" onchange="App.onLoanModalidadeChange()" required style="font-weight:600; font-size:0.92rem;">
+          <option value="CONSIGNADO_FOLHA" selected>🏢 Consignado (Desconto em Folha) — Salário já cai líquido, NÃO desconta da conta bancária</option>
+          <option value="PAGO_USUARIO">💳 Pago pelo Usuário (Débito em Conta / Boleto) — Salário cai integral, DEBITA da conta bancária</option>
+        </select>
+        <div id="emp-modalidade-helper" style="font-size:0.8rem; color:var(--text-secondary); margin-top:6px; line-height:1.4;">
+          ✓ <strong>Proteção ativada:</strong> Como o valor já é retido no seu contracheque pelo empregador, as parcelas serão contabilizadas para quitação do contrato <strong>sem duplicar saídas na sua conta bancária</strong>.
+        </div>
+      </div>
+
+      <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+        <div class="form-group">
+          <label for="emp-instituicao">Instituição / Credor *</label>
+          <input type="text" id="emp-instituicao" list="datalist-bancos" class="form-control" placeholder="Ex: Caixa, Banco do Brasil, Santander, Crefisa" required />
+        </div>
+        <div class="form-group">
+          <label for="emp-descricao">Descrição do Contrato *</label>
+          <input type="text" id="emp-descricao" class="form-control" placeholder="Ex: Consignado Servidor, Empréstimo Reforma" required />
+        </div>
+        <div class="form-group">
+          <label for="emp-valor-contratado">Valor Contratado / Liberado (R$) *</label>
+          <input type="text" id="emp-valor-contratado" class="form-control" placeholder="Ex: 10.000,00" oninput="App.updateLoanPreview()" onkeyup="App.updateLoanPreview()" onblur="App.updateLoanPreview()" required />
+        </div>
+        <div class="form-group">
+          <label for="emp-parcelas">Número de Parcelas *</label>
+          <input type="number" id="emp-parcelas" class="form-control" min="1" max="360" value="24" oninput="App.updateLoanPreview()" onkeyup="App.updateLoanPreview()" onchange="App.updateLoanPreview()" required />
+        </div>
+        <div class="form-group">
+          <label for="emp-valor-parcela">Valor da Parcela Mensal (R$) *</label>
+          <input type="text" id="emp-valor-parcela" class="form-control" placeholder="Ex: 520,00" oninput="App.updateLoanPreview()" onkeyup="App.updateLoanPreview()" onblur="App.updateLoanPreview()" required />
+        </div>
+        <div class="form-group">
+          <label for="emp-data-inicial">Data de Vencimento da 1ª Parcela *</label>
+          <input type="date" id="emp-data-inicial" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label for="emp-taxa">Taxa de Juros Mensal (% a.m.)</label>
+          <input type="text" id="emp-taxa" class="form-control" placeholder="Ex: 1,65" value="1,50" />
+        </div>
+        <div class="form-group" id="emp-conta-group" style="display:none;">
+          <label for="emp-conta">Conta Bancária de Débito *</label>
+          <select id="emp-conta" class="form-control"></select>
+        </div>
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <label for="emp-obs">Observações</label>
+          <input type="text" id="emp-obs" class="form-control" placeholder="Ex: Número do contrato, margem consignável, etc." />
+        </div>
+      </div>
+
+      <!-- Box Dinâmico com Simulação do Custo do Empréstimo -->
+      <div id="loan-preview-box" style="background:rgba(13, 148, 136, 0.05); border:1px dashed rgba(13, 148, 136, 0.3); border-radius:var(--radius-sm); padding:0.75rem 1rem; margin-top:1rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:0.82rem; color:var(--text-secondary);">Projeção Total a Pagar:</span>
+          <strong id="loan-preview-total" style="color:#0d9488; font-size:0.95rem;">-</strong>
+        </div>
+        <div id="loan-preview-juros" style="font-size:0.78rem; color:var(--text-secondary); margin-top:4px;"></div>
+      </div>
+
+      <div style="margin-top:1.25rem; display:flex; justify-content:flex-end; gap:0.5rem;">
+        <button type="button" class="btn btn-secondary" onclick="App.toggleNewLoanCard(false)">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Cadastrar Empréstimo</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tabela de Contratos de Empréstimos -->
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="card-header" style="flex-wrap:wrap; gap:0.5rem; justify-content:space-between; align-items:center;">
+      <div>
+        <h2 class="card-title" style="margin:0; font-size:1.1rem;">Contratos de Empréstimos e Evolução de Parcelas</h2>
+        <small style="color:var(--text-secondary); font-size:0.8rem;">Acompanhe o saldo devedor, parcelas quitadas e a regra de impacto no fluxo de caixa.</small>
+      </div>
+    </div>
+    <div id="loans-table-container" class="table-responsive"></div>
+  </div>
+
+  <!-- Modal de Cronograma de Parcelas do Empréstimo -->
+  <div id="modal-loan-installments-backdrop" class="modal-backdrop" onclick="if(event.target===this) App.closeLoanInstallmentsModal()">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-loan-inst-title" style="max-width: 700px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <div style="width:28px; height:28px; border-radius:6px; background:rgba(13, 148, 136, 0.14); color:#0d9488; display:flex; align-items:center; justify-content:center;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          </div>
+          <div>
+            <h2 id="modal-loan-inst-title" class="card-title" style="margin:0; font-size:1.05rem;">Cronograma de Parcelas do Empréstimo</h2>
+            <small id="modal-loan-inst-sub" style="color:var(--text-secondary); font-size:0.75rem;">Acompanhe as parcelas quitadas e dê baixa nas parcelas pendentes.</small>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeLoanInstallmentsModal()" aria-label="Fechar">✕</button>
+      </div>
+
+      <div id="loan-installments-list-container" class="table-responsive" style="max-height: 400px; overflow-y: auto;"></div>
+
+      <div style="margin-top:1.25rem; display:flex; justify-content:flex-end;">
+        <button type="button" class="btn btn-secondary" onclick="App.closeLoanInstallmentsModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Edição de Contrato de Empréstimo -->
+  <div id="modal-edit-loan-backdrop" class="modal-backdrop" onclick="if(event.target===this) App.closeEditLoanModal()">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-edit-loan-title" style="max-width: 540px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <div style="width:28px; height:28px; border-radius:6px; background:rgba(13, 148, 136, 0.14); color:#0d9488; display:flex; align-items:center; justify-content:center;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          </div>
+          <h2 id="modal-edit-loan-title" class="card-title" style="margin:0; font-size:1.05rem;">Editar Contrato de Empréstimo</h2>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeEditLoanModal()" aria-label="Fechar">✕</button>
+      </div>
+
+      <form id="form-edit-loan" onsubmit="App.submitEditLoan(event)">
+        <input type="hidden" id="edit-loan-id" />
+        <div class="form-grid" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+          <div class="form-group">
+            <label for="edit-loan-instituicao">Instituição / Credor *</label>
+            <input type="text" id="edit-loan-instituicao" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-loan-descricao">Descrição do Contrato *</label>
+            <input type="text" id="edit-loan-descricao" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-loan-situacao">Situação do Contrato *</label>
+            <select id="edit-loan-situacao" class="form-control" required>
+              <option value="ATIVO">ATIVO (Em andamento)</option>
+              <option value="QUITADO">QUITADO (Finalizado)</option>
+              <option value="SUSPENSO">SUSPENSO</option>
+              <option value="CANCELADO">CANCELADO</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit-loan-conta">Conta Bancária de Débito</label>
+            <select id="edit-loan-conta" class="form-control"></select>
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label for="edit-loan-obs">Observações</label>
+            <input type="text" id="edit-loan-obs" class="form-control" />
+          </div>
+        </div>
+        <div style="margin-top:1.25rem; display:flex; justify-content:flex-end; gap:0.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="App.closeEditLoanModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,264 @@
+/**
+ * @file tests/telegram-tests
+ * @description Testes automatizados do Bot do Telegram por texto: vinculação de uso único,
+ * interpretação PT-BR, solicitação de conta ausente, recusa de dívidas/empréstimos/investimentos/recorrências,
+ * bloqueio de não autorizados, proibição de confirmação por outro usuário e não gravação antes da confirmação.
+ */
+
+const assert = require('assert');
+const { createGasContext } = require('./gas-mock-harness');
+
+function runTelegramTests() {
+  const SECRET = 'segredo_webhook_teste_123456';
+  const ctx = createGasContext({
+    ownerEmail: 'owner@finpess.local',
+    activeUserEmail: 'owner@finpess.local',
+    webhookSecret: SECRET
+  });
+  const results = [];
+
+  // 1. Inicializa Owner e cria Conta Principal
+  ctx.apiCall('session.getBootstrap', {});
+  const contaPrincipal = ctx.apiCall('bankAccounts.create', {
+    instituicao: 'Banco do Brasil',
+    nome_identificacao: 'Conta Principal',
+    tipo_conta: 'CORRENTE',
+    saldo_inicial_centavos: 100000,
+    data_saldo_inicial: '2026-10-01'
+  }).data;
+
+  // 2. Impedir acesso por remetente não autorizado no Telegram
+  assert.throws(() => {
+    ctx.TelegramWebhookService.handleWebhookUpdate({
+      update_id: 1001,
+      message: {
+        message_id: 1,
+        from: { id: 999999 },
+        chat: { id: 999999 },
+        text: 'Gastei 50 reais no mercado'
+      }
+    }, SECRET, { referenceDateIso: '2026-10-29' });
+  }, /TELEGRAM_UNAUTHORIZED/);
+  results.push('Bloqueio de remetente não autorizado no Telegram comprovado.');
+
+  // 3. Fluxo de vinculação segura com código temporário de uso único
+  const codeGen = ctx.apiCall('telegram.generateCode', {}).data;
+  const plainCode = codeGen.codigo_temporario;
+
+  const linkResp = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1002,
+    message: {
+      message_id: 2,
+      from: { id: 777001 },
+      chat: { id: 777001 },
+      text: '/vincular ' + plainCode
+    }
+  }, SECRET);
+  assert.strictEqual(linkResp.status, 'COMANDO_PROCESSADO');
+  assert.ok(linkResp.resposta_bot.text.indexOf('Vínculo estabelecido com sucesso') !== -1);
+
+  // Garantir que o código de uso único não pode ser reutilizado
+  assert.throws(() => {
+    ctx.TelegramAuthService.consumeLinkingCode(plainCode, 888002, 888002);
+  }, /CODE_ALREADY_USED/);
+  results.push('Vinculação segura com código temporário de uso único comprovada.');
+
+  // 4. Receber mensagem de texto sem conta explícita ("Gastei 89,90 no mercado hoje no débito.")
+  // Deve interpretar corretamente e solicitar a conta bancária pendente sem gravar nada em LANCAMENTOS!
+  const msg1 = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1003,
+    message: {
+      message_id: 3,
+      from: { id: 777001 },
+      chat: { id: 777001 },
+      text: 'Gastei 89,90 no mercado hoje no débito.'
+    }
+  }, SECRET, { referenceDateIso: '2026-10-29' });
+
+  assert.strictEqual(msg1.status, 'PENDENTE_DE_INFORMACAO');
+  assert.strictEqual(msg1.dados_extraidos.tipo, 'SAIDA');
+  assert.strictEqual(msg1.dados_extraidos.valor_centavos, 8990);
+  assert.strictEqual(msg1.dados_extraidos.data, '2026-10-29');
+  assert.strictEqual(msg1.dados_extraidos.categoria_sugerida, 'Alimentação');
+  assert.strictEqual(msg1.dados_extraidos.forma_pagamento, 'DEBITO');
+  assert.ok(msg1.dados_extraidos.campos_pendentes.includes('conta_bancaria'));
+
+  // Verificar que NADA foi gravado em LANCAMENTOS antes da confirmação
+  let launchesCount = ctx.apiCall('launches.list', {}).data.total;
+  assert.strictEqual(launchesCount, 0, 'Nenhum lançamento pode ser gravado antes da confirmação do usuário');
+  results.push('Interpretação de texto PT-BR, detecção de conta pendente e não gravação antes da confirmação comprovadas.');
+
+  // 5. Selecionar a conta bancária via callback SETACC e depois confirmar via CONFIRM
+  const procId1 = msg1.processamento.id;
+  const setAccResp = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1004,
+    callback_query: {
+      from: { id: 777001 },
+      message: { chat: { id: 777001 } },
+      data: 'SETACC:' + procId1 + ':' + contaPrincipal.id
+    }
+  }, SECRET);
+  assert.strictEqual(setAccResp.status, 'AGUARDANDO_CONFIRMACAO');
+  const updatedHash = setAccResp.processamento.preview_hash;
+
+  // Impedir confirmação por outro usuário autorizado
+  ctx.__setActiveUserEmail('segundo@finpess.local');
+  const user2Boot = ctx.apiCall('session.getBootstrap', {});
+  ctx.__setActiveUserEmail('owner@finpess.local');
+  ctx.apiCall('admin.changeUserAuth', {
+    target_user_id: user2Boot.user.id,
+    status: 'APROVADO',
+    papel: 'MEMBRO',
+    grupo_id: contaPrincipal.grupo_id
+  });
+  ctx.__setActiveUserEmail('segundo@finpess.local');
+  const codeUser2 = ctx.apiCall('telegram.generateCode', {}).data.codigo_temporario;
+  ctx.TelegramAuthService.consumeLinkingCode(codeUser2, 777002, 777002);
+
+  assert.throws(() => {
+    ctx.TelegramWebhookService.handleWebhookUpdate({
+      update_id: 1005,
+      callback_query: {
+        from: { id: 777002 },
+        message: { chat: { id: 777002 } },
+        data: 'CONFIRM:' + procId1 + ':' + updatedHash
+      }
+    }, SECRET);
+  }, /PROPOSAL_WRONG_USER/);
+  results.push('Bloqueio de confirmação de proposta por outro usuário comprovado.');
+
+  // Usuário proprietário confirma a proposta
+  ctx.__setActiveUserEmail('owner@finpess.local');
+  const confirmResp = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1006,
+    callback_query: {
+      from: { id: 777001 },
+      message: { chat: { id: 777001 } },
+      data: 'CONFIRM:' + procId1 + ':' + updatedHash
+    }
+  }, SECRET);
+  assert.strictEqual(confirmResp.status, 'CONFIRMADO');
+  assert.strictEqual(confirmResp.lancamento.valor_centavos, 8990);
+  assert.strictEqual(confirmResp.lancamento.origem, 'TELEGRAM', 'Origem do lançamento deve ser registrada como TELEGRAM');
+  results.push('Confirmação explícita no Telegram e registro correto da origem TELEGRAM comprovados.');
+
+  // 6. Testar exemplo "Recebi 4.200 reais de salário na conta principal."
+  const msgSalario = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1007,
+    message: {
+      message_id: 7,
+      from: { id: 777001 },
+      chat: { id: 777001 },
+      text: 'Recebi 4.200 reais de salário na conta principal.'
+    }
+  }, SECRET, { referenceDateIso: '2026-10-29' });
+  assert.strictEqual(msgSalario.status, 'AGUARDANDO_CONFIRMACAO');
+  assert.strictEqual(msgSalario.dados_extraidos.tipo, 'ENTRADA');
+  assert.strictEqual(msgSalario.dados_extraidos.valor_centavos, 420000);
+  assert.strictEqual(msgSalario.dados_extraidos.conta_bancaria_id, contaPrincipal.id);
+
+  // 7. Recusar lançamentos de dívidas, empréstimos, investimentos e contas recorrentes no Telegram
+  const forbiddenMessages = [
+    'Cadastrar dívida protestada de R$ 2.000 no cartão',
+    'Fiz um empréstimo consignado de R$ 10.000 em 24 parcelas',
+    'Investi R$ 1.500 no Tesouro Selic hoje',
+    'Comprei ações da Petrobras por R$ 800',
+    'Cadastrar conta recorrente de internet todo mês no dia 15'
+  ];
+
+  for (let i = 0; i < forbiddenMessages.length; i++) {
+    const refused = ctx.TelegramWebhookService.handleWebhookUpdate({
+      update_id: 1100 + i,
+      message: {
+        message_id: 100 + i,
+        from: { id: 777001 },
+        chat: { id: 777001 },
+        text: forbiddenMessages[i]
+      }
+    }, SECRET);
+    assert.strictEqual(refused.status, 'RECUSADO', 'Mensagem proibida deve ser recusada: ' + forbiddenMessages[i]);
+    assert.strictEqual(refused.codigo, 'FORBIDDEN_SCOPE');
+  }
+  results.push('Recusa estrita de dívidas, empréstimos, investimentos e contas recorrentes no Telegram comprovada.');
+
+  // 8. Não gravar propostas canceladas ou expiradas
+  const msgToCancel = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1200,
+    message: {
+      message_id: 200,
+      from: { id: 777001 },
+      chat: { id: 777001 },
+      text: 'Paguei R$ 60,00 em dinheiro por um almoço na Conta Principal'
+    }
+  }, SECRET, { referenceDateIso: '2026-10-29' });
+
+  ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1201,
+    callback_query: {
+      from: { id: 777001 },
+      message: { chat: { id: 777001 } },
+      data: 'CANCEL:' + msgToCancel.processamento.id
+    }
+  }, SECRET);
+
+  assert.throws(() => {
+    ctx.TelegramWebhookService.handleWebhookUpdate({
+      update_id: 1202,
+      callback_query: {
+        from: { id: 777001 },
+        message: { chat: { id: 777001 } },
+        data: 'CONFIRM:' + msgToCancel.processamento.id + ':' + msgToCancel.processamento.preview_hash
+      }
+    }, SECRET);
+  }, /PROPOSAL_CANCELED/);
+  results.push('Bloqueio de confirmação de propostas canceladas ou expiradas comprovado.');
+
+  // 9. Revogar o vínculo com o Telegram e confirmar bloqueio imediato
+  ctx.apiCall('telegram.revokeLink', {});
+  assert.throws(() => {
+    ctx.TelegramWebhookService.handleWebhookUpdate({
+      update_id: 1300,
+      message: {
+        message_id: 300,
+        from: { id: 777001 },
+        chat: { id: 777001 },
+        text: 'Gastei R$ 20 na padaria'
+      }
+    }, SECRET);
+  }, /TELEGRAM_UNAUTHORIZED/);
+  results.push('Revogação imediata do vínculo com o Telegram comprovada.');
+
+  // 10. Testar Configuração Automática 1-Clique (SetupService) e vínculo automático via /start FIN-XXXXXXXX
+  const autoSetup = ctx.apiCall('setup.autoConfigureTelegram', {
+    bot_token: '123456789:AAH_token_valido_para_teste_automatico_12345',
+    webapp_url: 'https://script.google.com/macros/s/DEPLOYMENT_TESTE/exec',
+    skipExternalTelegramCalls: true
+  });
+  assert.strictEqual(autoSetup.ok, true);
+  assert.ok(autoSetup.data.codigo_vinculacao.startsWith('FIN-'));
+  assert.ok(autoSetup.data.link_direto_1_clique.includes('?start=' + autoSetup.data.codigo_vinculacao));
+
+  const newSecret = ctx.PropertiesService.getScriptProperties().getProperty('TELEGRAM_WEBHOOK_SECRET');
+  const startLinkResp = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1301,
+    message: {
+      message_id: 301,
+      from: { id: 777099 },
+      chat: { id: 777099 },
+      text: '/start ' + autoSetup.data.codigo_vinculacao
+    }
+  }, newSecret);
+  assert.strictEqual(startLinkResp.status, 'COMANDO_PROCESSADO');
+  assert.ok(startLinkResp.resposta_bot.text.includes('Vínculo automático concluído com sucesso'));
+  results.push('Configuração automática 1-clique do Telegram e vínculo via /start FIN-... comprovados.');
+
+  return results;
+}
+
+if (require.main === module) {
+  const out = runTelegramTests();
+  console.log('TELEGRAM TESTS PASSED:', out);
+}
+
+module.exports = { runTelegramTests };
+

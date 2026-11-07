@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <title>Finpess — Finanças Inteligentes</title>
+  
+  <!-- Configurações PWA WebAPK & Mobile -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#059669" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Finpess" />
+  <meta name="application-name" content="Finpess" />
+  <meta name="msapplication-TileColor" content="#059669" />
+  
+  <!-- Ícones -->
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    #app-frame {
+      width: 100vw;
+      height: 100vh;
+      border: 0;
+      display: block;
+      background-color: #0f172a;
+    }
+
+    /* Splash / Loading Screen */
+    #splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at 50% 30%, #1e293b 0%, #0f172a 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+      padding: 24px;
+      text-align: center;
+    }
+
+    #splash-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .splash-logo {
+      width: 96px;
+      height: 96px;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 10px 25px rgba(5, 150, 105, 0.4));
+      animation: pulse 2.5s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .splash-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .splash-subtitle {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      margin-bottom: 28px;
+    }
+
+    .progress-bar {
+      width: 220px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-inner {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 40%;
+      background: linear-gradient(90deg, #059669, #34d399);
+      border-radius: 9999px;
+      animation: indeterminate 1.6s infinite ease-in-out;
+    }
+
+    @keyframes indeterminate {
+      0% { left: -40%; width: 40%; }
+      50% { left: 40%; width: 50%; }
+      100% { left: 100%; width: 40%; }
+    }
+
+    .btn-retry {
+      display: none;
+      margin-top: 24px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-retry:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Banner Flutuante de Instalação PWA */
+    #pwa-install-banner {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 480px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(5, 150, 105, 0.2);
+      border-radius: 14px;
+      padding: 14px 16px;
+      z-index: 10000;
+      align-items: center;
+      gap: 12px;
+      animation: slideUp 0.35s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translate(-50%, 40px); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+
+    .pwa-banner-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+
+    .pwa-banner-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .pwa-banner-title {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pwa-banner-desc {
+      font-size: 0.78rem;
+      color: #94a3b8;
+    }
+
+    .pwa-banner-btn {
+      background: #059669;
+      color: #ffffff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s ease;
+    }
+
+    .pwa-banner-btn:hover {
+      background: #047857;
+    }
+
+    .pwa-banner-close {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Alerta Offline */
+    #offline-alert {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #dc2626;
+      color: #ffffff;
+      text-align: center;
+      padding: 8px 16px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      z-index: 10001;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Alerta Offline -->
+  <div id="offline-alert">⚠️ Você está sem conexão com a internet. Algumas funções requerem rede.</div>
+
+  <!-- Splash Screen Elegante com Finpess Branding -->
+  <div id="splash-screen">
+    <img src="icon.svg" alt="Finpess Logo" class="splash-logo" />
+    <h1 class="splash-title">Finpess</h1>
+    <p class="splash-subtitle">Finanças Inteligentes</p>
+    <div class="progress-bar">
+      <div class="progress-bar-inner"></div>
+    </div>
+    <button type="button" id="btn-retry" class="btn-retry" onclick="reloadApp()">
+      Demorando muito? Toque aqui para recarregar
+    </button>
+  </div>
+
+  <!-- Iframe em Tela Cheia do App do Google Apps Script -->
+  <iframe
+    id="app-frame"
+    src="https://script.google.com/macros/s/AKfycbyzjzX7GYRl-IGmJ0S8kgoCfA9i3G9zC2AuAzUgXFyEYEmrt_ivlaxE2gyul7TCcaAM7g/exec"
+    allow="camera; microphone; geolocation; clipboard-read; clipboard-write; fullscreen"
+    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"
+    title="Finpess Sistema Financeiro">
+  </iframe>
+
+  <!-- Banner Flutuante de Instalação PWA no Android/Chrome -->
+  <div id="pwa-install-banner">
+    <img src="icon-192.png" alt="Finpess" class="pwa-banner-icon" />
+    <div class="pwa-banner-info">
+      <div class="pwa-banner-title">Instalar Finpess</div>
+      <div class="pwa-banner-desc">App rápido e direto na sua tela inicial</div>
+    </div>
+    <button type="button" class="pwa-banner-btn" onclick="triggerPwaInstall()">Instalar</button>
+    <button type="button" class="pwa-banner-close" onclick="dismissPwaBanner()" title="Fechar">✕</button>
+  </div>
+
+  <script>
+    // Registro do Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => {
+            console.log('[Finpess PWA] Service Worker registrado com sucesso. Escopo:', reg.scope);
+          })
+          .catch((err) => {
+            console.warn('[Finpess PWA] Falha ao registrar Service Worker:', err);
+          });
+      });
+    }
+
+    // Gerenciamento do Splash Screen
+    const splash = document.getElementById('splash-screen');
+    const iframe = document.getElementById('app-frame');
+    const btnRetry = document.getElementById('btn-retry');
+
+    // Quando o iframe carrega, oculta a tela de carregamento
+    iframe.addEventListener('load', () => {
+      setTimeout(() => {
+        splash.classList.add('hidden');
+      }, 300);
+    });
+
+    // Se demorar mais de 12 segundos, exibe botão de recarregar
+    setTimeout(() => {
+      if (!splash.classList.contains('hidden')) {
+        btnRetry.style.display = 'inline-block';
+      }
+    }, 12000);
+
+    function reloadApp() {
+      splash.classList.remove('hidden');
+      btnRetry.style.display = 'none';
+      iframe.src = iframe.src;
+    }
+
+    // Monitoramento de Conexão Online/Offline
+    const offlineAlert = document.getElementById('offline-alert');
+    function updateOnlineStatus() {
+      if (!navigator.onLine) {
+        offlineAlert.style.display = 'block';
+      } else {
+        offlineAlert.style.display = 'none';
+      }
+    }
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
+
+    // Captura e Exibição do Prompt Nativo de Instalação PWA (Chrome Android)
+    let deferredPrompt = null;
+    const installBanner = document.getElementById('pwa-install-banner');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Impede o Chrome antigo de mostrar mini-infobar padrão
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      // Se não estiver em modo standalone e usuário não dispensou na sessão
+      if (!window.matchMedia('(display-mode: standalone)').matches && !sessionStorage.getItem('finpess_pwa_dismissed')) {
+        installBanner.style.display = 'flex';
+      }
+    });
+
+    function triggerPwaInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('[Finpess PWA] Usuário aceitou a instalação.');
+          }
+          deferredPrompt = null;
+          installBanner.style.display = 'none';
+        });
+      }
+    }
+
+    function dismissPwaBanner() {
+      installBanner.style.display = 'none';
+      sessionStorage.setItem('finpess_pwa_dismissed', 'true');
+    }
+
+    window.addEventListener('appinstalled', () => {
+      console.log('[Finpess PWA] Aplicativo instalado com sucesso!');
+      installBanner.style.display = 'none';
+      deferredPrompt = null;
+    });
+  </script>
+</body>
+</html>

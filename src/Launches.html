@@ -1,0 +1,482 @@
+<section id="sec-launches" class="module-section" aria-labelledby="title-launches">
+  <!-- Cabeçalho Principal da Tela de Lançamentos -->
+  <div class="card page-header-card">
+    <div class="page-header-content">
+      <div class="page-icon-badge page-icon-transfer">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="7" y1="17" x2="7" y2="3"></line>
+          <polyline points="3 7 7 3 11 7"></polyline>
+          <line x1="17" y1="7" x2="17" y2="21"></line>
+          <polyline points="13 17 17 21 21 17"></polyline>
+        </svg>
+      </div>
+      <div>
+        <h1 id="title-launches" class="page-title">Lançamentos Financeiros (Entradas e Saídas)</h1>
+        <p class="page-subtitle">Registre seus ganhos e gastos. Mantenha seu fluxo de caixa sempre atualizado.</p>
+      </div>
+    </div>
+    <div class="page-header-actions">
+      <!-- Botão para escanear cupom fiscal / comprovante por foto -->
+      <button type="button" class="btn btn-secondary btn-sm" onclick="App.triggerReceiptUpload()" id="btn-scan-receipt" style="display:inline-flex; align-items:center; gap:0.4rem;" title="Escanear cupom fiscal ou recibo por foto">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+        <span>📸 Ler Cupom (Foto)</span>
+      </button>
+      <input type="file" id="input-receipt-file" accept="image/*" capture="environment" style="display:none;" onchange="App.handleReceiptFile(event)">
+
+      <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleFilterPanel()" id="btn-toggle-filters" title="Abrir ou fechar painel de filtros">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+        <span>Filtros</span>
+        <span id="icon-filter-toggle" style="font-size:9px; opacity:0.8;">▼</span>
+      </button>
+      <button type="button" class="btn btn-primary btn-sm" onclick="App.toggleNewLaunchCard()" id="btn-toggle-new-launch">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <span id="label-btn-new-launch">+ Novo Lançamento</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Card do Formulário de Novo Lançamento (Oculto por padrão até clicar no botão) -->
+  <div class="card" id="card-new-launch" style="display:none;">
+    <div class="card-header">
+      <div class="card-header-with-icon">
+        <div class="card-header-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+        </div>
+        <div>
+          <h2 class="card-title">Novo Lançamento Manual</h2>
+          <small style="color:var(--text-secondary); font-size:0.75rem;">Preencha os dados abaixo para registrar um novo lançamento no sistema.</small>
+        </div>
+      </div>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleNewLaunchCard(false)" title="Fechar formulário">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <span>Fechar</span>
+      </button>
+    </div>
+
+    <form id="form-launch" onsubmit="App.submitLaunch(event)">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="lan-tipo">Tipo *</label>
+          <select id="lan-tipo" class="form-control" required>
+            <option value="SAIDA">↓ Saída (Despesa)</option>
+            <option value="ENTRADA">↑ Entrada (Receita)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="lan-descricao">Descrição *</label>
+          <input type="text" id="lan-descricao" class="form-control" placeholder="Ex: Supermercado, Salário, Farmácia" required />
+        </div>
+        <div class="form-group">
+          <label for="lan-valor">Valor em R$ *</label>
+          <input type="text" id="lan-valor" class="form-control mask-money" placeholder="R$ 0,00" inputmode="numeric" oninput="UIHelpers.applyCurrencyMask(this)" required />
+        </div>
+        <div class="form-group">
+          <label for="lan-data">Data do Lançamento *</label>
+          <input type="date" id="lan-data" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label for="lan-competencia">Data de Competência</label>
+          <input type="date" id="lan-competencia" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label for="lan-categoria">Categoria *</label>
+          <select id="lan-categoria" class="form-control" onchange="App.populateSubcategoriesForLaunch()" required></select>
+        </div>
+        <div class="form-group">
+          <label for="lan-subcategoria">Subcategoria</label>
+          <select id="lan-subcategoria" class="form-control">
+            <option value="">Opcional</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="lan-conta">Conta Bancária *</label>
+          <select id="lan-conta" class="form-control" required></select>
+        </div>
+        <div class="form-group">
+          <label for="lan-forma">Forma de Pagamento / Recebimento *</label>
+          <select id="lan-forma" class="form-control" required>
+            <option value="PIX">Pix</option>
+            <option value="DEBITO">Débito</option>
+            <option value="CREDITO">Cartão de Crédito</option>
+            <option value="DINHEIRO">Dinheiro</option>
+            <option value="BOLETO">Boleto</option>
+            <option value="TRANSFERENCIA">Transferência</option>
+            <option value="OUTRO">Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="lan-situacao">Situação *</label>
+          <select id="lan-situacao" class="form-control" required>
+            <option value="CONFIRMADO">Confirmado (Altera Saldo Real)</option>
+            <option value="PREVISTO">Previsto (Não Altera Saldo Real)</option>
+            <option value="PENDENTE">Pendente</option>
+          </select>
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label for="lan-obs">Observações</label>
+          <input type="text" id="lan-obs" class="form-control" placeholder="Observações opcionais" />
+        </div>
+      </div>
+      <div style="margin-top:0.85rem; display:flex; gap:0.65rem; justify-content:flex-end;">
+        <button type="submit" class="btn btn-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+          <span>Registrar Lançamento</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Filtros e Lista de Lançamentos com CRUD Completo -->
+  <div class="card" id="card-launches-history">
+    <div class="card-header">
+      <div class="card-header-with-icon">
+        <div class="card-header-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line></svg>
+        </div>
+        <div>
+          <h2 class="card-title">Histórico e Gerenciamento de Lançamentos</h2>
+          <small style="color:var(--text-secondary); font-size:0.75rem;">Visualize todos os campos, filtre por período e edite ou exclua lançamentos com controle de saldo.</small>
+        </div>
+      </div>
+      <div style="display:flex; gap:0.45rem; flex-wrap:wrap; align-items:center;">
+        <!-- Seletor Rápido de Mês / Navegação Mensal Direta -->
+        <div class="launches-month-nav" style="display:inline-flex; align-items:center; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:2px 8px; gap:6px; min-height:36px; height:36px; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+          <button type="button" class="btn btn-secondary btn-sm btn-nav-arrow" onclick="App.navigateLaunchMonth(-1)" title="Mês anterior" style="padding:0; width:28px; height:28px; min-width:28px; border:none; background:transparent; font-size:12px; cursor:pointer;">◀</button>
+          <select id="quick-launch-month-select" class="form-control quick-month-select" onchange="App.onQuickMonthSelectChange()" aria-label="Selecionar mês" style="width:145px !important; min-width:145px !important; border:none !important; background:transparent !important; font-weight:700 !important; font-size:0.88rem !important; padding:2px 6px !important; cursor:pointer !important; color:var(--text-primary) !important; height:30px !important;">
+            <option value="01">Janeiro</option>
+            <option value="02">Fevereiro</option>
+            <option value="03">Março</option>
+            <option value="04">Abril</option>
+            <option value="05">Maio</option>
+            <option value="06">Junho</option>
+            <option value="07">Julho</option>
+            <option value="08">Agosto</option>
+            <option value="09">Setembro</option>
+            <option value="10">Outubro</option>
+            <option value="11">Novembro</option>
+            <option value="12">Dezembro</option>
+            <option value="ALL">Ano Todo</option>
+          </select>
+          <select id="quick-launch-year-select" class="form-control quick-year-select" onchange="App.onQuickMonthSelectChange()" aria-label="Selecionar ano" style="width:88px !important; min-width:88px !important; border:none !important; background:transparent !important; font-weight:700 !important; font-size:0.88rem !important; padding:2px 6px !important; cursor:pointer !important; color:var(--text-primary) !important; height:30px !important;">
+          </select>
+          <button type="button" class="btn btn-secondary btn-sm btn-nav-arrow" onclick="App.navigateLaunchMonth(1)" title="Próximo mês" style="padding:0; width:28px; height:28px; min-width:28px; border:none; background:transparent; font-size:12px; cursor:pointer;">▶</button>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleFilterPanel()" id="btn-card-toggle-filters" title="Exibir ou ocultar painel de filtros">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+          <span>Filtros</span>
+          <span id="icon-card-filter-toggle" style="font-size:9px; opacity:0.8;">▼</span>
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.exportCsv()" title="Exportar dados filtrados em CSV com acentuação corrigida para Excel">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          <span>Exportar CSV</span>
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.printLaunchesReport()" title="Gerar relatório financeiro para impressão ou PDF">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          <span>Relatório (PDF)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Painel Moderno de Filtros e Opções de Data (Oculto por padrão, acionado pelo botão) -->
+    <div class="filters-card-wrapper" id="filters-container" style="display:none;">
+      <div class="filters-grid">
+        <!-- Linha 1: Período e Busca Principal -->
+        <div class="filter-item filter-item-search">
+          <label for="filter-lan-busca">Buscar</label>
+          <div class="filter-input-search-wrapper">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="filter-lan-busca" class="form-control" placeholder="Buscar descrição ou observação..." onkeydown="if(event.key==='Enter') App.applyFilters()" />
+          </div>
+        </div>
+
+        <div class="filter-item">
+          <label for="filter-lan-preset">Mês / Período</label>
+          <select id="filter-lan-preset" class="form-control" onchange="App.onDatePresetChange()">
+            <option value="THIS_MONTH" selected>📅 Mês Atual (Padrão)</option>
+            <optgroup label="Meses do Ano">
+              <option value="01">01 - Janeiro</option>
+              <option value="02">02 - Fevereiro</option>
+              <option value="03">03 - Março</option>
+              <option value="04">04 - Abril</option>
+              <option value="05">05 - Maio</option>
+              <option value="06">06 - Junho</option>
+              <option value="07">07 - Julho</option>
+              <option value="08">08 - Agosto</option>
+              <option value="09">09 - Setembro</option>
+              <option value="10">10 - Outubro</option>
+              <option value="11">11 - Novembro</option>
+              <option value="12">12 - Dezembro</option>
+            </optgroup>
+            <optgroup label="Outros Períodos">
+              <option value="LAST_MONTH">Mês Anterior</option>
+              <option value="LAST_7_DAYS">Últimos 7 dias</option>
+              <option value="LAST_30_DAYS">Últimos 30 dias</option>
+              <option value="THIS_YEAR">Este Ano (Todos os Meses)</option>
+              <option value="ALL">Histórico Completo (Sem Filtro de Data)</option>
+              <option value="CUSTOM">Personalizado (Data Início / Fim)...</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label for="filter-lan-data-inicio">Data Inicial</label>
+          <input type="date" id="filter-lan-data-inicio" class="form-control" onchange="App.onCustomDateChange()" />
+        </div>
+
+        <div class="filter-item">
+          <label for="filter-lan-data-fim">Data Final</label>
+          <input type="date" id="filter-lan-data-fim" class="form-control" onchange="App.onCustomDateChange()" />
+        </div>
+
+        <!-- Linha 2: Tipo, Situação, Conta e Categoria -->
+        <div class="filter-item">
+          <label for="filter-lan-tipo">Tipo</label>
+          <select id="filter-lan-tipo" class="form-control" onchange="App.applyFilters()">
+            <option value="">Todos os tipos</option>
+            <option value="ENTRADA">↑ Entradas (Receitas)</option>
+            <option value="SAIDA">↓ Saídas (Despesas)</option>
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label for="filter-lan-situacao">Situação</label>
+          <select id="filter-lan-situacao" class="form-control" onchange="App.applyFilters()">
+            <option value="">Todas situações</option>
+            <option value="CONFIRMADO">Confirmados</option>
+            <option value="PREVISTO">Previstos</option>
+            <option value="PENDENTE">Pendentes</option>
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label for="filter-lan-conta">Conta Bancária</label>
+          <select id="filter-lan-conta" class="form-control" onchange="App.applyFilters()">
+            <option value="">Todas as contas</option>
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label for="filter-lan-categoria">Categoria</label>
+          <select id="filter-lan-categoria" class="form-control" onchange="App.applyFilters()">
+            <option value="">Todas as categorias</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="filters-actions-bar">
+        <div class="filters-active-indicator" id="filter-active-count">
+          <span class="badge" style="background:var(--primary-soft); color:var(--primary); font-size:0.75rem;">Filtro: Todos</span>
+        </div>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleFilterPanel(false)" title="Fechar painel de filtros">
+            <span>Fechar</span>
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.clearFilters()" title="Redefinir filtros para o padrão">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+            <span>Limpar Filtros</span>
+          </button>
+          <button type="button" class="btn btn-primary btn-sm" onclick="App.applyFilters()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+            <span>Aplicar Filtros</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mini-Painel de Totalizadores do Período Filtrado (Distinção Estrita entre Realizado e Previsto) -->
+    <div class="filter-summary-cards" id="launches-summary-cards">
+      <div class="filter-summary-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="summary-label">Entradas (Realizadas)</span>
+          <span class="badge badge-confirmado" style="font-size:0.65rem; padding:1px 5px;">Confirmadas</span>
+        </div>
+        <strong class="summary-value summary-val-entrada" id="summary-filtro-entradas">+R$ 0,00</strong>
+        <small style="font-size:0.7rem; color:var(--text-secondary);">Creditado em conta</small>
+      </div>
+      <div class="filter-summary-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="summary-label">Saídas (Realizadas)</span>
+          <span class="badge badge-cancelado" style="font-size:0.65rem; padding:1px 5px;">Confirmadas</span>
+        </div>
+        <strong class="summary-value summary-val-saida" id="summary-filtro-saidas">-R$ 0,00</strong>
+        <small style="font-size:0.7rem; color:var(--text-secondary);">Debitado de conta</small>
+      </div>
+      <div class="filter-summary-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="summary-label">Balanço Realizado</span>
+          <span id="summary-filtro-total" style="font-size:0.72rem; color:var(--text-muted); font-weight:600;">0 registro(s)</span>
+        </div>
+        <strong class="summary-value summary-val-saldo" id="summary-filtro-saldo">R$ 0,00</strong>
+        <small style="font-size:0.7rem; color:var(--text-secondary);">Saldo efetivo do período</small>
+      </div>
+      <div class="filter-summary-card" style="border:1px dashed #7c3aed; background:rgba(124,58,237,0.035);">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="summary-label" style="color:#7c3aed; font-weight:700;">Previsões a Realizar</span>
+          <span class="badge badge-previsto" style="font-size:0.65rem; padding:1px 5px;">Não Calculado</span>
+        </div>
+        <strong class="summary-value" id="summary-filtro-previsto" style="color:#7c3aed;">R$ 0,00</strong>
+        <small id="summary-filtro-previsto-detalhe" style="font-size:0.7rem; color:var(--text-secondary);">A pagar: -R$ 0,00 | A receber: +R$ 0,00</small>
+      </div>
+    </div>
+
+    <div id="launches-table-container" class="table-responsive"></div>
+    <div id="launches-pagination" style="margin-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-secondary);"></div>
+  </div>
+
+  <!-- Modal de Detalhes / Visualização Completa de Todos os Campos -->
+  <div id="modal-launch-details-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-launch-details-title">
+    <div class="modal-dialog modal-dialog-lg">
+      <div class="card-header" style="margin-bottom:1rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
+        <div class="card-header-with-icon">
+          <div class="card-header-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </div>
+          <div>
+            <h2 id="modal-launch-details-title" class="card-title">Detalhes Completos do Lançamento</h2>
+            <small style="color:var(--text-secondary); font-size:0.75rem;">Visualização detalhada de todos os campos cadastrados no sistema.</small>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeLaunchDetailsModal()" aria-label="Fechar modal">✕</button>
+      </div>
+
+      <div id="modal-launch-details-content">
+        <!-- Renderizado dinamicamente via App.viewLaunchDetails -->
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:0.6rem; border-top:1px solid var(--border-color); padding-top:0.85rem; flex-wrap:wrap;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeLaunchDetailsModal()">Fechar</button>
+        <button type="button" id="btn-modal-details-cancel" class="btn btn-danger btn-sm" onclick="App.cancelFromDetailsModal()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          <span>Excluir / Cancelar</span>
+        </button>
+        <button type="button" id="btn-modal-details-edit" class="btn btn-primary btn-sm" onclick="App.editFromDetailsModal()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          <span>Editar Lançamento</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Edição Completa do Lançamento -->
+  <div id="modal-launch-edit-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-launch-edit-title">
+    <div class="modal-dialog modal-dialog-lg">
+      <div class="card-header" style="margin-bottom:1rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
+        <div class="card-header-with-icon">
+          <div class="card-header-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          </div>
+          <div>
+            <h2 id="modal-launch-edit-title" class="card-title">Editar Lançamento Financeiro</h2>
+            <small style="color:var(--text-secondary); font-size:0.75rem;">Altere os campos necessários e confirme para atualizar os saldos em tempo real.</small>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeEditLaunchModal()" aria-label="Fechar modal">✕</button>
+      </div>
+
+      <form id="form-launch-edit" onsubmit="App.submitEditLaunch(event)">
+        <input type="hidden" id="lan-edit-id" />
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="lan-edit-tipo">Tipo *</label>
+            <select id="lan-edit-tipo" class="form-control" required>
+              <option value="SAIDA">↓ Saída (Despesa)</option>
+              <option value="ENTRADA">↑ Entrada (Receita)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="lan-edit-descricao">Descrição *</label>
+            <input type="text" id="lan-edit-descricao" class="form-control" placeholder="Ex: Supermercado" required />
+          </div>
+          <div class="form-group">
+            <label for="lan-edit-valor">Valor em R$ *</label>
+            <input type="text" id="lan-edit-valor" class="form-control mask-money" placeholder="R$ 0,00" inputmode="numeric" oninput="UIHelpers.applyCurrencyMask(this)" required />
+          </div>
+          <div class="form-group">
+            <label for="lan-edit-data">Data do Lançamento *</label>
+            <input type="date" id="lan-edit-data" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label for="lan-edit-competencia">Data de Competência</label>
+            <input type="date" id="lan-edit-competencia" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label for="lan-edit-categoria">Categoria *</label>
+            <select id="lan-edit-categoria" class="form-control" onchange="App.populateSubcategoriesForEdit()" required></select>
+          </div>
+          <div class="form-group">
+            <label for="lan-edit-subcategoria">Subcategoria</label>
+            <select id="lan-edit-subcategoria" class="form-control">
+              <option value="">Opcional</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="lan-edit-conta">Conta Bancária *</label>
+            <select id="lan-edit-conta" class="form-control" required></select>
+          </div>
+          <div class="form-group">
+            <label for="lan-edit-forma">Forma de Pagamento / Recebimento *</label>
+            <select id="lan-edit-forma" class="form-control" required>
+              <option value="PIX">Pix</option>
+              <option value="DEBITO">Débito</option>
+              <option value="CREDITO">Cartão de Crédito</option>
+              <option value="DINHEIRO">Dinheiro</option>
+              <option value="BOLETO">Boleto</option>
+              <option value="TRANSFERENCIA">Transferência</option>
+              <option value="OUTRO">Outro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="lan-edit-situacao">Situação *</label>
+            <select id="lan-edit-situacao" class="form-control" required>
+              <option value="CONFIRMADO">Confirmado (Altera Saldo Real)</option>
+              <option value="PREVISTO">Previsto (Não Altera Saldo Real)</option>
+              <option value="PENDENTE">Pendente</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label for="lan-edit-obs">Observações</label>
+            <input type="text" id="lan-edit-obs" class="form-control" placeholder="Observações opcionais" />
+          </div>
+        </div>
+
+        <div style="margin-top:1rem; display:flex; gap:0.6rem; justify-content:flex-end; border-top:1px solid var(--border-color); padding-top:0.85rem;">
+          <button type="button" class="btn btn-secondary" onclick="App.closeEditLaunchModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            <span>Salvar Alterações</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de Relatório / Impressão Executiva em PDF -->
+  <div id="modal-print-report-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-print-report-title">
+    <div class="modal-dialog modal-dialog-lg" style="max-width:920px;">
+      <div class="card-header no-print" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
+        <div class="card-header-with-icon">
+          <div class="card-header-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          </div>
+          <div>
+            <h2 id="modal-print-report-title" class="card-title">Relatório Financeiro Executivo (PDF / Impressão)</h2>
+            <small style="color:var(--text-secondary); font-size:0.75rem;">Pré-visualize e salve em PDF ou imprima com layout corporativo reconciliado.</small>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closePrintReportModal()" aria-label="Fechar modal">✕</button>
+      </div>
+
+      <div id="modal-print-report-content" class="table-responsive" style="max-height:72vh; overflow-y:auto; background:#FFFFFF; border-radius:var(--radius-sm); border:1px solid var(--border-color);">
+        <!-- Conteúdo do relatório renderizado dinamicamente via App.printLaunchesReport -->
+      </div>
+
+      <div class="no-print" style="display:flex; justify-content:flex-end; gap:0.6rem; border-top:1px solid var(--border-color); padding-top:0.85rem; margin-top:0.75rem;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closePrintReportModal()">Fechar</button>
+        <button type="button" class="btn btn-primary btn-sm" onclick="App.executeReportPrint()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          <span>Imprimir / Salvar como PDF</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

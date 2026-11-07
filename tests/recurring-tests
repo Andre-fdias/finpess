@@ -1,0 +1,113 @@
+/**
+ * @file tests/recurring-tests
+ * @description Testes automatizados de contas mensais recorrentes: exemplo oficial
+ * (Água / Moradia / R$ 120,00 / dia 10 / Mensal / Fixa), geração idempotente sem duplicidade
+ * e preservação de pagamentos históricos após alteração da regra.
+ */
+
+const assert = require('assert');
+const { createGasContext } = require('./gas-mock-harness');
+
+function runRecurringTests() {
+  const ctx = createGasContext({ ownerEmail: 'admin@finpess.local', activeUserEmail: 'admin@finpess.local' });
+  const results = [];
+
+  ctx.apiCall('session.getBootstrap', {});
+  const acc = ctx.apiCall('bankAccounts.create', {
+    instituicao: 'Caixa',
+    nome_identificacao: 'Conta Corrente',
+    tipo_conta: 'CORRENTE',
+    saldo_inicial_centavos: 200000,
+    data_saldo_inicial: '2026-09-01'
+  }).data;
+
+  const categories = ctx.apiCall('categories.list', {}).data;
+  const catMoradia = categories.find(c => c.nome === 'Moradia');
+
+  // 1. Criar conta recorrente conforme exemplo da seção 6.3 (Água / Moradia / R$ 120,00 / Dia 10 / Mensal / Fixa)
+  const recCreate = ctx.apiCall('recurring.create', {
+    nome: 'Água',
+    tipo: 'SAIDA',
+    categoria_id: catMoradia.id,
+    valor_previsto_centavos: 12000, // R$ 120,00
+    dia_vencimento: 10,
+    recorrencia: 'MENSAL',
+    natureza: 'FIXA',
+    conta_bancaria_padrao_id: acc.id,
+    forma_pagamento: 'BOLETO',
+    data_inicio: '2026-09-01'
+  });
+  assert.strictEqual(recCreate.ok, true);
+  const aguaRule = recCreate.data;
+
+  // 2. Gerar previsão para Setembro/2026 e verificar que chamadas repetidas NÃO duplicam o registro
+  const gen1 = ctx.apiCall('recurring.generateForecasts', { competencia: '2026-09' });
+  assert.strictEqual(gen1.ok, true);
+  assert.strictEqual(gen1.data.gerados_quantidade, 1, 'Primeira geração deve criar 1 previsão');
+
+  const gen2 = ctx.apiCall('recurring.generateForecasts', { competencia: '2026-09' });
+  assert.strictEqual(gen2.ok, true);
+  assert.strictEqual(gen2.data.gerados_quantidade, 0, 'Segunda geração para o mesmo mês não pode duplicar');
+  assert.strictEqual(gen2.data.ignorados_existentes_quantidade, 1);
+  results.push('Geração idempotente de contas recorrentes sem duplicidade comprovada.');
+
+  // 3. Pagar efetivamente a ocorrência de Setembro/2026 (histórico confirmado de R$ 120,00)
+  const paySep = ctx.apiCall('recurring.payOccurrence', {
+    id: aguaRule.id,
+    competencia: '2026-09',
+    data_pagamento: '2026-09-10'
+  });
+  assert.strictEqual(paySep.ok, true);
+  assert.strictEqual(paySep.data.situacao, 'CONFIRMADO');
+  assert.strictEqual(paySep.data.valor_centavos, 12000);
+
+  // 4. Gerar previsão para Outubro/2026 (ainda não paga -> PREVISTO)
+  ctx.apiCall('recurring.generateForecasts', { competencia: '2026-10' });
+
+  // 5. Alterar o valor previsto da conta recorrente para R$ 145,00 (14500 centavos) aplicando apenas às ocorrências futuras não pagas
+  const updRes = ctx.apiCall('recurring.update', {
+    id: aguaRule.id,
+    valor_previsto_centavos: 14500,
+    aplicar_ocorrencias_futuras: true
+  });
+  assert.strictEqual(updRes.ok, true);
+  assert.strictEqual(updRes.data.ocorrencias_futuras_atualizadas, 1, 'Apenas a ocorrência não paga de Outubro deve ser atualizada');
+
+  // 6. Confirmar que o pagamento histórico de Setembro permaneceu intacto em R$ 120,00 (12000 centavos)
+  const sepLaunches = ctx.apiCall('launches.list', { mes: '2026-09' }).data.items;
+  const sepAgua = sepLaunches.find(l => l.referencia_recorrencia_id === aguaRule.id);
+  assert.strictEqual(sepAgua.valor_centavos, 12000, 'Pagamento histórico confirmado de Setembro jamais pode ser alterado');
+  assert.strictEqual(sepAgua.situacao, 'CONFIRMADO');
+
+  const octLaunches = ctx.apiCall('launches.list', { mes: '2026-10' }).data.items;
+  const octAgua = octLaunches.find(l => l.referencia_recorrencia_id === aguaRule.id);
+  assert.strictEqual(octAgua.valor_centavos, 14500, 'Previsão futura não paga de Outubro deve refletir o novo valor previsto');
+  assert.strictEqual(octAgua.situacao, 'PREVISTO');
+  results.push('Preservação de pagamentos históricos após alteração de conta recorrente comprovada.');
+
+  // 7. Atualizar data de término e testar opção de limpá-la (retornando a indeterminado)
+  const setTerm = ctx.apiCall('recurring.update', {
+    id: aguaRule.id,
+    data_termino: '2026-12-31'
+  });
+  assert.strictEqual(setTerm.ok, true);
+  assert.strictEqual(setTerm.data.regra.data_termino, '2026-12-31');
+
+  const clearTerm = ctx.apiCall('recurring.update', {
+    id: aguaRule.id,
+    data_termino: ''
+  });
+  assert.strictEqual(clearTerm.ok, true);
+  assert.strictEqual(clearTerm.data.regra.data_termino, '', 'Data de término deve poder ser limpa para recorrência indeterminada');
+  results.push('Limpeza da data de término para recorrência contínua comprovada.');
+
+  return results;
+}
+
+if (require.main === module) {
+  const out = runRecurringTests();
+  console.log('RECURRING TESTS PASSED:', out);
+}
+
+module.exports = { runRecurringTests };
+

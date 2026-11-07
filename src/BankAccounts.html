@@ -1,0 +1,436 @@
+<section id="sec-banks" class="module-section" aria-labelledby="title-banks">
+  <!-- Cabeçalho Principal Granazen com Badge de Ícone e Ações Rápidas -->
+  <div class="page-header-card" style="margin-bottom:1.15rem; border-radius:var(--radius-md);">
+    <div class="page-header-content">
+      <div class="page-icon-badge" style="background:rgba(14, 165, 233, 0.14); color:#0284c7;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+          <line x1="2" y1="10" x2="22" y2="10"></line>
+        </svg>
+      </div>
+      <div>
+        <h1 id="title-banks" class="card-title" style="font-size:1.3rem; margin:0; font-weight:700;">Contas Bancárias & Transferências</h1>
+        <small style="color:var(--text-secondary); font-size:0.82rem;">Administração de saldos reais e projetados, conciliação contínua e transferências internas.</small>
+      </div>
+    </div>
+    <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+      <button type="button" class="btn btn-primary btn-sm" id="btn-toggle-new-bank" onclick="App.toggleNewBankAccountCard()" style="display:flex; align-items:center; gap:0.4rem;">
+        <span id="icon-toggle-new-bank" style="font-weight:bold; font-size:1rem;">+</span>
+        <span>Nova Conta Bancária</span>
+      </button>
+      <button type="button" class="btn btn-secondary btn-sm" id="btn-toggle-new-transfer" onclick="App.toggleNewTransferCard()" style="display:flex; align-items:center; gap:0.4rem;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 23l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+        <span>Transferência Interna</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Cards de Resumo Executivo / KPIs Financeiros das Contas -->
+  <div class="filter-summary-cards" id="banks-kpi-container" style="margin-bottom:1.25rem;">
+    <div class="filter-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span class="summary-label">Saldo Consolidado (Real)</span>
+        <span class="badge badge-confirmado" style="font-size:0.65rem;">Confirmado</span>
+      </div>
+      <strong class="summary-value" id="banks-kpi-confirmado">R$ 0,00</strong>
+      <small style="color:var(--text-secondary); font-size:0.75rem;">Soma em contas bancárias ativas</small>
+    </div>
+    <div class="filter-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span class="summary-label">Previsão Líquida</span>
+        <span class="badge" style="background:rgba(124,58,237,0.12); color:#7c3aed; font-size:0.65rem;">Previsto</span>
+      </div>
+      <strong class="summary-value" id="banks-kpi-previsto">R$ 0,00</strong>
+      <small style="color:var(--text-secondary); font-size:0.75rem;">Lançamentos previstos pendentes</small>
+    </div>
+    <div class="filter-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span class="summary-label">Saldo Projetado Geral</span>
+        <span class="badge" style="background:rgba(2,132,199,0.12); color:#0284c7; font-size:0.65rem;">Projeção</span>
+      </div>
+      <strong class="summary-value" id="banks-kpi-projetado">R$ 0,00</strong>
+      <small style="color:var(--text-secondary); font-size:0.75rem;">Saldo real consolidado + previsões</small>
+    </div>
+    <div class="filter-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span class="summary-label">Contas Ativas</span>
+        <span class="badge" style="background:rgba(16,185,129,0.12); color:var(--success); font-size:0.65rem;">Status</span>
+      </div>
+      <strong class="summary-value" id="banks-kpi-ativas" style="color:var(--text-primary);">0 ativa(s)</strong>
+      <small id="banks-kpi-total-desc" style="color:var(--text-secondary); font-size:0.75rem;">De 0 contas cadastradas</small>
+    </div>
+  </div>
+
+  <!-- Card Retrátil: Cadastrar Nova Conta Bancária (Oculto por padrão para manter a tela limpa) -->
+  <div id="card-new-bank-account" class="card" style="display:none; margin-bottom:1.25rem; border-top:3px solid #0284c7;">
+    <div class="card-header" style="border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+      <div style="display:flex; align-items:center; gap:0.5rem;">
+        <div style="width:28px; height:28px; border-radius:6px; background:rgba(14, 165, 233, 0.14); color:#0284c7; display:flex; align-items:center; justify-content:center;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
+        </div>
+        <h2 class="card-title" style="margin:0; font-size:1.05rem;">Cadastrar Nova Conta Bancária</h2>
+      </div>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleNewBankAccountCard(false)" title="Fechar formulário">✕ Fechar</button>
+    </div>
+
+    <form id="form-bank" onsubmit="App.submitBankAccount(event)">
+      <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+        <div class="form-group">
+          <label for="bank-instituicao">Instituição *</label>
+          <input type="text" id="bank-instituicao" list="datalist-bancos" class="form-control" placeholder="Ex: Nubank, Itaú, BB..." oninput="App.onBankInstitutionInput(this.value)" required />
+          <datalist id="datalist-bancos">
+            <option value="Nubank">
+            <option value="Banco do Brasil">
+            <option value="Itaú">
+            <option value="Bradesco">
+            <option value="Caixa Econômica Federal">
+            <option value="Santander">
+            <option value="Banco Inter">
+            <option value="C6 Bank">
+            <option value="BTG Pactual">
+            <option value="Mercado Pago">
+            <option value="PicPay">
+            <option value="PagBank / PagSeguro">
+            <option value="XP Investimentos">
+            <option value="Neon">
+            <option value="Sicoob">
+            <option value="Sicredi">
+            <option value="Banco Safra">
+            <option value="Banco Pan">
+            <option value="Banrisul">
+            <option value="BRB">
+            <option value="Nomad">
+            <option value="Wise">
+            <option value="Sofisa Direto">
+            <option value="Daycoval">
+            <option value="Agibank">
+            <option value="Banco BMG">
+            <option value="Will Bank">
+            <option value="RecargaPay">
+            <option value="Genial Investimentos">
+            <option value="Dinheiro / Carteira">
+          </datalist>
+          <div id="bank-badge-preview-container" class="bank-preview-wrap"></div>
+        </div>
+        <div class="form-group">
+          <label for="bank-nome">Nome de Identificação *</label>
+          <input type="text" id="bank-nome" class="form-control" placeholder="Ex: Conta Principal, Reserva, Carteira" required />
+        </div>
+        <div class="form-group">
+          <label for="bank-tipo">Tipo de Conta *</label>
+          <select id="bank-tipo" class="form-control" required>
+            <option value="CORRENTE">Conta Corrente</option>
+            <option value="POUPANCA">Poupança</option>
+            <option value="PAGAMENTO">Conta de Pagamento</option>
+            <option value="DINHEIRO">Carteira Física (Dinheiro)</option>
+            <option value="OUTRA">Outra</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="bank-proprietario">Proprietário / Titular da Conta *</label>
+          <select id="bank-proprietario" class="form-control" required>
+            <!-- Preenchido dinamicamente via App.populateBankOwnerSelects -->
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="bank-bandeira">Bandeira do Cartão (Opcional)</label>
+          <select id="bank-bandeira" class="form-control" onchange="App.onCardBrandChange(this.value)">
+            <option value="">Nenhuma / Não se aplica</option>
+            <option value="Mastercard">Mastercard</option>
+            <option value="Visa">Visa</option>
+            <option value="Elo">Elo</option>
+            <option value="American Express">American Express</option>
+            <option value="Hipercard">Hipercard</option>
+            <option value="Diners Club">Diners Club</option>
+          </select>
+          <div id="card-brand-preview-container" class="bank-preview-wrap"></div>
+        </div>
+        <div class="form-group">
+          <label for="bank-saldo-inicial">Saldo Inicial (R$) *</label>
+          <input type="text" id="bank-saldo-inicial" class="form-control mask-money" placeholder="R$ 0,00" value="R$ 0,00" inputmode="numeric" oninput="UIHelpers.applyCurrencyMask(this)" required />
+        </div>
+        <div class="form-group">
+          <label for="bank-data-inicial">Data do Saldo Inicial *</label>
+          <input type="date" id="bank-data-inicial" class="form-control" required />
+        </div>
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <label for="bank-obs">Observações</label>
+          <input type="text" id="bank-obs" class="form-control" placeholder="Ex: Agência, conta, limite de cheque especial, etc." />
+        </div>
+      </div>
+      <div style="margin-top:1rem; display:flex; justify-content:flex-end; gap:0.5rem;">
+        <button type="button" class="btn btn-secondary" onclick="App.toggleNewBankAccountCard(false)">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar Nova Conta</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Card Retrátil: Transferência entre Contas Próprias (Oculto por padrão) -->
+  <div id="card-new-transfer" class="card" style="display:none; margin-bottom:1.25rem; border-top:3px solid var(--success);">
+    <div class="card-header" style="border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+      <div style="display:flex; align-items:center; gap:0.5rem;">
+        <div style="width:28px; height:28px; border-radius:6px; background:rgba(16, 185, 129, 0.14); color:var(--success); display:flex; align-items:center; justify-content:center;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 23l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+        </div>
+        <h2 class="card-title" style="margin:0; font-size:1.05rem;">Transferência entre Contas Próprias</h2>
+      </div>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleNewTransferCard(false)" title="Fechar formulário">✕ Fechar</button>
+    </div>
+
+    <form id="form-transfer" onsubmit="App.submitOwnTransfer(event)">
+      <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+        <div class="form-group">
+          <label for="trf-origem">Conta de Origem (Débito) *</label>
+          <select id="trf-origem" class="form-control" required></select>
+        </div>
+        <div class="form-group">
+          <label for="trf-destino">Conta de Destino (Crédito) *</label>
+          <select id="trf-destino" class="form-control" required></select>
+        </div>
+        <div class="form-group">
+          <label for="trf-valor">Valor da Transferência (R$) *</label>
+          <input type="text" id="trf-valor" class="form-control mask-money" placeholder="R$ 0,00" inputmode="numeric" oninput="UIHelpers.applyCurrencyMask(this)" required />
+        </div>
+        <div class="form-group">
+          <label for="trf-data">Data da Operação *</label>
+          <input type="date" id="trf-data" class="form-control" required />
+        </div>
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <label for="trf-desc">Descrição / Finalidade</label>
+          <input type="text" id="trf-desc" class="form-control" placeholder="Ex: Transferência de saldo, aporte na poupança, etc." />
+        </div>
+      </div>
+      <div style="margin-top:1rem; display:flex; justify-content:flex-end; gap:0.5rem;">
+        <button type="button" class="btn btn-secondary" onclick="App.toggleNewTransferCard(false)">Cancelar</button>
+        <button type="submit" class="btn btn-secondary">Registrar Transferência Interna</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tabela de Contas Bancárias Cadastradas -->
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="card-header" style="flex-wrap:wrap; gap:0.5rem; justify-content:space-between; align-items:center;">
+      <div>
+        <h2 class="card-title" style="margin:0; font-size:1.1rem;">Contas Cadastradas e Posição Financeira</h2>
+        <small style="color:var(--text-secondary); font-size:0.8rem;">Acompanhe saldos confirmados, projeções futuras e utilize as opções rápidas para extrato ou conciliação.</small>
+      </div>
+    </div>
+    <div id="banks-table-container" class="table-responsive"></div>
+  </div>
+
+  <!-- Modal de Edição de Conta Bancária -->
+  <div id="modal-edit-bank-account-backdrop" class="modal-backdrop" onclick="if(event.target===this) App.closeEditBankAccountModal()">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-edit-bank-title" style="max-width: 580px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <div style="width:28px; height:28px; border-radius:6px; background:rgba(14, 165, 233, 0.14); color:#0284c7; display:flex; align-items:center; justify-content:center;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          </div>
+          <h2 id="modal-edit-bank-title" class="card-title" style="margin:0; font-size:1.05rem;">Editar Conta Bancária</h2>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeEditBankAccountModal()" aria-label="Fechar">✕</button>
+      </div>
+
+      <form id="form-edit-bank" onsubmit="App.submitEditBankAccount(event)">
+        <input type="hidden" id="edit-bank-id" />
+        <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+          <div class="form-group">
+            <label for="edit-bank-instituicao">Instituição *</label>
+            <input type="text" id="edit-bank-instituicao" list="datalist-bancos" class="form-control" oninput="App.onEditBankInstitutionInput(this.value)" required />
+            <div id="edit-bank-badge-preview-container" class="bank-preview-wrap"></div>
+          </div>
+          <div class="form-group">
+            <label for="edit-bank-nome">Nome de Identificação *</label>
+            <input type="text" id="edit-bank-nome" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-bank-tipo">Tipo de Conta *</label>
+            <select id="edit-bank-tipo" class="form-control" required>
+              <option value="CORRENTE">Conta Corrente</option>
+              <option value="POUPANCA">Poupança</option>
+              <option value="PAGAMENTO">Conta de Pagamento</option>
+              <option value="DINHEIRO">Carteira Física (Dinheiro)</option>
+              <option value="OUTRA">Outra</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit-bank-proprietario">Proprietário / Titular da Conta</label>
+            <select id="edit-bank-proprietario" class="form-control">
+              <!-- Preenchido dinamicamente via App.populateBankOwnerSelects -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit-bank-bandeira">Bandeira do Cartão</label>
+            <select id="edit-bank-bandeira" class="form-control" onchange="App.onEditCardBrandChange(this.value)">
+              <option value="">Nenhuma / Não se aplica</option>
+              <option value="Mastercard">Mastercard</option>
+              <option value="Visa">Visa</option>
+              <option value="Elo">Elo</option>
+              <option value="American Express">American Express</option>
+              <option value="Hipercard">Hipercard</option>
+              <option value="Diners Club">Diners Club</option>
+            </select>
+            <div id="edit-card-brand-preview-container" class="bank-preview-wrap"></div>
+          </div>
+          <div class="form-group">
+            <label for="edit-bank-situacao">Situação da Conta *</label>
+            <select id="edit-bank-situacao" class="form-control" required>
+              <option value="ATIVA">ATIVA (Disponível em novos lançamentos)</option>
+              <option value="INATIVA">INATIVA (Oculta em novos lançamentos)</option>
+              <option value="ARQUIVADA">ARQUIVADA</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label for="edit-bank-obs">Observações</label>
+            <input type="text" id="edit-bank-obs" class="form-control" placeholder="Agência, conta, etc." />
+          </div>
+        </div>
+        <div style="margin-top:1.25rem; display:flex; justify-content:flex-end; gap:0.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="App.closeEditBankAccountModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de Conciliação Manual de Saldo -->
+  <div id="modal-reconcile-account-backdrop" class="modal-backdrop" onclick="if(event.target===this) App.closeReconcileAccountModal()">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-reconcile-title" style="max-width: 520px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <div style="width:28px; height:28px; border-radius:6px; background:rgba(16, 185, 129, 0.14); color:var(--success); display:flex; align-items:center; justify-content:center;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+          </div>
+          <h2 id="modal-reconcile-title" class="card-title" style="margin:0; font-size:1.05rem;">Conciliação Manual de Saldo</h2>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeReconcileAccountModal()" aria-label="Fechar">✕</button>
+      </div>
+
+      <form id="form-reconcile-bank" onsubmit="App.submitReconcileAccount(event)">
+        <input type="hidden" id="reconcile-bank-id" />
+        
+        <div style="background:var(--bg-hover); border-radius:var(--radius-sm); padding:0.85rem 1rem; margin-bottom:1rem; border:1px solid var(--border-color);">
+          <div style="font-size:0.82rem; color:var(--text-secondary); margin-bottom:4px;">Conta Selecionada:</div>
+          <div style="font-weight:700; font-size:1.05rem; color:var(--text-primary);" id="reconcile-account-name">-</div>
+          <div style="display:flex; justify-content:space-between; margin-top:0.5rem; font-size:0.85rem;">
+            <span style="color:var(--text-secondary);">Saldo Atual no Sistema:</span>
+            <strong id="reconcile-current-balance">R$ 0,00</strong>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="reconcile-new-balance">Saldo Real no Banco / Extrato (R$) *</label>
+          <input type="text" id="reconcile-new-balance" class="form-control" placeholder="0,00" oninput="App.updateReconcileDiff()" required style="font-size:1.1rem; font-weight:700;" />
+          <small style="color:var(--text-secondary); font-size:0.75rem;">Digite o valor exato que consta no aplicativo do seu banco hoje.</small>
+        </div>
+
+        <!-- Box Dinâmico com a Diferença Apurada -->
+        <div id="reconcile-diff-box" style="background:var(--bg-surface); border:1px dashed var(--border-strong); border-radius:var(--radius-sm); padding:0.75rem 1rem; margin-bottom:1rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.82rem; color:var(--text-secondary);">Diferença Apurada:</span>
+            <strong id="reconcile-diff-value" style="font-size:0.95rem;">R$ 0,00</strong>
+          </div>
+          <div id="reconcile-diff-action" style="font-size:0.78rem; color:var(--text-secondary); margin-top:4px;">Nenhum lançamento de ajuste será gerado.</div>
+        </div>
+
+        <div style="display:flex; align-items:flex-start; gap:0.5rem; margin-bottom:1.25rem;">
+          <input type="checkbox" id="reconcile-create-adjustment" checked style="margin-top:3px;" />
+          <label for="reconcile-create-adjustment" style="font-size:0.82rem; color:var(--text-primary); cursor:pointer;">
+            <strong>Gerar lançamento de ajuste auditado</strong> caso haja diferença entre o saldo do sistema e o informado.
+          </label>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="App.closeReconcileAccountModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Confirmar Conciliação</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Extrato Bancário / Financeiro Profissional -->
+  <div class="card" id="bank-statement-card" style="display:none; scroll-margin-top: 1rem;">
+    <div class="card-header" style="flex-wrap:wrap; gap:0.75rem;">
+      <div class="card-header-with-icon">
+        <div class="page-icon-badge page-icon-wallet" id="statement-bank-icon-badge" style="width:36px; height:36px; border-radius:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+        </div>
+        <div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <h2 class="card-title" id="bank-statement-title" style="margin:0;">Extrato da Conta Bancária</h2>
+            <span id="bank-statement-badge-tipo" class="badge badge-confirmado">Conta Corrente</span>
+          </div>
+          <small id="bank-statement-subtitle" style="color:var(--text-secondary); font-size:0.75rem;">Extrato analítico detalhado com reconciliação contínua e distinção de entradas e saídas.</small>
+        </div>
+      </div>
+      <div class="no-print" style="display:flex; gap:0.45rem; flex-wrap:wrap; align-items:center;">
+        <input type="hidden" id="statement-current-account-id" />
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.exportStatementCsv()" title="Exportar este extrato em CSV para o Excel">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          <span>Exportar CSV</span>
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.printStatementPdf()" title="Imprimir extrato ou salvar como PDF">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          <span>Imprimir / PDF</span>
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeBankStatement()" title="Fechar visualização do extrato">
+          ✕ Fechar
+        </button>
+      </div>
+    </div>
+
+    <!-- Barra de Filtro de Período do Extrato -->
+    <div class="filters-card-wrapper no-print" style="margin: 0.75rem 0 1rem 0; padding:0.75rem 0.9rem;">
+      <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:flex-end;">
+        <div class="filter-item" style="min-width:150px;">
+          <label for="statement-filter-preset">Período</label>
+          <select id="statement-filter-preset" class="form-control" onchange="App.onStatementPresetChange()">
+            <option value="ALL">Todo o Histórico</option>
+            <option value="THIS_MONTH" selected>Este Mês</option>
+            <option value="LAST_MONTH">Mês Passado</option>
+            <option value="LAST_30_DAYS">Últimos 30 dias</option>
+            <option value="THIS_YEAR">Este Ano</option>
+            <option value="CUSTOM">Personalizado...</option>
+          </select>
+        </div>
+        <div class="filter-item" style="min-width:130px;">
+          <label for="statement-filter-inicio">De</label>
+          <input type="date" id="statement-filter-inicio" class="form-control" onchange="App.onStatementCustomDateChange()" />
+        </div>
+        <div class="filter-item" style="min-width:130px;">
+          <label for="statement-filter-fim">Até</label>
+          <input type="date" id="statement-filter-fim" class="form-control" onchange="App.onStatementCustomDateChange()" />
+        </div>
+        <div>
+          <button type="button" class="btn btn-primary btn-sm" onclick="App.reloadCurrentStatement()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+            <span>Atualizar Extrato</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cards de Resumo Financeiro do Extrato (Granazen / Bancos Brasileiros) -->
+    <div class="filter-summary-cards" id="statement-summary-cards">
+      <div class="filter-summary-card">
+        <span class="summary-label">Saldo Anterior</span>
+        <strong class="summary-value" id="statement-saldo-anterior">R$ 0,00</strong>
+      </div>
+      <div class="filter-summary-card">
+        <span class="summary-label">(+) Entradas (Créditos)</span>
+        <strong class="summary-value summary-val-entrada" id="statement-total-entradas">+R$ 0,00</strong>
+      </div>
+      <div class="filter-summary-card">
+        <span class="summary-label">(-) Saídas (Débitos)</span>
+        <strong class="summary-value summary-val-saida" id="statement-total-saidas">-R$ 0,00</strong>
+      </div>
+      <div class="filter-summary-card">
+        <span class="summary-label">(=) Saldo Atual / Final</span>
+        <strong class="summary-value summary-val-saldo" id="statement-saldo-final">R$ 0,00</strong>
+      </div>
+    </div>
+
+    <!-- Tabela do Extrato com Distinção de Entradas e Saídas -->
+    <div id="bank-statement-container" class="table-responsive"></div>
+  </div>
+</section>

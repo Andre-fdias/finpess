@@ -1,0 +1,188 @@
+<section id="sec-dashboard" class="module-section active" aria-labelledby="title-dashboard">
+  <!-- Cabeçalho Principal do Dashboard -->
+  <div class="card page-header-card">
+    <div class="page-header-content">
+      <div class="page-icon-badge page-icon-blue">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+          <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+          <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+          <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+        </svg>
+      </div>
+      <div>
+        <h1 id="title-dashboard" class="page-title">Dashboard Financeiro Consolidado</h1>
+        <p class="page-subtitle">Visão separada entre valores confirmados (caixa real), previstos, pendentes e patrimônio estimado.</p>
+      </div>
+    </div>
+    <div class="page-header-actions">
+      <label for="dash-month-select" style="font-size:0.78rem; font-weight:600; color:var(--text-secondary);">Mês:</label>
+      <input type="month" id="dash-month-select" class="form-control" style="width:145px; height:32px; font-size:0.78rem;" onchange="App.loadDashboard()" />
+      <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadDashboard()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        <span>Atualizar</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Health Score Widget -->
+  <div class="card" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1.25rem; padding:1.15rem 1.4rem; background:linear-gradient(135deg, var(--bg-surface) 0%, rgba(22, 133, 255, 0.05) 100%);">
+    <div style="display:flex; align-items:center; gap:1.15rem;">
+      <div id="health-score-radial" style="width:58px; height:58px; border-radius:50%; background:conic-gradient(var(--success) 85%, var(--border-color) 0); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(16, 185, 129, 0.25);">
+        <div style="width:46px; height:46px; border-radius:50%; background:var(--bg-surface); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.05rem; color:var(--text-primary);" id="health-score-val">88</div>
+      </div>
+      <div>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <h3 style="margin:0; font-size:1.05rem; font-weight:700;">Índice de Saúde Financeira</h3>
+          <span class="badge badge-confirmado" id="health-score-badge">Excelente</span>
+        </div>
+        <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:var(--text-secondary);" id="health-score-desc">Seus gastos essenciais e compromissos estão saudáveis em relação às receitas.</p>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:0.6rem;">
+      <button type="button" class="btn btn-secondary btn-sm" onclick="App.togglePrivacyMode()" title="Ocultar ou exibir valores">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        <span>Modo Privacidade</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Indicadores Confirmados (Caixa Realizado) -->
+  <div class="kpi-grid">
+    <div class="card">
+      <div class="card-header">
+        <span style="font-size:0.78rem; color:var(--text-secondary); font-weight:600;">Saldo Bancário Consolidado</span>
+        <span class="badge badge-confirmado">Confirmado</span>
+      </div>
+      <div id="kpi-saldo-confirmado" class="money-value">R$ 0,00</div>
+      <div id="sparkline-saldo" class="kpi-sparkline-wrap"></div>
+      <small style="color:var(--text-muted); font-size:0.72rem;">Soma exclusiva dos saldos realizados nas contas ativas (sem previsões).</small>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span style="font-size:0.78rem; color:var(--text-secondary); font-weight:600;">Receitas do Mês</span>
+        <span class="badge badge-confirmado">Realizadas</span>
+      </div>
+      <div id="kpi-receitas-confirmadas" class="money-value money-positive">R$ 0,00</div>
+      <div id="sparkline-receitas" class="kpi-sparkline-wrap"></div>
+      <small id="kpi-receitas-previstas-sub" style="color:var(--text-muted); font-size:0.72rem;">Previstas: R$ 0,00 | Pendentes: R$ 0,00</small>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span style="font-size:0.78rem; color:var(--text-secondary); font-weight:600;">Despesas do Mês</span>
+        <span class="badge badge-confirmado">Pagas</span>
+      </div>
+      <div id="kpi-despesas-confirmadas" class="money-value money-negative">R$ 0,00</div>
+      <div id="sparkline-despesas" class="kpi-sparkline-wrap"></div>
+      <small id="kpi-despesas-previstas-sub" style="color:var(--text-muted); font-size:0.72rem;">Previstas: R$ 0,00 | Pendentes: R$ 0,00</small>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span style="font-size:0.78rem; color:var(--text-secondary); font-weight:600;">Resultado Mensal</span>
+        <span class="badge badge-confirmado">Realizado</span>
+      </div>
+      <div id="kpi-resultado-realizado" class="money-value">R$ 0,00</div>
+      <div id="sparkline-resultado" class="kpi-sparkline-wrap"></div>
+      <small id="kpi-resultado-projetado-sub" style="color:var(--text-muted); font-size:0.72rem;">Projetado c/ previsões: R$ 0,00</small>
+    </div>
+  </div>
+
+  <!-- Segunda linha: Contas Vencidas, Contas a Vencer, Projeção Fim do Mês e Patrimônio Estimado -->
+  <div class="kpi-grid">
+    <div class="card">
+      <div class="card-header">
+        <span style="font-size:0.78rem; color:var(--text-secondary); font-weight:600;">Contas Vencidas</span>
+        <span class="badge badge-vencido">Pendente</span>
+      </div>
+      <div id="kpi-contas-vencidas" class="money-value money-negative">R$ 0,00</div>
+      <small id="kpi-contas-vencidas-qtd" style="color:var(--text-muted); font-size:0.72rem;">0 compromissos vencidos</small>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span style="font-size:0.78rem; color:var(--text-secondary); font-weight:600;">Contas a Vencer</span>
+        <span class="badge badge-previsto">Previsto</span>
+      </div>
+      <div id="kpi-contas-a-vencer" class="money-value money-predicted">R$ 0,00</div>
+      <small id="kpi-contas-a-vencer-qtd" style="color:var(--text-muted); font-size:0.72rem;">0 compromissos futuros</small>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span style="font-size:0.78rem; color:var(--text-secondary); font-weight:600;">Saldo Projetado Fim do Mês</span>
+        <span class="badge badge-estimado">Estimado</span>
+      </div>
+      <div id="kpi-saldo-projetado-mes" class="money-value money-estimated">R$ 0,00</div>
+      <small style="color:var(--text-muted); font-size:0.72rem;">Projeção considerando entradas e saídas previstas.</small>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span style="font-size:0.78rem; color:var(--text-secondary); font-weight:600;">Patrimônio Líquido Estimado</span>
+        <span class="badge badge-estimado">Estimado</span>
+      </div>
+      <div id="kpi-patrimonio-estimado" class="money-value money-estimated">R$ 0,00</div>
+      <small id="kpi-patrimonio-composicao" style="color:var(--text-muted); font-size:0.72rem;">Contas + Investimentos - Passivos</small>
+    </div>
+  </div>
+
+  <!-- Gráficos e Tabelas de Acompanhamento -->
+  <div class="grid-2col">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-with-icon">
+          <div class="card-header-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          </div>
+          <h2 class="card-title">Evolução Mensal (Receitas x Despesas Realizadas)</h2>
+        </div>
+      </div>
+      <div id="dash-chart-evolucao"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-with-icon">
+          <div class="card-header-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </div>
+          <h2 class="card-title">Gastos por Categoria (Confirmado x Previsto x Orçamento)</h2>
+        </div>
+      </div>
+      <div id="dash-categorias-list" class="table-responsive"></div>
+    </div>
+  </div>
+
+  <div class="grid-2col">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-with-icon">
+          <div class="card-header-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          </div>
+          <h2 class="card-title">Compromissos Vencidos e Próximos Vencimentos</h2>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.navigate('launches')">
+          <span>Ver todos</span>
+          <span style="font-size:10px;">→</span>
+        </button>
+      </div>
+      <div id="dash-vencimentos-list" class="table-responsive"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-with-icon">
+          <div class="card-header-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+          </div>
+          <h2 class="card-title">Composição do Patrimônio Financeiro Estimado</h2>
+        </div>
+      </div>
+      <div id="dash-patrimonio-detalhe" class="table-responsive"></div>
+    </div>
+  </div>
+</section>

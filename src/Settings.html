@@ -1,0 +1,1388 @@
+<section id="sec-settings" class="module-section" aria-labelledby="title-settings">
+  <!-- Cabeçalho Executivo Granazen -->
+  <div class="page-header-card" style="margin-bottom:1.25rem;">
+    <div style="display:flex; align-items:center; gap:0.85rem; flex-wrap:wrap; justify-content:space-between;">
+      <div style="display:flex; align-items:center; gap:0.75rem;">
+        <div style="width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg, #0ea5e9, #0284c7); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.35rem; box-shadow:0 4px 12px rgba(2,132,199,0.25);">
+          ⚙️
+        </div>
+        <div>
+          <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+            <h1 id="title-settings" class="card-title" style="font-size:1.35rem; margin:0;">Central de Configurações, Segurança e Administração</h1>
+            <span class="badge badge-confirmado" style="font-size:0.75rem;">Painel Administrativo</span>
+          </div>
+          <small style="color:var(--text-secondary);">Gerencie usuários, permissões, categorias, parâmetros financeiros, integrações (Telegram & IA), segurança e backups.</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navegação por Subabas (10 Subabas Modulares) -->
+  <div class="tabs-nav-container" style="margin-bottom:1.25rem;">
+    <div style="display:flex; gap:0.4rem; flex-wrap:wrap; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
+      <button type="button" class="btn btn-sm btn-primary settings-subtab-btn" data-stab="geral" onclick="App.switchSettingsTab('geral')">
+        🏢 Geral
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary settings-subtab-btn" data-stab="usuarios" onclick="App.switchSettingsTab('usuarios')">
+        👥 Usuários e Acessos
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary settings-subtab-btn" data-stab="categorias" onclick="App.switchSettingsTab('categorias')">
+        🏷️ Categorias
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary settings-subtab-btn" data-stab="financeiro" onclick="App.switchSettingsTab('financeiro')">
+        💰 Parâmetros Financeiros
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary settings-subtab-btn" data-stab="integracoes" onclick="App.switchSettingsTab('integracoes')">
+        ⚡ Integrações (Telegram & IA)
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary settings-subtab-btn" data-stab="notificacoes" onclick="App.switchSettingsTab('notificacoes')">
+        🔔 Notificações
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary settings-subtab-btn" data-stab="seguranca" onclick="App.switchSettingsTab('seguranca')">
+        🛡️ Segurança e Privacidade
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary settings-subtab-btn" data-stab="auditoria" onclick="App.switchSettingsTab('auditoria')">
+        📜 Logs e Auditoria
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary settings-subtab-btn" data-stab="backup" onclick="App.switchSettingsTab('backup')">
+        💾 Backup e Manutenção
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary settings-subtab-btn" data-stab="diagnostico" onclick="App.switchSettingsTab('diagnostico')">
+        🩺 Sistema e Diagnóstico
+      </button>
+    </div>
+  </div>
+
+  <!-- SUBABA 1: GERAL -->
+  <div id="settings-subtab-geral" class="settings-subtab-content">
+    <div class="grid-2col">
+      <!-- Informações do Sistema -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title" style="font-size:1.1rem;">Informações Gerais da Instalação</h2>
+          <span class="badge badge-confirmado">Instalação Oficial</span>
+        </div>
+        <table class="data-table">
+          <tbody>
+            <tr>
+              <td><strong>Nome do Sistema:</strong></td>
+              <td>Finanças Inteligentes SaaS</td>
+            </tr>
+            <tr>
+              <td><strong>Versão Ativa:</strong></td>
+              <td>2.1.0 (V8 Engine)</td>
+            </tr>
+            <tr>
+              <td><strong>ID da Planilha Vinculada:</strong></td>
+              <td><code style="font-size:0.8rem;">1MLW8MLoAdPG8lYZhwwV0UHrSV5wIn2mHJjXgcYsyw9c</code></td>
+            </tr>
+            <tr>
+              <td><strong>Arquitetura de Dados:</strong></td>
+              <td>21 Abas Estruturadas (Google Sheets)</td>
+            </tr>
+            <tr>
+              <td><strong>Status Geral:</strong></td>
+              <td><span class="badge badge-confirmado">Operacional</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Preferências Individuais do Usuário -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title" style="font-size:1.1rem;">Preferências Individuais do Usuário</h2>
+          <span class="badge badge-primario">Sua Conta</span>
+        </div>
+        <form id="form-prefs" onsubmit="App.submitUserPreferences(event)">
+          <div class="form-group" style="margin-bottom:0.75rem;">
+            <label for="pref-nome">Seu Nome de Exibição *</label>
+            <input type="text" id="pref-nome" class="form-control" required />
+          </div>
+          <div class="form-group" style="margin-bottom:0.75rem;">
+            <label for="pref-tema">Tema Visual (Persistido na sua Conta)</label>
+            <select id="pref-tema" class="form-control" onchange="App.applyAndSaveTheme(this.value)">
+              <option value="light">Claro — Light Mode</option>
+              <option value="dark">Escuro — Dark Mode</option>
+              <option value="auto">Automático (Seguir dispositivo)</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0.75rem;">
+            <label for="pref-conta-padrao">Conta Bancária Padrão para Lançamentos</label>
+            <select id="pref-conta-padrao" class="form-control"></select>
+          </div>
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+              <input type="checkbox" id="pref-notif-email" /> Receber alertas de vencimento por e-mail
+            </label>
+          </div>
+          <button type="submit" class="btn btn-primary">Salvar Preferências</button>
+        </form>
+      </div>
+
+      <!-- Aplicativo Móvel PWA (Android / Chrome / iOS) -->
+      <div class="card" style="grid-column: span 2; border:1px solid rgba(16,185,129,0.3); background:linear-gradient(135deg, rgba(16,185,129,0.03) 0%, rgba(5,150,105,0.08) 100%);">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:0.6rem;">
+            <span style="font-size:1.35rem;">📱</span>
+            <div>
+              <h2 class="card-title" style="font-size:1.1rem; margin:0;">Aplicativo para Celular & Computador (PWA)</h2>
+              <small style="color:var(--text-secondary); font-size:0.8rem;">Instalação nativa via Google Chrome sem lojas de apps e com custo zero</small>
+            </div>
+          </div>
+          <span class="badge badge-confirmado" style="background:#059669; color:#fff;">PWA Ativo</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; padding-top:0.5rem;">
+          <div style="max-width:680px; font-size:0.85rem; color:var(--text-secondary); line-height:1.5;">
+            O Finpess suporta instalação direta via <strong>Google Chrome no Android</strong> através do nosso Launcher oficial no GitHub Pages (custo R$ 0,00). O aplicativo roda em modo tela cheia nativo, sem barras do navegador, criando um ícone oficial na gaveta de apps do celular com máxima agilidade para seus lançamentos diários.
+          </div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <a href="https://andre-fdias.github.io/finpess/" target="_blank" rel="noopener" class="btn btn-secondary" style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; text-decoration:none;">
+              <span>🌐 Abrir Launcher</span>
+            </a>
+            <button type="button" class="btn btn-primary" onclick="App.showPwaInstructionsModal()" style="display:inline-flex; align-items:center; gap:0.5rem; font-weight:600; padding:0.6rem 1.1rem;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+              <span>Como Instalar no Celular</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBABA 2: USUÁRIOS E ACESSOS -->
+  <div id="settings-subtab-usuarios" class="settings-subtab-content" style="display:none;">
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title" style="font-size:1.15rem; display:flex; align-items:center; gap:0.5rem;">
+            👥 Controle Completo de Usuários e Permissões
+            <span class="badge badge-confirmado">Módulo Administrativo</span>
+          </h2>
+          <small style="color:var(--text-secondary);">Cadastre, edite, ative, bloqueie, exclua ou visualize cadastros detalhados e logs de acesso individuais.</small>
+        </div>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <button type="button" class="btn btn-primary btn-sm" onclick="App.openCreateUserModal()">
+            <span>➕ Novo Usuário</span>
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadAdminUsers()">
+            <span>🔄 Atualizar Lista</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros de Usuários -->
+      <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:1rem; padding:0.75rem; background:var(--bg-secondary); border-radius:8px;">
+        <div style="flex:1; min-width:200px;">
+          <input type="text" id="user-filter-search" class="form-control form-control-sm" placeholder="🔍 Filtrar por nome ou e-mail..." oninput="App.filterAdminUsers()" />
+        </div>
+        <div style="min-width:140px;">
+          <select id="user-filter-role" class="form-control form-control-sm" onchange="App.filterAdminUsers()">
+            <option value="">Todos os Papéis</option>
+            <option value="OWNER">👑 OWNER (Proprietário)</option>
+            <option value="ADMIN">🛡️ ADMIN (Administrador)</option>
+            <option value="USUARIO">👤 USUÁRIO (Membro)</option>
+          </select>
+        </div>
+        <div style="min-width:140px;">
+          <select id="user-filter-status" class="form-control form-control-sm" onchange="App.filterAdminUsers()">
+            <option value="">Todos os Status</option>
+            <option value="APROVADO">Aprovado (Ativo)</option>
+            <option value="PENDENTE">Pendente</option>
+            <option value="BLOQUEADO">Bloqueado</option>
+            <option value="REVOGADO">Revogado</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Container da Tabela de Usuários -->
+      <div id="admin-users-container" class="table-responsive">
+        <p style="color:var(--text-muted); text-align:center; padding:1.5rem;">Carregando usuários cadastrados...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBABA 3: CATEGORIAS E SUBCATEGORIAS -->
+  <div id="settings-subtab-categorias" class="settings-subtab-content" style="display:none;">
+    <div class="grid-2col" style="margin-bottom:1.25rem;">
+      <!-- Criar Categoria -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title" style="font-size:1.1rem;">Nova Categoria Financeira</h2>
+          <small style="color:var(--text-secondary);">Defina a categoria com orçamento mensal planejado.</small>
+        </div>
+        <form id="form-category" onsubmit="App.submitCategory(event)">
+          <div class="form-grid" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+            <div class="form-group">
+              <label for="cat-nome">Nome da Categoria *</label>
+              <input type="text" id="cat-nome" class="form-control" placeholder="Ex: Pets, Educação" required />
+            </div>
+            <div class="form-group">
+              <label for="cat-tipo">Tipo *</label>
+              <select id="cat-tipo" class="form-control" required>
+                <option value="SAIDA">Saída (Despesa)</option>
+                <option value="ENTRADA">Entrada (Receita)</option>
+                <option value="AMBOS">Ambos</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="cat-orcamento">Orçamento Mensal (R$)</label>
+              <input type="text" id="cat-orcamento" class="form-control" placeholder="R$ 0,00" data-mask="currency" />
+            </div>
+            <div class="form-group">
+              <label for="cat-cor">Cor Visual</label>
+              <input type="color" id="cat-cor" class="form-control" value="#1685FF" />
+            </div>
+          </div>
+          <div style="margin-top:0.85rem; text-align:right;">
+            <button type="submit" class="btn btn-primary">➕ Criar Categoria</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Criar Subcategoria -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title" style="font-size:1.1rem;">Nova Subcategoria</h2>
+          <small style="color:var(--text-secondary);">Vincule uma subcategoria a uma categoria principal.</small>
+        </div>
+        <form id="form-subcategory" onsubmit="App.submitSubcategory(event)">
+          <div class="form-grid" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+            <div class="form-group">
+              <label for="subcat-categoria-id">Categoria Principal *</label>
+              <select id="subcat-categoria-id" class="form-control" required></select>
+            </div>
+            <div class="form-group">
+              <label for="subcat-nome">Nome da Subcategoria *</label>
+              <input type="text" id="subcat-nome" class="form-control" placeholder="Ex: Farmácia, Combustível" required />
+            </div>
+          </div>
+          <div style="margin-top:0.85rem; text-align:right;">
+            <button type="submit" class="btn btn-primary">➕ Criar Subcategoria</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Aplicativo Móvel PWA (Android / Chrome / iOS) -->
+      <div class="card" style="grid-column: span 2; border:1px solid rgba(16,185,129,0.3); background:linear-gradient(135deg, rgba(16,185,129,0.03) 0%, rgba(5,150,105,0.08) 100%);">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:0.6rem;">
+            <span style="font-size:1.35rem;">📱</span>
+            <div>
+              <h2 class="card-title" style="font-size:1.1rem; margin:0;">Aplicativo para Celular & Computador (PWA)</h2>
+              <small style="color:var(--text-secondary); font-size:0.8rem;">Instalação nativa via Google Chrome sem lojas de apps e com custo zero</small>
+            </div>
+          </div>
+          <span class="badge badge-confirmado" style="background:#059669; color:#fff;">PWA Ativo</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; padding-top:0.5rem;">
+          <div style="max-width:680px; font-size:0.85rem; color:var(--text-secondary); line-height:1.5;">
+            O Finpess suporta instalação direta via <strong>Google Chrome no Android</strong> através do nosso Launcher oficial no GitHub Pages (custo R$ 0,00). O aplicativo roda em modo tela cheia nativo, sem barras do navegador, criando um ícone oficial na gaveta de apps do celular com máxima agilidade para seus lançamentos diários.
+          </div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <a href="https://andre-fdias.github.io/finpess/" target="_blank" rel="noopener" class="btn btn-secondary" style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; text-decoration:none;">
+              <span>🌐 Abrir Launcher</span>
+            </a>
+            <button type="button" class="btn btn-primary" onclick="App.showPwaInstructionsModal()" style="display:inline-flex; align-items:center; gap:0.5rem; font-weight:600; padding:0.6rem 1.1rem;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+              <span>Como Instalar no Celular</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabela de Categorias e Subcategorias -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title" style="font-size:1.15rem;">Categorias e Subcategorias Cadastradas</h2>
+        <small style="color:var(--text-secondary);">Organização e orçamentos planejados das rubricas financeiras.</small>
+      </div>
+      <div id="categories-table-container" class="table-responsive">
+        <p style="color:var(--text-muted); text-align:center; padding:1.5rem;">Carregando categorias...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBABA 4: PARÂMETROS FINANCEIROS -->
+  <div id="settings-subtab-financeiro" class="settings-subtab-content" style="display:none;">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title" style="font-size:1.15rem;">Regras e Parâmetros Contábeis</h2>
+          <small style="color:var(--text-secondary);">Defina a moeda padrão, regras de precisão, regime contábil e passivos. Todos os parâmetros são padronizados em opções selecionáveis.</small>
+        </div>
+        <span class="badge badge-confirmado">Controle Determinístico</span>
+      </div>
+
+      <form id="form-financial-params" onsubmit="App.submitFinancialParameters(event)">
+        <div style="display:grid; grid-template-columns:1fr; gap:1.15rem; margin-top:0.5rem;">
+          
+          <!-- Moeda Padrão -->
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="param-moeda-padrao"><strong>Moeda Padrão do Sistema:</strong></label>
+            <select id="param-moeda-padrao" class="form-control" style="font-weight:600; max-width:100%;">
+              <option value="BRL">🇧🇷 Real Brasileiro (BRL / R$)</option>
+              <option value="USD">🇺🇸 Dólar Americano (USD / $)</option>
+              <option value="EUR">🇪🇺 Euro (EUR / €)</option>
+              <option value="GBP">🇬🇧 Libra Esterlina (GBP / £)</option>
+              <option value="ARS">🇦🇷 Peso Argentino (ARS / $)</option>
+              <option value="JPY">🇯🇵 Iene Japonês (JPY / ¥)</option>
+              <option value="CHF">🇨🇭 Franco Suíço (CHF / Fr)</option>
+              <option value="CAD">🇨🇦 Dólar Canadense (CAD / C$)</option>
+              <option value="AUD">🇦🇺 Dólar Australiano (AUD / A$)</option>
+              <option value="CLP">🇨🇱 Peso Chileno (CLP / $)</option>
+              <option value="UYU">🇺🇾 Peso Uruguaio (UYU / $U)</option>
+              <option value="CNY">🇨🇳 Yuan Chinês (CNY / ¥)</option>
+              <option value="BTC">₿ Bitcoin (BTC / ₿)</option>
+              <option value="ETH">Ξ Ethereum (ETH / Ξ)</option>
+            </select>
+            <small style="color:var(--text-secondary);">Moeda de referência para demonstrativos, balanços patrimoniais, relatórios e painéis.</small>
+          </div>
+
+          <!-- Precisão Monetária -->
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="param-precisao-monetaria"><strong>Precisão Monetária:</strong></label>
+            <select id="param-precisao-monetaria" class="form-control">
+              <option value="CENTAVOS_INTEIROS">Centavos Inteiros Fixos (Sem ponto flutuante, prevenindo erros de arredondamento) [Padrão Recomendado]</option>
+              <option value="DUAS_CASAS_DECIMAIS">2 Casas Decimais (Padrão Bancário Comercial)</option>
+              <option value="UNIDADE_INTEIRA">Unidades Inteiras (Sem centavos, arredondamento padrão)</option>
+            </select>
+            <small style="color:var(--text-secondary);">Garante que cálculos de receitas e despesas preservem exatidão aritmética contábil sem perdas decimais.</small>
+          </div>
+
+          <!-- Regime Contábil -->
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="param-regime-contabil"><strong>Regime Contábil:</strong></label>
+            <select id="param-regime-contabil" class="form-control">
+              <option value="HIBRIDO">Regime de Caixa para Saldo Bancário Efetivo e Competência Mensal para Planejamento [Padrão Recomendado]</option>
+              <option value="CAIXA_PURO">Regime de Caixa Estrito (Considera apenas lançamentos confirmados e liquidados na conta bancária)</option>
+              <option value="COMPETENCIA">Regime de Competência (Reconhece receitas e despesas na data de competência / fato gerador)</option>
+            </select>
+            <small style="color:var(--text-secondary);">Define a regra contábil aplicada aos saldos das contas e às projeções orçamentárias.</small>
+          </div>
+
+          <!-- Tratamento de Consignados -->
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="param-tratamento-consignados"><strong>Tratamento de Consignados:</strong></label>
+            <select id="param-tratamento-consignados" class="form-control">
+              <option value="ISOLADO_INFORMATIVO">Isolado estritamente como informativo salarial, sem dupla dedução de caixa [Padrão Recomendado]</option>
+              <option value="DEDUCAO_AUTOMATICA">Deduzir do Saldo Operacional (Aplicável caso o salário seja lançado na planilha pelo valor bruto total)</option>
+              <option value="APENAS_CONTROLE">Apenas Controle no Módulo de Empréstimos (Ocultar de fluxo de caixa e calendário)</option>
+            </select>
+            <small style="color:var(--text-secondary);">Impede a dupla contagem de parcelas descontadas diretamente em folha salarial.</small>
+          </div>
+
+          <!-- Dívidas Antigas sem Acordo -->
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="param-dividas-antigas"><strong>Dívidas Antigas sem Acordo:</strong></label>
+            <select id="param-dividas-antigas" class="form-control">
+              <option value="ISOLADAS_FLUXO">Isoladas do fluxo de caixa operacional diário até que haja acordo formal ativo [Padrão Recomendado]</option>
+              <option value="INCLUIR_PROVISAO">Incluir como Provisão de Passivo no Orçamento do Mês Corrente</option>
+              <option value="SUSPENSAS">Totalmente Suspensas de Projeções e Avisos até Negociação</option>
+            </select>
+            <small style="color:var(--text-secondary);">Mantém o orçamento mensal protegido de passivos pendentes de renegociação.</small>
+          </div>
+
+          <!-- Parâmetros Adicionais Contábeis -->
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; margin-top:0.25rem;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label for="param-primeiro-dia-semana"><strong>Primeiro Dia da Semana:</strong></label>
+              <select id="param-primeiro-dia-semana" class="form-control">
+                <option value="DOMINGO">Domingo</option>
+                <option value="SEGUNDA">Segunda-feira</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label for="param-fechamento-mes"><strong>Fechamento Contábil de Mês:</strong></label>
+              <select id="param-fechamento-mes" class="form-control">
+                <option value="ULTIMO_DIA">Último Dia do Mês Calendário (Dia 30/31)</option>
+                <option value="DIA_25">Dia 25 (Virada de Folha Salarial / Fatura)</option>
+                <option value="DIA_20">Dia 20</option>
+                <option value="DIA_1">Primeiro Dia do Mês Seguinte</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label for="param-formato-data"><strong>Formato de Exibição de Data:</strong></label>
+              <select id="param-formato-data" class="form-control">
+                <option value="DD_MM_AAAA">DD/MM/AAAA (Padrão Brasileiro 25/12/2026)</option>
+                <option value="AAAA_MM_DD">AAAA-MM-DD (Padrão ISO 2026-12-25)</option>
+                <option value="MM_DD_AAAA">MM/DD/AAAA (Padrão Americano 12/25/2026)</option>
+              </select>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="margin-top:1.5rem; display:flex; justify-content:flex-end; align-items:center; gap:0.75rem;">
+          <span id="financial-params-status" style="font-size:0.82rem; color:var(--text-secondary);"></span>
+          <button type="submit" class="btn btn-primary">
+            💾 Salvar Parâmetros Contábeis
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SUBABA 5: INTEGRAÇÕES (SUBABA UNIFICADA TELEGRAM & INTELIGÊNCIA ARTIFICIAL) -->
+  <div id="settings-subtab-integracoes" class="settings-subtab-content" style="display:none;">
+    
+    <!-- CARD 1: STATUS REAL & PAINEL DE TESTES EM TEMPO REAL -->
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title" style="font-size:1.15rem;">⚡ Status em Tempo Real & Teste de Conexão</h2>
+          <small style="color:var(--text-secondary);">Monitore a saúde das integrações com métricas de latência e verificação de conectividade em tempo real.</small>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadIntegrationDetails()">🔄 Atualizar Status</button>
+      </div>
+
+      <div class="grid-2col" style="gap:1rem;">
+        <!-- Bloco Status IA -->
+        <div style="background:var(--bg-secondary); padding:1rem; border-radius:10px; border:1px solid var(--border-color);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem; flex-wrap:wrap; gap:0.5rem;">
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <span style="font-size:1.25rem;">🧠</span>
+              <strong>Inteligência Artificial</strong>
+            </div>
+            <span id="ai-status-badge" class="badge badge-confirmado">Carregando...</span>
+          </div>
+          <div style="font-size:0.82rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+            <div><strong>Provedor Ativo:</strong> <span id="ai-active-provider-txt">Google Gemini</span></div>
+            <div><strong>Modelo em Uso:</strong> <code id="ai-active-model-txt">gemini-flash-lite-latest</code></div>
+            <div id="ai-last-test-txt" style="margin-top:0.35rem; font-size:0.78rem; color:var(--text-muted);">Nenhum teste recente executado.</div>
+          </div>
+          <div>
+            <button type="button" id="btn-test-ai" class="btn btn-primary btn-sm" onclick="App.testAiConnection()">
+              🧪 Testar Conexão com a IA
+            </button>
+          </div>
+        </div>
+
+        <!-- Bloco Status Telegram -->
+        <div style="background:var(--bg-secondary); padding:1rem; border-radius:10px; border:1px solid var(--border-color);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem; flex-wrap:wrap; gap:0.5rem;">
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <span style="font-size:1.25rem;">🤖</span>
+              <strong>Telegram Bot</strong>
+            </div>
+            <span id="tg-status-badge" class="badge badge-confirmado">Carregando...</span>
+          </div>
+          <div style="font-size:0.82rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+            <div><strong>Bot Registrado:</strong> <span id="tg-active-bot-txt">@FinancasInteligentesBot</span></div>
+            <div><strong>Vínculo Pessoal:</strong> <span id="tg-link-status-txt">Verificando...</span></div>
+            <div id="tg-last-test-txt" style="margin-top:0.35rem; font-size:0.78rem; color:var(--text-muted);">Nenhum teste recente executado.</div>
+          </div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button type="button" id="btn-test-tg" class="btn btn-primary btn-sm" onclick="App.testTelegramConnection()">
+              🧪 Testar Bot Telegram
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORMULÁRIO COMPLETO DE CONFIGURAÇÃO ADMINISTRATIVA -->
+    <form id="form-integration-settings" onsubmit="App.submitIntegrationSettings(event)">
+      
+      <!-- CARD 2: PROVEDOR, MODELOS E CREDENCIAIS -->
+      <div class="card" style="margin-bottom:1.25rem;">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title" style="font-size:1.15rem;">Configurações Administrativas do Provedor e Modelos</h2>
+            <small style="color:var(--text-secondary);">Selecione provedores e modelos compatíveis com suporte homologado no sistema.</small>
+          </div>
+          <span class="badge badge-confirmado">Preservação Ativa</span>
+        </div>
+
+        <div class="grid-2col" style="gap:1.25rem;">
+          <!-- Coluna IA -->
+          <div>
+            <h3 style="font-size:0.95rem; margin-bottom:0.75rem; color:var(--primary); display:flex; align-items:center; gap:0.4rem;">
+              🧠 Provedor e Modelo de Inteligência Artificial
+            </h3>
+            
+            <div class="form-group" style="margin-bottom:0.75rem;">
+              <label for="setup-ai-provider"><strong>Provedor de IA:</strong></label>
+              <select id="setup-ai-provider" class="form-control" onchange="App.onAiProviderChange(this.value)">
+                <option value="GOOGLE_GEMINI">Google Gemini (Google AI Studio — Homologado)</option>
+                <option value="DETERMINISTICO_LOCAL">Motor Contábil Local (Sem envio externo / 100% Determinístico)</option>
+              </select>
+              <small style="color:var(--text-secondary);">Provedores suportados com garantia de fallback determinístico no servidor.</small>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0.75rem;" id="group-ai-model">
+              <label for="setup-ai-model"><strong>Modelo de IA Compatível:</strong></label>
+              <select id="setup-ai-model" class="form-control">
+                <option value="gemini-flash-lite-latest">Gemini Flash Lite (Mais rápido, baixa latência, ideal p/ Telegram e Oráculo) [Recomendado]</option>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash (Alta velocidade e precisão de raciocínio)</option>
+                <option value="gemini-2.5-flash">Gemini 2.5 Flash (Raciocínio avançado)</option>
+                <option value="gemini-1.5-flash">Gemini 1.5 Flash (Versão estável)</option>
+                <option value="gemini-1.5-pro">Gemini 1.5 Pro (Máximo raciocínio para relatórios complexos)</option>
+              </select>
+              <small style="color:var(--text-secondary);">Modelos compatíveis com texto, transcrição de áudio e extração OCR de notas fiscais.</small>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;" id="group-ai-key">
+              <label for="setup-gemini-key"><strong>Chave de API Gemini (Google AI Studio):</strong></label>
+              <input type="password" id="setup-gemini-key" class="form-control" placeholder="Deixe em branco para preservar a chave atual" />
+              <small style="color:var(--text-secondary);">Armazenada com sigilo absoluto exclusivamente em ScriptProperties no servidor.</small>
+            </div>
+          </div>
+
+          <!-- Coluna Telegram -->
+          <div>
+            <h3 style="font-size:0.95rem; margin-bottom:0.75rem; color:var(--primary); display:flex; align-items:center; gap:0.4rem;">
+              🤖 Bot do Telegram & Webhook
+            </h3>
+
+            <div class="form-group" style="margin-bottom:0.75rem;">
+              <label for="setup-tg-token"><strong>Token do Bot (@BotFather):</strong></label>
+              <input type="password" id="setup-tg-token" class="form-control" placeholder="123456789:AAH... (Deixe em branco para preservar)" />
+              <small style="color:var(--text-secondary);">Token secreto gerado no Telegram para autenticação do assistente.</small>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0.75rem;">
+              <label for="setup-webapp-url"><strong>URL do Web App Publicado (/exec):</strong></label>
+              <input type="url" id="setup-webapp-url" class="form-control" placeholder="https://script.google.com/macros/s/.../exec" />
+              <small style="color:var(--text-secondary);">Endpoint HTTPS público onde o Telegram entregará mensagens e áudios via Webhook.</small>
+            </div>
+
+            <div style="background:var(--bg-surface); padding:0.75rem; border-radius:8px; border:1px solid var(--border-color); font-size:0.8rem; color:var(--text-secondary);">
+              <strong>Segredo do Webhook:</strong> Gerado automaticamente com hash seguro SHA-256 e validado em cada requisição.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 3: LIMITES OPERACIONAIS & CONTROLE DE COTA -->
+      <div class="card" style="margin-bottom:1.25rem;">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title" style="font-size:1.15rem;">Limites Operacionais & Gestão de Cota</h2>
+            <small style="color:var(--text-secondary);">Controle o volume de chamadas, limites por usuário e restrições para transcrição de áudio.</small>
+          </div>
+          <span class="badge badge-confirmado">Proteção de Cota</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="setup-ai-limit-calls"><strong>Limite de Consultas Diárias:</strong></label>
+            <select id="setup-ai-limit-calls" class="form-control">
+              <option value="20">20 consultas / dia (Econômico)</option>
+              <option value="50" selected>50 consultas / dia (Recomendado)</option>
+              <option value="100">100 consultas / dia (Uso familiar intenso)</option>
+              <option value="200">200 consultas / dia</option>
+              <option value="ILIMITADO">Ilimitado</option>
+            </select>
+            <small style="color:var(--text-secondary);">Limite de interações com o Oráculo por usuário.</small>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="setup-ai-cota-mode"><strong>Modo de Gestão de Cota:</strong></label>
+            <select id="setup-ai-cota-mode" class="form-control">
+              <option value="ECONOMICO" selected>Econômico (Prioriza Flash Lite e menor latência) [Recomendado]</option>
+              <option value="BALANCEADO">Balanceado (Alterna automaticamente em alta demanda)</option>
+              <option value="DESEMPENHO">Alto Desempenho (Prioriza maior profundidade de resposta)</option>
+            </select>
+            <small style="color:var(--text-secondary);">Estratégia de contingência e uso de tokens.</small>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="setup-ai-limit-audios"><strong>Limite de Áudios Diários (Telegram):</strong></label>
+            <select id="setup-ai-limit-audios" class="form-control">
+              <option value="10">10 mensagens de voz / dia</option>
+              <option value="20" selected>20 mensagens de voz / dia (Recomendado)</option>
+              <option value="50">50 mensagens de voz / dia</option>
+              <option value="ILIMITADO">Ilimitado</option>
+            </select>
+            <small style="color:var(--text-secondary);">Limite de arquivos de áudio processados por usuário.</small>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="setup-ai-max-audio-sec"><strong>Duração Máxima por Áudio:</strong></label>
+            <select id="setup-ai-max-audio-sec" class="form-control">
+              <option value="30">Até 30 segundos (Lançamentos rápidos)</option>
+              <option value="60" selected>Até 60 segundos (1 minuto) [Recomendado]</option>
+              <option value="120">Até 120 segundos (2 minutos)</option>
+            </select>
+            <small style="color:var(--text-secondary);">Áudios que excederem o limite são recusados.</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 4: PREFERÊNCIAS DE ANÁLISE, ORÁCULO E TRANSCRIÇÃO -->
+      <div class="card" style="margin-bottom:1.25rem;">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title" style="font-size:1.15rem;">Preferências de Análise, Oráculo & Transcrição</h2>
+            <small style="color:var(--text-secondary);">Ajuste o tom, detalhamento, foco contábil e regras de normalização de áudio.</small>
+          </div>
+          <span class="badge badge-confirmado">Inteligência Financeira</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="setup-ai-oracle-detail"><strong>Nível de Detalhamento das Respostas:</strong></label>
+            <select id="setup-ai-oracle-detail" class="form-control">
+              <option value="CONCISO">Conciso e Direto (Números-chave e ações prioritárias — Ideal p/ celular e Telegram)</option>
+              <option value="EQUILIBRADO" selected>Equilibrado (Diagnóstico executivo com contexto e recomendações práticas) [Recomendado]</option>
+              <option value="DETALHADO">Detalhado (Análise aprofundada, custos, gargalos e projeções passo a passo)</option>
+            </select>
+            <small style="color:var(--text-secondary);">Profundidade e extensão das respostas geradas pelo Oráculo.</small>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="setup-ai-oracle-focus"><strong>Foco da Análise Financeira:</strong></label>
+            <select id="setup-ai-oracle-focus" class="form-control">
+              <option value="EQUILIBRADO" selected>Equilibrado (Corte de supérfluos e poupança concomitante)</option>
+              <option value="REDUCAO_DESPESAS">Foco em Redução de Despesas e Detecção de Vazamentos</option>
+              <option value="ACUMULACAO_PATRIMONIO">Foco em Aportes, Investimentos e Renda Passiva</option>
+            </select>
+            <small style="color:var(--text-secondary);">Diretriz prioritária aplicada aos insights da IA.</small>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="setup-ai-stt-norm"><strong>Normalização de Áudio (Telegram STT):</strong></label>
+            <select id="setup-ai-stt-norm" class="form-control">
+              <option value="RIGOROSO_PTBR" selected>Rigoroso PT-BR (Converte moedas em R$, padroniza pontuação e datas) [Recomendado]</option>
+              <option value="LITERAL">Transcrição Literal Pura (Sem normalização de moedas)</option>
+            </select>
+            <small style="color:var(--text-secondary);">Garante que números falados sejam interpretados corretamente.</small>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="setup-ai-report-freq"><strong>Relatórios Inteligentes com IA:</strong></label>
+            <select id="setup-ai-report-freq" class="form-control">
+              <option value="SOB_DEMANDA" selected>Sob Demanda (Gerado quando o usuário clica em "Parecer IA") [Recomendado]</option>
+              <option value="AUTOMATICA_MENSAL">Automático (Gera narrativa executiva no fechamento do mês)</option>
+            </select>
+            <small style="color:var(--text-secondary);">Frequência de geração de diagnósticos consolidados.</small>
+          </div>
+        </div>
+
+        <!-- Botões de Ação Unificados -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border-color);">
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="App.generateTelegramCode()">
+              🔑 Gerar Novo Código de Vinculação
+            </button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="App.revokeTelegramLink()">
+              Revogar Vínculo com Celular
+            </button>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.6rem;">
+            <span id="integration-save-status" style="font-size:0.82rem; color:var(--text-secondary);"></span>
+            <button type="submit" class="btn btn-primary">
+              💾 Salvar Configurações de Integração
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div id="tg-code-display" style="display:none; margin-top:1rem; padding:1rem; border:1px dashed var(--primary); border-radius:8px; background:var(--bg-secondary);"></div>
+  </div>
+
+  <!-- SUBABA 6: NOTIFICAÇÕES -->
+  <div id="settings-subtab-notificacoes" class="settings-subtab-content" style="display:none;">
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header">
+        <h2 class="card-title" style="font-size:1.15rem;">Preferências e Canais de Notificação</h2>
+        <span class="badge badge-confirmado">Multicanal Ativo</span>
+      </div>
+      <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:1.25rem;">
+        Configure individualmente por onde e quando você deseja receber lembretes financeiros, avisos de vencimento e relatórios de mercado.
+      </p>
+
+      <form id="form-notif-preferences" onsubmit="App.saveNotificationPreferences(event)">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; margin-bottom:1.25rem;">
+          <div style="background:var(--bg-secondary); padding:0.85rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+              <strong>🔔 Central no Header</strong>
+              <input type="checkbox" id="pref-notif-central" checked style="width:18px; height:18px; cursor:pointer;" />
+            </div>
+            <small style="color:var(--text-muted); display:block;">Ícone de sino, badge de contagem de não lidas e painel expansível no topo.</small>
+          </div>
+
+          <div style="background:var(--bg-secondary); padding:0.85rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+              <strong>💬 Pop-up ao Iniciar Sessão</strong>
+              <input type="checkbox" id="pref-notif-popup" checked style="width:18px; height:18px; cursor:pointer;" />
+            </div>
+            <small style="color:var(--text-muted); display:block;">Resumo inteligente de contas que vencem hoje, pendentes e alertas pós-login.</small>
+          </div>
+
+          <div style="background:var(--bg-secondary); padding:0.85rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+              <strong>✉️ Lembretes por E-mail</strong>
+              <input type="checkbox" id="pref-notif-email" checked style="width:18px; height:18px; cursor:pointer;" />
+            </div>
+            <small style="color:var(--text-muted); display:block;">Envio automático via Google Apps Script (MailApp) com chave de idempotência.</small>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.25rem;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="pref-notif-antecedencia">Antecedência dos Lembretes de Vencimento</label>
+            <select id="pref-notif-antecedencia" class="form-control">
+              <option value="1">1 dia de antecedência</option>
+              <option value="3" selected>3 dias de antecedência (Recomendado)</option>
+              <option value="5">5 dias de antecedência</option>
+              <option value="7">7 dias de antecedência (1 semana)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="pref-notif-atraso">Frequência de Alertas para Contas em Atraso</label>
+            <select id="pref-notif-atraso" class="form-control">
+              <option value="1" selected>Diária (1 vez ao dia)</option>
+              <option value="2">A cada 2 dias</option>
+              <option value="3">A cada 3 dias</option>
+              <option value="7">Semanal (1 vez por semana)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:0.75rem; margin-bottom:1.25rem;">
+          <div style="background:var(--bg-secondary); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+            <label style="display:flex; align-items:center; gap:0.4rem; margin:0; cursor:pointer; font-weight:600; font-size:0.85rem;">
+              <input type="checkbox" id="pref-notif-investimentos" checked style="width:16px; height:16px;" />
+              <span>📈 Alertas de Investimentos</span>
+            </label>
+            <small style="color:var(--text-muted); display:block; margin-top:4px;">Variações expressivas e proventos da carteira.</small>
+          </div>
+
+          <div style="background:var(--bg-secondary); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+            <label style="display:flex; align-items:center; gap:0.4rem; margin:0; cursor:pointer; font-weight:600; font-size:0.85rem;">
+              <input type="checkbox" id="pref-notif-oraculo" checked style="width:16px; height:16px;" />
+              <span>💡 Pareceres do Oráculo IA</span>
+            </label>
+            <small style="color:var(--text-muted); display:block; margin-top:4px;">Avisos proativos de concentração e gargalos.</small>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="pref-notif-silencioso-inicio" style="font-size:0.8rem;">Horário Silencioso (Início)</label>
+            <input type="time" id="pref-notif-silencioso-inicio" class="form-control" value="22:00" />
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="pref-notif-silencioso-fim" style="font-size:0.8rem;">Horário Silencioso (Fim)</label>
+            <input type="time" id="pref-notif-silencioso-fim" class="form-control" value="08:00" />
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end;">
+          <button type="submit" class="btn btn-primary btn-sm">💾 Salvar Preferências de Notificação</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Card de Ações Manuais e Diagnóstico de Fila -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title" style="font-size:1.15rem;">Resumo Matinal Unificado e Fila de E-mails</h2>
+        <span class="badge badge-confirmado">E-mail Único Diário</span>
+      </div>
+      <div style="background:rgba(37,99,235,0.08); border:1px solid rgba(37,99,235,0.25); border-radius:8px; padding:12px; margin-bottom:1rem; font-size:0.85rem; color:var(--text-primary); line-height:1.5;">
+        <strong>☕ Regra Matinal Inteligente:</strong> O sistema consolida todas as contas vencidas e a vencer (3 dias, 2 dias, 1 dia antes e hoje) em <strong>um único e-mail diário</strong> enviado automaticamente pela manhã (às 07:00h). Contas atrasadas continuam sendo notificadas até a marcação como pagas.
+      </div>
+      <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:1rem;">
+        Todas as notificações são enviadas com idempotência e link direto funcional para este painel. Contas confirmadas ou canceladas são retiradas automaticamente.
+      </p>
+
+      <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
+        <button type="button" class="btn btn-primary btn-sm" onclick="App.sendMorningDigestNow()" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);">
+          ☕ Enviar Resumo Matinal Agora (Teste Imediato)
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.checkOrEnsureMorningTrigger()">
+          ⏰ Ativar / Verificar Gatilho Automático (07:00h)
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.scanDueNotifications()">
+          🔔 Varredura de Vencimentos
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.scanInvestmentNotifications()">
+          📈 Varredura de Investimentos
+        </button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="App.processEmailQueueSafe()">
+          ✉️ Processar Fila Pendente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBABA 7: SEGURANÇA E PRIVACIDADE -->
+  <div id="settings-subtab-seguranca" class="settings-subtab-content" style="display:none;">
+    <!-- Cartão de Status Geral e Indicadores em Tempo Real -->
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title" style="font-size:1.15rem;">Painel de Segurança Operacional & Integridade</h2>
+          <small style="color:var(--text-secondary);">Monitoramento em tempo real de autenticação, criptografia PBKDF2, proteção contra injeção e isolamento.</small>
+        </div>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <span id="sec-dash-status-badge" class="badge badge-confirmado">Carregando...</span>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadOperationalSecurityDashboard()">🔄 Atualizar</button>
+        </div>
+      </div>
+
+      <!-- Grid de Indicadores de Segurança -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; margin-bottom:1.25rem;">
+        <div style="background:var(--bg-secondary); padding:0.85rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+          <div style="font-size:0.78rem; color:var(--text-secondary); text-transform:uppercase; font-weight:700;">Criptografia de Senhas</div>
+          <div id="sec-dash-crypto-val" style="font-size:1.2rem; font-weight:700; color:var(--primary); margin:0.3rem 0;">PBKDF2 30k</div>
+          <small id="sec-dash-crypto-desc" style="color:var(--text-muted); font-size:0.72rem;">HMAC-SHA-256 (30.000 rounds)</small>
+        </div>
+
+        <div style="background:var(--bg-secondary); padding:0.85rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+          <div style="font-size:0.78rem; color:var(--text-secondary); text-transform:uppercase; font-weight:700;">Sessões Ativas</div>
+          <div id="sec-dash-sessions-val" style="font-size:1.2rem; font-weight:700; color:#10b981; margin:0.3rem 0;">0</div>
+          <small style="color:var(--text-muted); font-size:0.72rem;">Tokens válidos e revalidados</small>
+        </div>
+
+        <div style="background:var(--bg-secondary); padding:0.85rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+          <div style="font-size:0.78rem; color:var(--text-secondary); text-transform:uppercase; font-weight:700;">Bloqueios de Força Bruta</div>
+          <div id="sec-dash-lockouts-val" style="font-size:1.2rem; font-weight:700; color:#3b82f6; margin:0.3rem 0;">0</div>
+          <small style="color:var(--text-muted); font-size:0.72rem;">Lockout automático (5 falhas)</small>
+        </div>
+
+        <div style="background:var(--bg-secondary); padding:0.85rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+          <div style="font-size:0.78rem; color:var(--text-secondary); text-transform:uppercase; font-weight:700;">Integridade do Banco</div>
+          <div id="sec-dash-sheets-val" style="font-size:1.2rem; font-weight:700; color:#10b981; margin:0.3rem 0;">21 / 21 Abas</div>
+          <small style="color:var(--text-muted); font-size:0.72rem;">Esquema estrito verificado</small>
+        </div>
+
+        <div style="background:var(--bg-secondary); padding:0.85rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+          <div style="font-size:0.78rem; color:var(--text-secondary); text-transform:uppercase; font-weight:700;">Incidentes Ativos</div>
+          <div id="sec-dash-incidents-val" style="font-size:1.2rem; font-weight:700; color:#10b981; margin:0.3rem 0;">0</div>
+          <small style="color:var(--text-muted); font-size:0.72rem;">Requerem intervenção do gestor</small>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; gap:0.6rem;">
+        <button type="button" class="btn btn-primary btn-sm" onclick="App.runSecurityAuditCheck()">
+          🛡️ Executar Varredura de Auditoria de Segurança
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.revokeAllSessionsPrompt()">
+          ⚠️ Revogar Todas as Sessões Ativas
+        </button>
+      </div>
+
+      <!-- Container para Resultado da Varredura -->
+      <div id="sec-audit-check-result" style="margin-top:1rem; display:none;"></div>
+    </div>
+
+    <!-- Seção de Gestão de Incidentes Operacionais e de Segurança -->
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title" style="font-size:1.15rem;">🚨 Incidentes Operacionais & Alertas Ativos</h2>
+          <small style="color:var(--text-secondary);">Anomalias financeiras, falhas críticas de integração e tentativas suspeitas detectadas em tempo real.</small>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadActiveIncidents()">🔄 Atualizar Incidentes</button>
+      </div>
+      <div id="sec-incidents-container">
+        <p style="color:var(--text-muted); text-align:center; padding:1.25rem;">Carregando incidentes...</p>
+      </div>
+    </div>
+
+    <!-- CARD: SENHA DE ACESSO DO PROPRIETÁRIO -->
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title" style="font-size:1.15rem;">🔐 Senha de Acesso do Proprietário</h2>
+          <small style="color:var(--text-secondary);">Defina ou altere sua senha de acesso pessoal para operações protegidas e login manual.</small>
+        </div>
+        <span id="owner-pwd-status-badge" class="badge badge-confirmado">Google Drive</span>
+      </div>
+      <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.5; margin-bottom:1rem;">
+        Como a planilha está no seu Google Drive pessoal, o seu acesso é direto e liberado automaticamente.
+        Se desejar, você pode cadastrar uma senha pessoal para proteger seu painel em dispositivos compartilhados e autorizar operações de alta segurança (como o Reset do Sistema).
+      </p>
+      <form id="form-owner-password" onsubmit="App.saveOwnerPassword(event)" style="max-width:500px;">
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <label for="owner-new-pwd"><strong>Nova Senha (mínimo 6 dígitos ou caracteres):</strong></label>
+          <div class="input-with-icon" style="position:relative;">
+            <input type="password" id="owner-new-pwd" class="form-control" required minlength="6" placeholder="Mínimo 6 caracteres" style="padding-right:2.5rem;" />
+            <button type="button" onclick="App.togglePasswordVisibility('owner-new-pwd', this)" style="position:absolute; right:0.5rem; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:1.1rem; padding:0.25rem;" title="Mostrar / Ocultar Senha">👁️</button>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="owner-confirm-pwd"><strong>Confirme a Nova Senha:</strong></label>
+          <div class="input-with-icon" style="position:relative;">
+            <input type="password" id="owner-confirm-pwd" class="form-control" required minlength="6" placeholder="Digite a mesma senha novamente" style="padding-right:2.5rem;" />
+            <button type="button" onclick="App.togglePasswordVisibility('owner-confirm-pwd', this)" style="position:absolute; right:0.5rem; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:1.1rem; padding:0.25rem;" title="Mostrar / Ocultar Senha">👁️</button>
+          </div>
+        </div>
+        <button type="submit" id="btn-save-owner-pwd" class="btn btn-primary btn-sm">
+          💾 Salvar / Atualizar Senha do Proprietário
+        </button>
+      </form>
+    </div>
+
+    <!-- Políticas de Segurança e Proteção de Dados (Informativo e Transparência) -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title" style="font-size:1.15rem;">Políticas de Segurança e Proteção de Dados (OWASP & LGPD)</h2>
+        <span class="badge badge-confirmado">Blindagem Ativa</span>
+      </div>
+      <table class="data-table">
+        <tbody>
+          <tr>
+            <td><strong>Armazenamento de Segredos:</strong></td>
+            <td>Tokens e Chaves de API mantidos exclusivamente em <code>ScriptProperties</code> no servidor Google (nunca enviados ao navegador do cliente).</td>
+          </tr>
+          <tr>
+            <td><strong>Proteção Criptográfica de Senhas:</strong></td>
+            <td>Senhas armazenadas com salt único por usuário e derivação robusta <code>PBKDF2 HMAC-SHA-256</code> com 30.000 iterações e chave de 32 bytes.</td>
+          </tr>
+          <tr>
+            <td><strong>Proteção Contra Injeção de Fórmulas:</strong></td>
+            <td>Sanitização profunda que distingue números de strings, aplicando escape seguro a entradas suspeitas iniciadas por <code>=, @, +, -</code> sem adulterar valores numéricos.</td>
+          </tr>
+          <tr>
+            <td><strong>Proteção Contra Força Bruta:</strong></td>
+            <td>Bloqueio temporário (lockout) automático após 5 tentativas consecutivas de senha incorreta.</td>
+          </tr>
+          <tr>
+            <td><strong>Minimização e Redação de Segredos:</strong></td>
+            <td>Redação recursiva de tokens, senhas, chaves de API, CPFs e dados sensíveis antes de qualquer gravação na trilha de auditoria.</td>
+          </tr>
+          <tr>
+            <td><strong>Modo Privacidade:</strong></td>
+            <td>Botão "Ocultar" na barra superior para mascarar instantaneamente valores na tela em ambientes públicos.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SUBABA 8: LOGS E AUDITORIA -->
+  <div id="settings-subtab-auditoria" class="settings-subtab-content" style="display:none;">
+    <!-- Métricas de Observabilidade Estruturada -->
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title" style="font-size:1.15rem;">Central de Observabilidade & Métricas de Logs</h2>
+          <small style="color:var(--text-secondary);">Métricas de saúde de eventos, taxas de erro e correlação de requisições.</small>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.exportLogsJson()">💾 Exportar Logs (JSON)</button>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:0.6rem; margin-bottom:1rem;">
+        <div style="background:var(--bg-secondary); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-color); text-align:center;">
+          <div style="font-size:0.75rem; color:var(--text-secondary); font-weight:700;">TOTAL DE EVENTOS</div>
+          <div id="log-metric-total" style="font-size:1.3rem; font-weight:700; color:var(--primary); margin-top:2px;">0</div>
+        </div>
+        <div style="background:var(--bg-secondary); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-color); text-align:center;">
+          <div style="font-size:0.75rem; color:var(--text-secondary); font-weight:700;">SUCESSOS</div>
+          <div id="log-metric-success" style="font-size:1.3rem; font-weight:700; color:#10b981; margin-top:2px;">0</div>
+        </div>
+        <div style="background:var(--bg-secondary); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-color); text-align:center;">
+          <div style="font-size:0.75rem; color:var(--text-secondary); font-weight:700;">FALHAS / ERROS</div>
+          <div id="log-metric-errors" style="font-size:1.3rem; font-weight:700; color:#ef4444; margin-top:2px;">0</div>
+        </div>
+        <div style="background:var(--bg-secondary); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-color); text-align:center;">
+          <div style="font-size:0.75rem; color:var(--text-secondary); font-weight:700;">SEGURANÇA</div>
+          <div id="log-metric-security" style="font-size:1.3rem; font-weight:700; color:#f59e0b; margin-top:2px;">0</div>
+        </div>
+        <div style="background:var(--bg-secondary); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-color); text-align:center;">
+          <div style="font-size:0.75rem; color:var(--text-secondary); font-weight:700;">ANOMALIAS</div>
+          <div id="log-metric-anomalies" style="font-size:1.3rem; font-weight:700; color:#8b5cf6; margin-top:2px;">0</div>
+        </div>
+        <div style="background:var(--bg-secondary); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-color); text-align:center;">
+          <div style="font-size:0.75rem; color:var(--text-secondary); font-weight:700;">TAXA DE ERRO</div>
+          <div id="log-metric-error-rate" style="font-size:1.3rem; font-weight:700; color:var(--text-primary); margin-top:2px;">0.0%</div>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros Avançados -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:0.6rem; align-items:flex-end;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label for="filter-log-type" style="font-size:0.78rem;">Tipo de Evento</label>
+          <select id="filter-log-type" class="form-control" onchange="App.applyLogFilters()">
+            <option value="ALL">Todos os Tipos</option>
+            <option value="SUCCESS">SUCCESS (Sucesso)</option>
+            <option value="ERROR">ERROR (Erros)</option>
+            <option value="SECURITY">SECURITY (Segurança)</option>
+            <option value="ANOMALY">ANOMALY (Anomalias)</option>
+            <option value="AUDIT">AUDIT (Auditoria Geral)</option>
+            <option value="INFO">INFO (Informativo)</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom:0;">
+          <label for="filter-log-severity" style="font-size:0.78rem;">Severidade</label>
+          <select id="filter-log-severity" class="form-control" onchange="App.applyLogFilters()">
+            <option value="ALL">Todas as Severidades</option>
+            <option value="CRITICAL">CRITICAL (Crítico)</option>
+            <option value="HIGH">HIGH (Alto)</option>
+            <option value="MEDIUM">MEDIUM (Médio)</option>
+            <option value="LOW">LOW (Baixo / Normal)</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom:0;">
+          <label for="filter-log-module" style="font-size:0.78rem;">Módulo</label>
+          <select id="filter-log-module" class="form-control" onchange="App.applyLogFilters()">
+            <option value="ALL">Todos os Módulos</option>
+            <option value="AUTH">AUTH (Autenticação)</option>
+            <option value="LANCAMENTOS">LANCAMENTOS (Financeiro)</option>
+            <option value="TELEGRAM">TELEGRAM (Bot & Webhook)</option>
+            <option value="NOTIFICACOES">NOTIFICACOES (Alertas)</option>
+            <option value="AUDITORIA">AUDITORIA (Segurança)</option>
+            <option value="INCIDENTES">INCIDENTES (Operação)</option>
+            <option value="SISTEMA">SISTEMA (Geral)</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom:0;">
+          <label for="filter-log-correlation" style="font-size:0.78rem;">ID de Correlação</label>
+          <input type="text" id="filter-log-correlation" class="form-control" placeholder="Buscar por ID..." onkeyup="if(event.key==='Enter') App.applyLogFilters()" />
+        </div>
+
+        <div>
+          <button type="button" class="btn btn-primary btn-sm" style="width:100%;" onclick="App.applyLogFilters()">
+            🔍 Filtrar Logs
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabela de Logs Estruturados -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title" style="font-size:1.15rem;">Trilha Estruturada de Auditoria & Eventos</h2>
+        <span id="log-count-indicator" class="badge badge-info">0 registros</span>
+      </div>
+      <div id="admin-audit-container" class="table-responsive">
+        <p style="color:var(--text-muted); text-align:center; padding:1.5rem;">Clique em "Filtrar Logs" para carregar a trilha de auditoria.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBABA 9: BACKUP E MANUTENÇÃO -->
+  <div id="settings-subtab-backup" class="settings-subtab-content" style="display:none;">
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header">
+        <h2 class="card-title" style="font-size:1.15rem;">Exportação e Restauração de Backup</h2>
+        <span class="badge badge-confirmado">Preservação de IDs</span>
+      </div>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        Gere uma cópia completa dos dados de todas as 21 abas em formato JSON estruturado ou restaure uma versão anterior mantendo intactos todos os relacionamentos contábeis.
+      </p>
+      <div style="margin-bottom:1.25rem;">
+        <button type="button" class="btn btn-primary" onclick="App.exportFullBackup()">
+          💾 Exportar Backup Completo (JSON)
+        </button>
+      </div>
+      <div class="form-group">
+        <label for="restore-json-input"><strong>Restaurar Backup a partir de JSON:</strong></label>
+        <textarea id="restore-json-input" class="form-control" rows="4" placeholder='Cole aqui o JSON gerado na exportação (ex: {"schemaVersion":"1.0.0", "tables":{...}})'></textarea>
+        <button type="button" class="btn btn-secondary btn-sm" style="margin-top:0.75rem;" onclick="App.restoreFullBackup()">
+          ⚠️ Executar Restauração Preservando IDs
+        </button>
+      </div>
+    </div>
+
+    <!-- ZONA DE PERIGO: RESETAR SISTEMA E RECOMEÇAR DO ZERO -->
+    <div class="card" style="border: 1px solid var(--danger); background: rgba(220, 38, 38, 0.03); margin-bottom:1.25rem;">
+      <div class="card-header" style="border-bottom: 1px solid rgba(220, 38, 38, 0.2);">
+        <div>
+          <h2 class="card-title" style="font-size:1.15rem; color:var(--danger); margin:0;">
+            ⚠️ Zona de Perigo — Reinicializar Sistema (Começar do Zero)
+          </h2>
+          <small style="color:var(--text-secondary);">Exclusivo para o proprietário principal (OWNER).</small>
+        </div>
+        <span class="badge" style="background:var(--danger); color:#fff;">Operação Destrutiva</span>
+      </div>
+      <div style="padding-top:1rem;">
+        <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.5; margin-bottom:1rem;">
+          Deseja apagar todos os lançamentos, dívidas, empréstimos, investimentos e parcelas de teste para começar sua vida financeira do zero?
+          Esta ação limpa as tabelas transacionais, preserva suas 21 abas, recria as categorias padrão e exige <strong>confirmação da sua senha de acesso</strong>.
+        </p>
+        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+          <button type="button" class="btn btn-danger" onclick="App.openResetModal()">
+            🗑️ Começar do Zero / Resetar Sistema
+          </button>
+          <small style="color:var(--text-muted);">
+            Um backup completo de segurança será baixado automaticamente antes da limpeza.
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBABA 10: SISTEMA E DIAGNÓSTICO -->
+  <div id="settings-subtab-diagnostico" class="settings-subtab-content" style="display:none;">
+    <!-- Painel de Performance & Cache Multi-Tier -->
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title" style="font-size:1.15rem;">⚡ Painel de Performance & Cache em Múltiplos Níveis</h2>
+          <small style="color:var(--text-secondary);">Otimização de tempo de carregamento com L1 (Memória V8) e L2 (CacheService do Apps Script).</small>
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.clearPerformanceCache()">⚡ Limpar & Resetar Cache</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadPerformanceMetrics()">🔄 Atualizar Métricas</button>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:0.6rem; margin-bottom:1rem;">
+        <div style="background:var(--bg-secondary); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-color); text-align:center;">
+          <div style="font-size:0.75rem; color:var(--text-secondary); font-weight:700;">TOTAL DE REQUISIÇÕES</div>
+          <div id="perf-metric-requests" style="font-size:1.3rem; font-weight:700; color:var(--primary); margin-top:2px;">0</div>
+        </div>
+        <div style="background:var(--bg-secondary); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-color); text-align:center;">
+          <div style="font-size:0.75rem; color:var(--text-secondary); font-weight:700;">TAXA DE ACERTO (HIT RATE)</div>
+          <div id="perf-metric-hitrate" style="font-size:1.3rem; font-weight:700; color:#10b981; margin-top:2px;">100%</div>
+        </div>
+        <div style="background:var(--bg-secondary); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-color); text-align:center;">
+          <div style="font-size:0.75rem; color:var(--text-secondary); font-weight:700;">HITS L1 (MEMÓRIA)</div>
+          <div id="perf-metric-l1hits" style="font-size:1.3rem; font-weight:700; color:#3b82f6; margin-top:2px;">0</div>
+        </div>
+        <div style="background:var(--bg-secondary); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-color); text-align:center;">
+          <div style="font-size:0.75rem; color:var(--text-secondary); font-weight:700;">HITS L2 (APPS SCRIPT)</div>
+          <div id="perf-metric-l2hits" style="font-size:1.3rem; font-weight:700; color:#8b5cf6; margin-top:2px;">0</div>
+        </div>
+        <div style="background:var(--bg-secondary); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-color); text-align:center;">
+          <div style="font-size:0.75rem; color:var(--text-secondary); font-weight:700;">TEMPO ECONOMIZADO</div>
+          <div id="perf-metric-savedtime" style="font-size:1.3rem; font-weight:700; color:#10b981; margin-top:2px;">0 ms</div>
+        </div>
+        <div style="background:var(--bg-secondary); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-color); text-align:center;">
+          <div style="font-size:0.75rem; color:var(--text-secondary); font-weight:700;">INVALIDAÇÕES</div>
+          <div id="perf-metric-invalidations" style="font-size:1.3rem; font-weight:700; color:#f59e0b; margin-top:2px;">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diagnóstico Operacional em 1 Clique -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title" style="font-size:1.15rem;">🩺 Diagnóstico Operacional Geral da Instalação</h2>
+          <small style="color:var(--text-secondary);">Verificação automática de saúde do banco de dados, planilha, quotas e integrações.</small>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" onclick="App.runSystemDiagnostic()">
+          🩺 Executar Diagnóstico Completo
+        </button>
+      </div>
+      <div id="diagnostic-results-container" style="padding:0.5rem 0;">
+        <p style="color:var(--text-muted); text-align:center; padding:1.5rem;">Clique no botão acima para verificar a integridade completa do sistema.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE DETALHES DO LOG ESTRUTURADO -->
+  <div id="modal-log-details" class="modal-backdrop" role="dialog" aria-modal="true" style="display:none;">
+    <div class="modal-dialog" style="max-width:640px;">
+      <div class="card-header">
+        <h2 class="card-title" style="font-size:1.15rem;">🔍 Detalhes do Evento Estruturado</h2>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeLogDetailsModal()">✕</button>
+      </div>
+      <div style="padding:1rem 0;">
+        <pre id="modal-log-details-content" style="background:var(--bg-secondary); color:var(--text-primary); padding:1rem; border-radius:var(--radius-md); font-size:0.78rem; overflow-x:auto; max-height:420px; white-space:pre-wrap; word-break:break-word;"></pre>
+      </div>
+      <div style="display:flex; justify-content:flex-end;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeLogDetailsModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE RESOLUÇÃO DE INCIDENTE -->
+  <div id="modal-resolve-incident" class="modal-backdrop" role="dialog" aria-modal="true" style="display:none;">
+    <div class="modal-dialog" style="max-width:500px;">
+      <div class="card-header">
+        <h2 class="card-title" style="font-size:1.15rem;">✅ Resolver Incidente Operacional</h2>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeResolveIncidentModal()">✕</button>
+      </div>
+      <form id="form-resolve-incident" onsubmit="App.submitResolveIncident(event)">
+        <input type="hidden" id="resolve-incident-id" />
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <label>Identificador do Incidente</label>
+          <input type="text" id="resolve-incident-id-display" class="form-control" readonly style="opacity:0.8;" />
+        </div>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="resolve-incident-notes">Notas da Ação Corretiva Realizada *</label>
+          <textarea id="resolve-incident-notes" class="form-control" rows="3" required placeholder="Descreva sucintamente a ação tomada para solucionar ou tratar este incidente..."></textarea>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeResolveIncidentModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary btn-sm">Marcar como Resolvido</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 1: CADASTRAR NOVO USUÁRIO -->
+  <div id="modal-admin-user-create" class="modal-backdrop" role="dialog" aria-modal="true" style="display:none;">
+    <div class="modal-dialog" style="max-width:520px;">
+      <div class="card-header">
+        <h2 class="card-title" style="font-size:1.15rem;">➕ Cadastrar Novo Usuário</h2>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeAdminUserModals()">✕</button>
+      </div>
+      <form id="form-admin-create-user" onsubmit="App.submitAdminCreateUser(event)">
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <label for="create-user-nome">Nome Completo *</label>
+          <input type="text" id="create-user-nome" class="form-control" placeholder="Ex: Maria Silva" required />
+        </div>
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <label for="create-user-email">E-mail de Acesso *</label>
+          <input type="email" id="create-user-email" class="form-control" placeholder="usuario@email.com" required />
+        </div>
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <label for="create-user-senha">Senha Inicial (Mínimo 6 caracteres / dígitos) *</label>
+          <div style="position:relative; display:flex; align-items:center;">
+            <input type="password" id="create-user-senha" class="form-control" placeholder="••••••••" minlength="6" required style="padding-right:2.5rem;" />
+            <button type="button" onclick="App.togglePasswordVisibility('create-user-senha', this)" style="position:absolute; right:0.5rem; background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:1.1rem; padding:0.25rem;" title="Mostrar / Ocultar Senha">👁️</button>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="create-user-papel">Papel / Nível de Acesso *</label>
+            <select id="create-user-papel" class="form-control" required>
+              <option value="MEMBRO">👤 USUÁRIO (Membro)</option>
+              <option value="ADMIN">🛡️ ADMIN (Administrador)</option>
+              <option value="OWNER">👑 OWNER (Proprietário)</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="create-user-status">Status Inicial *</label>
+            <select id="create-user-status" class="form-control" required>
+              <option value="APROVADO">Aprovado (Ativo)</option>
+              <option value="PENDENTE">Pendente</option>
+              <option value="BLOQUEADO">Bloqueado</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="App.closeAdminUserModals()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar Usuário</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: EDITAR USUÁRIO -->
+  <div id="modal-admin-user-edit" class="modal-backdrop" role="dialog" aria-modal="true" style="display:none;">
+    <div class="modal-dialog" style="max-width:520px;">
+      <div class="card-header">
+        <h2 class="card-title" style="font-size:1.15rem;">✏️ Editar Cadastro de Usuário</h2>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeAdminUserModals()">✕</button>
+      </div>
+      <form id="form-admin-edit-user" onsubmit="App.submitAdminEditUser(event)">
+        <input type="hidden" id="edit-user-id" />
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <label for="edit-user-nome">Nome *</label>
+          <input type="text" id="edit-user-nome" class="form-control" required />
+        </div>
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <label for="edit-user-email">E-mail (Identificador)</label>
+          <input type="email" id="edit-user-email" class="form-control" readonly style="background:var(--bg-secondary); cursor:not-allowed;" />
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="edit-user-papel">Papel / Nível *</label>
+            <select id="edit-user-papel" class="form-control" required>
+              <option value="MEMBRO">👤 USUÁRIO (Membro)</option>
+              <option value="ADMIN">🛡️ ADMIN (Administrador)</option>
+              <option value="OWNER">👑 OWNER (Proprietário)</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="edit-user-status">Status de Acesso *</label>
+            <select id="edit-user-status" class="form-control" required>
+              <option value="APROVADO">Aprovado (Ativo)</option>
+              <option value="PENDENTE">Pendente</option>
+              <option value="BLOQUEADO">Bloqueado</option>
+              <option value="REVOGADO">Revogado</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:1.15rem;">
+          <label for="edit-user-senha">Redefinir Senha (Deixe em branco para não alterar)</label>
+          <div style="position:relative; display:flex; align-items:center;">
+            <input type="password" id="edit-user-senha" class="form-control" placeholder="Nova senha (opcional, mín. 6 dígitos)" style="padding-right:2.5rem;" />
+            <button type="button" onclick="App.togglePasswordVisibility('edit-user-senha', this)" style="position:absolute; right:0.5rem; background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:1.1rem; padding:0.25rem;" title="Mostrar / Ocultar Senha">👁️</button>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="App.closeAdminUserModals()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Atualizar Cadastro</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: VISUALIZAR CADASTRO & LOGS DE ACESSO -->
+  <div id="modal-admin-user-details" class="modal-backdrop" role="dialog" aria-modal="true" style="display:none;">
+    <div class="modal-dialog" style="max-width:680px; max-height:90vh; overflow-y:auto;">
+      <div class="card-header" style="position:sticky; top:0; background:var(--bg-surface); z-index:10; padding-bottom:0.75rem; margin-bottom:1rem; border-bottom:1px solid var(--border-color);">
+        <div>
+          <h2 class="card-title" style="font-size:1.15rem; display:flex; align-items:center; gap:0.5rem;">
+            🔍 Ficha do Usuário & Histórico de Logs
+          </h2>
+          <small style="color:var(--text-secondary);">Detalhes cadastrais, permissões e últimas atividades do usuário.</small>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeAdminUserModals()">✕</button>
+      </div>
+
+      <!-- Ficha Cadastral -->
+      <div id="user-details-card" style="margin-bottom:1.25rem;">
+        <p style="color:var(--text-muted); text-align:center;">Carregando cadastro...</p>
+      </div>
+
+      <!-- Tabela de Logs Recentes -->
+      <div>
+        <h3 style="font-size:1rem; margin-bottom:0.5rem;">📜 Últimos Acessos & Operações do Usuário</h3>
+        <div id="user-details-logs" class="table-responsive">
+          <p style="color:var(--text-muted); text-align:center;">Carregando histórico de auditoria...</p>
+        </div>
+      </div>
+
+      <div style="margin-top:1.25rem; text-align:right;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeAdminUserModals()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE RESET TOTAL DO SISTEMA (COMEÇAR DO ZERO) -->
+  <div id="modal-reset-system" class="modal-backdrop" role="dialog" aria-modal="true" style="display:none;">
+    <div class="modal-dialog" style="max-width:520px; border: 2px solid var(--danger);">
+      <div class="card-header" style="border-bottom: 1px solid rgba(220, 38, 38, 0.2);">
+        <h2 class="card-title" style="font-size:1.15rem; color:var(--danger);">⚠️ Reinicializar Sistema e Dados</h2>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeResetModal()">✕</button>
+      </div>
+      <div style="padding:1rem 0;">
+        <div style="background: rgba(220, 38, 38, 0.08); border-left: 4px solid var(--danger); padding: 0.75rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1rem;">
+          <strong style="color: var(--danger); display:block; margin-bottom: 0.25rem;">ATENÇÃO: AÇÃO IRREVERSÍVEL!</strong>
+          <span style="font-size: 0.85rem; color: var(--text-secondary);">
+            Todos os lançamentos, dívidas, empréstimos, investimentos e parcelas serão excluídos.
+            Sua conta de proprietário (OWNER) será mantida e as categorias oficiais serão recriadas.
+            Um backup completo de segurança será baixado automaticamente antes de apagar os dados.
+          </span>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="reset-confirm-word"><strong>1. Digite a palavra RESETAR para confirmar:</strong></label>
+          <input type="text" id="reset-confirm-word" class="form-control" placeholder="RESETAR" autocomplete="off" />
+        </div>
+
+        <div id="reset-password-group" class="form-group" style="margin-bottom:1rem;">
+          <label for="reset-confirm-password"><strong>2. Digite sua senha de acesso cadastrada:</strong></label>
+          <input type="password" id="reset-confirm-password" class="form-control" placeholder="Sua senha de login" autocomplete="current-password" />
+        </div>
+
+        <div id="reset-password-notice" style="display:none; background:var(--bg-secondary); padding:0.65rem 0.85rem; border-radius:var(--radius-sm); border:1px solid var(--border-color); font-size:0.82rem; color:var(--text-secondary); margin-bottom:1rem;">
+          ℹ️ <strong>Autenticação Direta do Google Drive:</strong> Você não possui senha local cadastrada. Apenas a digitação da palavra <code>RESETAR</code> e a validação do proprietário da conta Google são necessárias.
+        </div>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+        <button type="button" class="btn btn-secondary" onclick="App.closeResetModal()">Cancelar</button>
+        <button type="button" id="btn-confirm-reset-system" class="btn btn-danger" onclick="App.executeResetSystem()">
+          🗑️ Confirmar e Zerar Sistema
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

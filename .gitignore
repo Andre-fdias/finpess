@@ -1,0 +1,15 @@
+# Credenciais e segredos locais
+.clasprc.json
+.env
+*.secret.json
+*.key
+*.pem
+
+# Dependências e arquivos temporários
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+tmp/
+scratch/
+

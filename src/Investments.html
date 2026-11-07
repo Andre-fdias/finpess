@@ -1,0 +1,615 @@
+<section id="sec-investments" class="module-section" aria-labelledby="title-investments">
+  <!-- Cabeçalho Principal do Módulo de Investimentos -->
+  <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.25rem;">
+    <div style="display:flex; align-items:center; gap:0.85rem;">
+      <div style="width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.35)); color:#059669; display:flex; align-items:center; justify-content:center; font-size:1.3rem; box-shadow:0 2px 10px rgba(16,185,129,0.2);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+          <polyline points="17 6 23 6 23 12"></polyline>
+        </svg>
+      </div>
+      <div>
+        <h1 id="title-investments" class="card-title" style="font-size:1.35rem; margin:0; font-weight:700; color:var(--text-primary);">Central de Investimentos & Mercado</h1>
+        <small style="color:var(--text-secondary); font-size:0.82rem;">Acompanhamento patrimonial, radar inteligente B3, consultoria assistida por IA e estratégias de dividendos.</small>
+      </div>
+    </div>
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+      <button type="button" id="btn-refresh-market-data" class="btn btn-secondary" onclick="App.refreshMarketDataOnline()" style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600;" title="Consultar cotações e índices online em tempo real">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        <span id="btn-refresh-market-data-text">Atualizar Cotações</span>
+      </button>
+      <button type="button" class="btn btn-secondary" onclick="App.toggleNewMovementCard()" style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Nova Movimentação
+      </button>
+      <button type="button" class="btn btn-primary" onclick="App.toggleNewAssetCard()" style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Novo Ativo
+      </button>
+    </div>
+  </div>
+
+  <!-- BANNER ROTATIVO INTELIGENTE: RADAR DE INVESTIMENTOS -->
+  <div id="inv-radar-carousel" class="card" style="margin-bottom:1.25rem; border-radius:14px; padding:1.1rem 1.25rem; background:linear-gradient(135deg, rgba(37,99,235,0.04) 0%, rgba(16,185,129,0.06) 100%); border:1px solid rgba(16,185,129,0.25); box-shadow:0 4px 16px rgba(0,0,0,0.03); position:relative; overflow:hidden;" onmouseenter="App.pauseRadarCarousel()" onmouseleave="App.resumeRadarCarousel()">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+      <div style="display:flex; align-items:center; gap:0.5rem;">
+        <span class="badge" style="background:#059669; color:#fff; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; padding:3px 8px; border-radius:6px;">Radar de Oportunidades</span>
+        <span style="font-size:0.78rem; color:var(--text-muted); display:inline-flex; align-items:center; gap:4px;">
+          <span style="width:7px; height:7px; border-radius:50%; background:#10b981; display:inline-block; animation:pulse 2s infinite;"></span>
+          Destaques Selecionados do Mercado
+        </span>
+        <span id="radar-live-status-badge" class="badge" style="background:rgba(16,185,129,0.15); color:#10b981; font-size:0.7rem; font-weight:600; padding:2px 7px; border-radius:5px; display:inline-flex; align-items:center; gap:3px;">
+          ● Online
+        </span>
+      </div>
+      <!-- Controles do Carrossel -->
+      <div style="display:flex; align-items:center; gap:0.4rem;">
+        <button type="button" class="btn btn-secondary" onclick="App.prevRadarSlide()" style="padding:0.25rem 0.55rem; font-size:0.8rem;" title="Destaque Anterior">◀</button>
+        <button type="button" id="btn-carousel-playpause" class="btn btn-secondary" onclick="App.toggleRadarCarouselPlay()" style="padding:0.25rem 0.55rem; font-size:0.8rem;" title="Pausar / Retomar Rotação">⏸</button>
+        <button type="button" class="btn btn-secondary" onclick="App.nextRadarSlide()" style="padding:0.25rem 0.55rem; font-size:0.8rem;" title="Próximo Destaque">▶</button>
+      </div>
+    </div>
+
+    <!-- Conteúdo do Slide Ativo -->
+    <div id="radar-slide-container" style="min-height:90px; transition:opacity 0.3s ease;">
+      <!-- Preenchido via JavaScript dinamicamente -->
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-size:1.15rem; font-weight:700; color:var(--text-primary);">Carregando Radar de Investimentos...</div>
+          <small style="color:var(--text-muted);">Consultando destaques e múltiplos fundamentalistas.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Indicadores de Pontos (Dots) -->
+    <div id="radar-dots-container" style="display:flex; justify-content:center; align-items:center; gap:6px; margin-top:0.75rem;">
+      <!-- Inseridos via JavaScript -->
+    </div>
+  </div>
+
+  <!-- NAVEGAÇÃO POR ABAS DO MÓDULO (5 ÁREAS INTEGRADAS) -->
+  <div style="display:flex; gap:0.5rem; overflow-x:auto; padding-bottom:0.5rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border-color);">
+    <button type="button" id="tab-nav-carteira" class="inv-main-tab-btn active" onclick="App.switchInvestmentsSection('carteira')" style="padding:0.6rem 1.1rem; border-radius:10px; border:1px solid rgba(16,185,129,0.3); background:rgba(16,185,129,0.12); color:#059669; font-weight:700; font-size:0.86rem; cursor:pointer; display:inline-flex; align-items:center; gap:0.45rem; white-space:nowrap;">
+      💼 Minha Carteira
+    </button>
+    <button type="button" id="tab-nav-radar" class="inv-main-tab-btn" onclick="App.switchInvestmentsSection('radar')" style="padding:0.6rem 1.1rem; border-radius:10px; border:1px solid var(--border-color); background:var(--card-bg); color:var(--text-secondary); font-weight:600; font-size:0.86rem; cursor:pointer; display:inline-flex; align-items:center; gap:0.45rem; white-space:nowrap;">
+      🎯 Radar do Mercado & Top 10
+    </button>
+    <button type="button" id="tab-nav-ia" class="inv-main-tab-btn" onclick="App.switchInvestmentsSection('ia')" style="padding:0.6rem 1.1rem; border-radius:10px; border:1px solid var(--border-color); background:var(--card-bg); color:var(--text-secondary); font-weight:600; font-size:0.86rem; cursor:pointer; display:inline-flex; align-items:center; gap:0.45rem; white-space:nowrap;">
+      🤖 Oráculo IA & Perfil
+    </button>
+    <button type="button" id="tab-nav-panorama" class="inv-main-tab-btn" onclick="App.switchInvestmentsSection('panorama')" style="padding:0.6rem 1.1rem; border-radius:10px; border:1px solid var(--border-color); background:var(--card-bg); color:var(--text-secondary); font-weight:600; font-size:0.86rem; cursor:pointer; display:inline-flex; align-items:center; gap:0.45rem; white-space:nowrap;">
+      📰 Panorama & Calendário
+    </button>
+    <button type="button" id="tab-nav-comparador" class="inv-main-tab-btn" onclick="App.switchInvestmentsSection('comparador')" style="padding:0.6rem 1.1rem; border-radius:10px; border:1px solid var(--border-color); background:var(--card-bg); color:var(--text-secondary); font-weight:600; font-size:0.86rem; cursor:pointer; display:inline-flex; align-items:center; gap:0.45rem; white-space:nowrap;">
+      ⚖️ Comparador & Dividendos
+    </button>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ÁREA 1: MINHA CARTEIRA (POSIÇÃO, MOVIMENTOS E ATIVOS) -->
+  <!-- ============================================================ -->
+  <div id="section-inv-carteira" class="inv-section-panel">
+    <!-- Bento Grid de KPIs da Carteira Pessoal -->
+    <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap:1rem; margin-bottom:1.25rem;">
+      <div class="card" style="border-radius:12px; padding:1.1rem; border:1px solid var(--border-color); background:var(--card-bg);">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+          <span style="font-size:0.8rem; color:var(--text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Total Aplicado</span>
+          <span class="badge" style="background:rgba(59, 130, 246, 0.12); color:#2563eb; font-size:0.75rem; font-weight:600;">Custo</span>
+        </div>
+        <div id="inv-kpi-aplicado" class="money-value" style="font-size:1.45rem; font-weight:700; color:var(--text-primary);">R$ 0,00</div>
+        <small style="color:var(--text-muted); font-size:0.75rem;">Soma dos aportes realizados</small>
+      </div>
+
+      <div class="card" style="border-radius:12px; padding:1.1rem; border:1px solid var(--border-color); background:var(--card-bg);">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+          <span style="font-size:0.8rem; color:var(--text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Valor de Mercado</span>
+          <span class="badge" style="background:rgba(16, 185, 129, 0.12); color:#059669; font-size:0.75rem; font-weight:600;">Posição Atual</span>
+        </div>
+        <div id="inv-kpi-mercado" class="money-value" style="font-size:1.45rem; font-weight:700; color:#059669;">R$ 0,00</div>
+        <small style="color:var(--text-muted); font-size:0.75rem;">Patrimônio bruto estimado</small>
+      </div>
+
+      <div class="card" style="border-radius:12px; padding:1.1rem; border:1px solid var(--border-color); background:var(--card-bg);">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+          <span style="font-size:0.8rem; color:var(--text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Rentabilidade</span>
+          <span id="inv-kpi-rent-badge" class="badge" style="background:rgba(107, 114, 128, 0.12); color:var(--text-secondary); font-size:0.75rem; font-weight:600;">0,00%</span>
+        </div>
+        <div id="inv-kpi-variacao" class="money-value" style="font-size:1.45rem; font-weight:700; color:var(--text-primary);">R$ 0,00</div>
+        <small id="inv-kpi-rent-sub" style="color:var(--text-muted); font-size:0.75rem;">Lucro / Variação patrimonial</small>
+      </div>
+
+      <div class="card" style="border-radius:12px; padding:1.1rem; border:1px solid var(--border-color); background:var(--card-bg);">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+          <span style="font-size:0.8rem; color:var(--text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Proventos Recebidos</span>
+          <span class="badge" style="background:rgba(139, 92, 246, 0.12); color:#7c3aed; font-size:0.75rem; font-weight:600;">Dividendos & Juros</span>
+        </div>
+        <div id="inv-kpi-rendimentos" class="money-value" style="font-size:1.45rem; font-weight:700; color:#7c3aed;">R$ 0,00</div>
+        <small style="color:var(--text-muted); font-size:0.75rem;">Renda passiva acumulada</small>
+      </div>
+    </div>
+
+    <!-- Barra Visual de Alocação por Classe de Ativos -->
+    <div class="card" style="border-radius:12px; padding:1.1rem; margin-bottom:1.25rem; border:1px solid var(--border-color); background:var(--card-bg);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem; flex-wrap:wrap; gap:0.5rem;">
+        <span style="font-size:0.85rem; font-weight:700; color:var(--text-primary); text-transform:uppercase; letter-spacing:0.5px;">Distribuição da Carteira por Classe</span>
+        <span id="inv-diversificacao-badge" style="font-size:0.78rem; color:var(--text-muted);">Calculando alocação...</span>
+      </div>
+      <div id="inv-allocation-bar" style="display:flex; height:12px; width:100%; border-radius:6px; overflow:hidden; background:var(--border-color); margin-bottom:0.75rem;">
+        <div style="width:100%; height:100%; background:var(--border-color);"></div>
+      </div>
+      <div id="inv-allocation-legend" style="display:flex; flex-wrap:wrap; gap:0.85rem; font-size:0.78rem; color:var(--text-secondary);"></div>
+    </div>
+
+    <!-- Card Retrátil: Cadastrar Novo Ativo na Carteira -->
+    <div id="card-new-asset" class="card" style="display:none; border-radius:14px; margin-bottom:1.25rem; border:1px solid var(--border-color); background:var(--card-bg); box-shadow:0 4px 16px rgba(0,0,0,0.06);">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1.25rem; border-bottom:1px solid var(--border-color);">
+        <h2 class="card-title" style="margin:0; font-size:1.1rem; display:flex; align-items:center; gap:0.5rem;">
+          <span style="color:#059669;">➕</span> Cadastrar Ativo na Carteira
+        </h2>
+        <button type="button" class="btn btn-secondary" onclick="App.toggleNewAssetCard()" style="padding:0.3rem 0.6rem; color:var(--text-muted);">✕ Fechar</button>
+      </div>
+      <form id="form-investment" onsubmit="App.submitInvestmentAsset(event)" style="padding:1.25rem;">
+        <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+          <div class="form-group">
+            <label for="inv-nome">Nome do Ativo ou Ticker *</label>
+            <input type="text" id="inv-nome" class="form-control" placeholder="Ex: Tesouro Selic 2029, MXRF11, PETR4, CDB 110%" required />
+          </div>
+          <div class="form-group">
+            <label for="inv-classe">Classe do Ativo *</label>
+            <select id="inv-classe" class="form-control" required>
+              <option value="RENDA_FIXA">Renda Fixa (CDB / LCI / LCA / CRI)</option>
+              <option value="TESOURO_DIRETO">Tesouro Direto (Selic / IPCA+ / Prefixado)</option>
+              <option value="FUNDOS_IMOBILIARIOS">Fundos Imobiliários (FIIs)</option>
+              <option value="ACOES">Ações (Bolsa de Valores B3)</option>
+              <option value="FUNDOS">Fundos de Investimento (Multimercado/Ações)</option>
+              <option value="PREVIDENCIA">Previdência Privada (PGBL / VGBL)</option>
+              <option value="OUTROS">Outros / Commodities / Criptomoedas</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="inv-instituicao">Instituição / Corretora *</label>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <input type="text" id="inv-instituicao" class="form-control" placeholder="Ex: XP, Nubank, Itaú, Banco do Brasil, BTG" oninput="App.onAssetBankChange(this.value)" required />
+              <div id="inv-bank-badge-preview" style="min-width:32px;"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inv-aplicado">Valor Aplicado Inicial (R$) *</label>
+            <input type="text" id="inv-aplicado" class="form-control mask-money" placeholder="R$ 0,00" required />
+          </div>
+          <div class="form-group">
+            <label for="inv-mercado">Valor de Mercado Informado (R$) *</label>
+            <input type="text" id="inv-mercado" class="form-control mask-money" placeholder="R$ 0,00" required />
+          </div>
+          <div class="form-group">
+            <label for="inv-data-ref">Data de Referência *</label>
+            <input type="date" id="inv-data-ref" class="form-control" required />
+          </div>
+        </div>
+
+        <!-- Conexão com Conta Bancária -->
+        <div style="margin-top:1.1rem; padding:1rem; border-radius:10px; background:rgba(59, 130, 246, 0.05); border:1px solid rgba(59, 130, 246, 0.2);">
+          <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; font-weight:600; color:var(--text-primary); font-size:0.88rem;">
+            <input type="checkbox" id="inv-debitar-conta" style="width:17px; height:17px; accent-color:#2563eb;" onchange="document.getElementById('inv-box-conta-select').style.display = this.checked ? 'block' : 'none';" />
+            Debitar valor aplicado da minha Conta Bancária (cria lançamento de saída confirmado)
+          </label>
+          <div id="inv-box-conta-select" style="display:none; margin-top:0.75rem;">
+            <label for="inv-conta-bancaria" style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.25rem; display:block;">Selecione a Conta Bancária de Origem:</label>
+            <select id="inv-conta-bancaria" class="form-control" style="max-width:360px;"></select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:1rem;">
+          <label for="inv-obs">Observações Adicionais (Estratégia / Objetivo)</label>
+          <input type="text" id="inv-obs" class="form-control" placeholder="Ex: Reserva de emergência, aposentadoria em 2035, etc." />
+        </div>
+
+        <div style="margin-top:1.25rem; display:flex; justify-content:flex-end; gap:0.75rem;">
+          <button type="button" class="btn btn-secondary" onclick="App.toggleNewAssetCard()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" style="font-weight:600;">Cadastrar Ativo</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Card Retrátil: Registrar Movimentação -->
+    <div id="card-new-movement" class="card" style="display:none; border-radius:14px; margin-bottom:1.25rem; border:1px solid var(--border-color); background:var(--card-bg); box-shadow:0 4px 16px rgba(0,0,0,0.06);">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1.25rem; border-bottom:1px solid var(--border-color);">
+        <h2 class="card-title" style="margin:0; font-size:1.1rem; display:flex; align-items:center; gap:0.5rem;">
+          <span style="color:#2563eb;">⚡</span> Registrar Movimentação no Ativo
+        </h2>
+        <button type="button" class="btn btn-secondary" onclick="App.toggleNewMovementCard()" style="padding:0.3rem 0.6rem; color:var(--text-muted);">✕ Fechar</button>
+      </div>
+      <form id="form-inv-movement" onsubmit="App.submitInvestmentMovement(event)" style="padding:1.25rem;">
+        <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+          <div class="form-group">
+            <label for="mvi-ativo">Selecione o Ativo *</label>
+            <select id="mvi-ativo" class="form-control" required></select>
+          </div>
+          <div class="form-group">
+            <label for="mvi-tipo">Tipo de Movimentação *</label>
+            <select id="mvi-tipo" class="form-control" onchange="App.onMovementTypeChange(this.value)" required>
+              <option value="APORTE">Aporte (Novo Investimento / Compra)</option>
+              <option value="RESGATE">Resgate (Venda / Retirada)</option>
+              <option value="RENDIMENTO">Rendimento / Proventos (Dividendos / JCP)</option>
+              <option value="ATUALIZACAO_MERCADO">Atualizar Valor de Mercado / Cotação</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="mvi-valor">Valor da Operação (R$) *</label>
+            <input type="text" id="mvi-valor" class="form-control mask-money" placeholder="R$ 0,00" required />
+          </div>
+          <div class="form-group">
+            <label for="mvi-data">Data da Movimentação *</label>
+            <input type="date" id="mvi-data" class="form-control" required />
+          </div>
+        </div>
+
+        <div id="mvi-box-banco" style="margin-top:1.1rem; padding:1rem; border-radius:10px; background:rgba(16, 185, 129, 0.05); border:1px solid rgba(16, 185, 129, 0.2);">
+          <label id="mvi-banco-label" style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; font-weight:600; color:var(--text-primary); font-size:0.88rem;">
+            <input type="checkbox" id="mvi-conectar-conta" checked style="width:17px; height:17px; accent-color:#10b981;" onchange="document.getElementById('mvi-conta-wrapper').style.display = this.checked ? 'block' : 'none';" />
+            <span id="mvi-conectar-texto">Integrar com Conta Bancária</span>
+          </label>
+          <div id="mvi-conta-wrapper" style="margin-top:0.75rem;">
+            <label for="mvi-conta-bancaria" style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.25rem; display:block;">Conta Bancária:</label>
+            <select id="mvi-conta-bancaria" class="form-control" style="max-width:360px;"></select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:1rem;">
+          <label for="mvi-obs">Observações / Motivo</label>
+          <input type="text" id="mvi-obs" class="form-control" placeholder="Opcional (Ex: Aporte mensal de novembro, dividendos de BBAS3)" />
+        </div>
+
+        <div style="margin-top:1.25rem; display:flex; justify-content:flex-end; gap:0.75rem;">
+          <button type="button" class="btn btn-secondary" onclick="App.toggleNewMovementCard()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" style="font-weight:600;">Registrar Movimentação</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Tabela de Ativos da Carteira -->
+    <div class="card" style="border-radius:14px; border:1px solid var(--border-color); background:var(--card-bg); box-shadow:0 2px 10px rgba(0,0,0,0.03); overflow:visible;">
+      <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; padding:1.1rem 1.25rem; border-bottom:1px solid var(--border-color);">
+        <div>
+          <h2 class="card-title" style="margin:0; font-size:1.1rem;">Ativos Cadastrados e Posição Detalhada</h2>
+          <small style="color:var(--text-muted); font-size:0.78rem;">Acompanhe o custo aplicado, valor de mercado informado e rentabilidade calculada de cada ativo.</small>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <input type="text" id="inv-table-search" placeholder="Buscar por ativo ou instituição..." oninput="App.filterInvestmentsTable(this.value)" class="form-control" style="font-size:0.82rem; padding:0.35rem 0.65rem; width:220px;" />
+        </div>
+      </div>
+      <div id="investments-table-container" class="table-responsive" style="overflow-x:auto; overflow-y:visible;"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ÁREA 2: RADAR DO MERCADO & TOP 10 POR CATEGORIA -->
+  <!-- ============================================================ -->
+  <div id="section-inv-radar" class="inv-section-panel" style="display:none;">
+    <div class="card" style="border-radius:14px; padding:1.25rem; margin-bottom:1.25rem; border:1px solid var(--border-color); background:var(--card-bg);">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+        <div>
+          <h2 class="card-title" style="margin:0; font-size:1.15rem; color:var(--text-primary);">Radar de Ativos & Rankings Transparentes (Top 10)</h2>
+          <small style="color:var(--text-secondary); font-size:0.82rem;">Critérios fundamentalistas transparentes baseados em liquidez, payout de dividendos e solidez financeira.</small>
+        </div>
+        <!-- Filtros do Top 10 -->
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+          <button type="button" class="btn btn-secondary btn-top10-cat active" onclick="App.loadTop10Category('GERAL', this)">Geral</button>
+          <button type="button" class="btn btn-secondary btn-top10-cat" onclick="App.loadTop10Category('DIVIDENDOS', this)">Dividendos</button>
+          <button type="button" class="btn btn-secondary btn-top10-cat" onclick="App.loadTop10Category('FIIS', this)">FIIs</button>
+          <button type="button" class="btn btn-secondary btn-top10-cat" onclick="App.loadTop10Category('CRESCIMENTO', this)">Crescimento</button>
+          <button type="button" class="btn btn-secondary btn-top10-cat" onclick="App.loadTop10Category('RENDA_FIXA', this)">Renda Fixa</button>
+          <button type="button" class="btn btn-secondary btn-top10-cat" onclick="App.loadTop10Category('INTERNACIONAL', this)">Internacional</button>
+        </div>
+      </div>
+
+      <!-- Critérios Transparentes da Categoria -->
+      <div id="top10-criterios-banner" style="padding:0.75rem 1rem; border-radius:10px; background:rgba(37,99,235,0.05); border:1px solid rgba(37,99,235,0.2); font-size:0.82rem; color:var(--text-secondary); margin-bottom:1.25rem;">
+        <strong id="top10-titulo-criterio" style="color:#2563eb; display:block; margin-bottom:2px;">Top Destaques Gerais do Mercado</strong>
+        <span id="top10-desc-criterio">Critérios: Liquidez diária, balanço auditado, consistência de resultados e adequação ao cenário macro de juros.</span>
+      </div>
+
+      <!-- Grid de Cards do Top 10 -->
+      <div id="top10-grid-container" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(290px, 1fr)); gap:1rem;">
+        <!-- Preenchido via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ÁREA 3: INTELIGÊNCIA ARTIFICIAL & SUITABILITY (ORÁCULO) -->
+  <!-- ============================================================ -->
+  <div id="section-inv-ia" class="inv-section-panel" style="display:none;">
+    <!-- Painel de Suitability / Perfil do Investidor -->
+    <div class="card" style="border-radius:14px; padding:1.25rem; margin-bottom:1.25rem; border:1px solid rgba(124, 58, 237, 0.25); background:linear-gradient(135deg, rgba(124, 58, 237, 0.04) 0%, var(--card-bg) 100%);">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+        <div style="display:flex; align-items:center; gap:0.65rem;">
+          <div style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg, #7c3aed, #4f46e5); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+            🎯
+          </div>
+          <div>
+            <h2 style="font-size:1.1rem; font-weight:700; margin:0; color:var(--text-primary);">Perfil de Investidor (Suitability)</h2>
+            <small style="color:var(--text-muted); font-size:0.78rem;">Base fundamental para que a IA gere recomendações adequadas aos seus objetivos e tolerância ao risco.</small>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary" onclick="App.toggleSuitabilityModal()" style="font-size:0.8rem; font-weight:600; color:#7c3aed; border-color:rgba(124,58,237,0.3);">
+          ⚙️ Atualizar Meu Perfil
+        </button>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.85rem;">
+        <div style="padding:0.75rem 1rem; border-radius:10px; background:var(--card-bg); border:1px solid var(--border-color);">
+          <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Perfil de Risco</div>
+          <div id="suit-kpi-perfil" style="font-size:1.05rem; font-weight:700; color:#7c3aed; margin-top:2px;">Moderado</div>
+        </div>
+        <div style="padding:0.75rem 1rem; border-radius:10px; background:var(--card-bg); border:1px solid var(--border-color);">
+          <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Horizonte Temporal</div>
+          <div id="suit-kpi-horizonte" style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin-top:2px;">Médio Prazo (2-5 anos)</div>
+        </div>
+        <div style="padding:0.75rem 1rem; border-radius:10px; background:var(--card-bg); border:1px solid var(--border-color);">
+          <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Objetivo Principal</div>
+          <div id="suit-kpi-objetivo" style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin-top:2px;">Renda Passiva (Dividendos)</div>
+        </div>
+        <div style="padding:0.75rem 1rem; border-radius:10px; background:var(--card-bg); border:1px solid var(--border-color);">
+          <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Reserva de Emergência</div>
+          <div id="suit-kpi-reserva" style="font-size:1.05rem; font-weight:700; color:#059669; margin-top:2px;">Concluída (Segura)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diagnóstico e Parecer Executivo do Advisor IA -->
+    <div class="card" style="border-radius:14px; padding:1.25rem; margin-bottom:1.25rem; border:1px solid var(--border-color); background:var(--card-bg);">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem;">
+        <div>
+          <h2 style="font-size:1.1rem; font-weight:700; margin:0; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            🤖 Parecer Executivo da Inteligência Artificial
+          </h2>
+          <small style="color:var(--text-muted); font-size:0.78rem;">Análise cruzada entre sua carteira real, objetivos cadastrados e o cenário macroeconômico.</small>
+        </div>
+        <button type="button" class="btn btn-secondary" onclick="App.consultInvestmentAi()" id="btn-refresh-ai-full" style="font-size:0.8rem; font-weight:600; display:inline-flex; align-items:center; gap:0.4rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+          Recalcular Diagnóstico com IA
+        </button>
+      </div>
+
+      <div id="ai-alerta-concentracao-full" style="padding:0.85rem 1rem; border-radius:10px; background:rgba(245, 158, 11, 0.08); border:1px solid rgba(245, 158, 11, 0.25); color:var(--text-primary); font-size:0.85rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.6rem;">
+        <span style="font-size:1.1rem;">⚠️</span>
+        <span id="ai-concentracao-texto-full">Analisando concentração de ativos...</span>
+      </div>
+
+      <div style="background:rgba(124, 58, 237, 0.03); border:1px solid rgba(124, 58, 237, 0.15); border-radius:12px; padding:1.25rem; margin-bottom:1.25rem;">
+        <p id="ai-parecer-texto-full" style="font-size:0.88rem; color:var(--text-secondary); line-height:1.6; margin:0;">
+          Aguardando análise com IA...
+        </p>
+      </div>
+
+      <!-- Recomendações Estruturadas (Compra vs Venda/Rebalanceamento) -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.25rem;">
+        <div style="border:1px solid rgba(16, 185, 129, 0.25); background:rgba(16, 185, 129, 0.02); border-radius:12px; padding:1.1rem;">
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.85rem;">
+            <span class="badge" style="background:rgba(16, 185, 129, 0.15); color:#059669; font-weight:700; font-size:0.75rem;">COMPRA / APORTE</span>
+            <h3 style="font-size:0.92rem; font-weight:700; color:var(--text-primary); margin:0;">Onde Focar os Próximos Aportes</h3>
+          </div>
+          <div id="ai-recom-compra-list-full" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+        </div>
+
+        <div style="border:1px solid rgba(239, 68, 68, 0.25); background:rgba(239, 68, 68, 0.02); border-radius:12px; padding:1.1rem;">
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.85rem;">
+            <span class="badge" style="background:rgba(239, 68, 68, 0.15); color:#dc2626; font-weight:700; font-size:0.75rem;">AVALIAR VENDA / REBALANCEAR</span>
+            <h3 style="font-size:0.92rem; font-weight:700; color:var(--text-primary); margin:0;">Pontos de Atenção & Realização</h3>
+          </div>
+          <div id="ai-recom-venda-list-full" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ÁREA 4: PANORAMA DO MERCADO & NOTÍCIAS FINANCEIRAS -->
+  <!-- ============================================================ -->
+  <div id="section-inv-panorama" class="inv-section-panel" style="display:none;">
+    <!-- Termômetro Macroeconômico Oficial -->
+    <div class="card" style="border-radius:14px; padding:1.25rem; margin-bottom:1.25rem; border:1px solid var(--border-color); background:var(--card-bg);">
+      <h2 class="card-title" style="margin:0 0 0.25rem 0; font-size:1.15rem; color:var(--text-primary);">Termômetro Macroeconômico Oficial</h2>
+      <small style="color:var(--text-secondary); font-size:0.82rem; display:block; margin-bottom:1rem;">Dados consolidados de Banco Central do Brasil, B3, IBGE e bolsas internacionais.</small>
+      <div id="panorama-macro-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.85rem;">
+        <!-- Preenchido via JavaScript -->
+      </div>
+    </div>
+
+    <!-- Grid: Notícias do Mercado vs Calendário Econômico -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:1.25rem;">
+      <!-- Feed de Notícias -->
+      <div class="card" style="border-radius:14px; padding:1.25rem; border:1px solid var(--border-color); background:var(--card-bg);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+          <h3 style="margin:0; font-size:1rem; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            📰 Notícias e Fatos Relevantes
+          </h3>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Fontes Oficiais</span>
+        </div>
+        <div id="panorama-news-container" style="display:flex; flex-direction:column; gap:0.85rem;">
+          <!-- Preenchido via JavaScript -->
+        </div>
+      </div>
+
+      <!-- Calendário Econômico -->
+      <div class="card" style="border-radius:14px; padding:1.25rem; border:1px solid var(--border-color); background:var(--card-bg);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+          <h3 style="margin:0; font-size:1rem; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            📅 Calendário Econômico & Eventos
+          </h3>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Próximas Datas</span>
+        </div>
+        <div id="panorama-calendar-container" style="display:flex; flex-direction:column; gap:0.85rem;">
+          <!-- Preenchido via JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ÁREA 5: EDUCAÇÃO, COMPARADOR DE ATIVOS & DIVIDENDOS -->
+  <!-- ============================================================ -->
+  <div id="section-inv-comparador" class="inv-section-panel" style="display:none;">
+    <!-- Comparador Inteligente de 2 Ativos -->
+    <div class="card" style="border-radius:14px; padding:1.25rem; margin-bottom:1.25rem; border:1px solid var(--border-color); background:var(--card-bg);">
+      <div style="margin-bottom:1rem;">
+        <h2 class="card-title" style="margin:0 0 0.25rem 0; font-size:1.15rem; color:var(--text-primary);">⚖️ Comparador Inteligente de Ativos</h2>
+        <small style="color:var(--text-secondary); font-size:0.82rem;">Compare dois ativos lado a lado em termos de múltiplos fundamentalistas, dividendos, risco e compatibilidade com seu perfil.</small>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr auto; gap:0.75rem; align-items:flex-end; margin-bottom:1.25rem;">
+        <div class="form-group" style="margin:0;">
+          <label for="comp-ativo-1" style="font-size:0.82rem; font-weight:600;">Primeiro Ativo (Ticker ou Carteira)</label>
+          <input type="text" id="comp-ativo-1" class="form-control" placeholder="Ex: BBAS3, TAEE11, HGLG11" value="BBAS3" />
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label for="comp-ativo-2" style="font-size:0.82rem; font-weight:600;">Segundo Ativo (Ticker ou Carteira)</label>
+          <input type="text" id="comp-ativo-2" class="form-control" placeholder="Ex: ITUB4, WEGE3, KNIP11" value="ITUB4" />
+        </div>
+        <button type="button" class="btn btn-primary" onclick="App.runAssetComparison()" style="height:38px; font-weight:600;">
+          Comparar Ativos
+        </button>
+      </div>
+
+      <!-- Tabela Comparativa de Métricas -->
+      <div id="comparison-result-container" style="display:none;">
+        <div class="table-responsive" style="margin-bottom:1rem;">
+          <table class="data-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th style="width:35%;">Métrica Fundamentalista</th>
+                <th id="comp-th-1" style="width:32.5%; color:#2563eb; font-weight:700;">Ativo 1</th>
+                <th id="comp-th-2" style="width:32.5%; color:#059669; font-weight:700;">Ativo 2</th>
+              </tr>
+            </thead>
+            <tbody id="comp-table-body">
+              <!-- Preenchido via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+        <!-- Parecer Comparativo da IA -->
+        <div style="padding:1rem; border-radius:10px; background:rgba(124, 58, 237, 0.05); border:1px solid rgba(124, 58, 237, 0.2);">
+          <strong style="color:#7c3aed; font-size:0.85rem; display:block; margin-bottom:4px;">💡 Parecer Comparativo da Inteligência Artificial</strong>
+          <p id="comp-parecer-texto" style="font-size:0.84rem; color:var(--text-secondary); line-height:1.5; margin:0;"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mapa de Renda Passiva & Projeção de Dividendos -->
+    <div class="card" style="border-radius:14px; padding:1.25rem; margin-bottom:1.25rem; border:1px solid var(--border-color); background:var(--card-bg);">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+        <div>
+          <h2 class="card-title" style="margin:0 0 0.25rem 0; font-size:1.15rem; color:var(--text-primary);">💰 Projeção de Renda Passiva (Próximos 12 Meses)</h2>
+          <small style="color:var(--text-secondary); font-size:0.82rem;">Estimativa fundamentada de proventos futuros com base no Dividend Yield médio ponderado da sua carteira.</small>
+        </div>
+        <button type="button" class="btn btn-secondary" onclick="App.loadDividendProjections()" style="font-size:0.8rem; font-weight:600;">
+          🔄 Atualizar Projeção
+        </button>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.25rem;">
+        <div style="padding:0.9rem; border-radius:10px; background:rgba(124, 58, 237, 0.05); border:1px solid rgba(124, 58, 237, 0.15);">
+          <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">DY Médio Ponderado</div>
+          <div id="proj-kpi-dy" style="font-size:1.25rem; font-weight:700; color:#7c3aed; margin-top:2px;">0,00% a.a.</div>
+        </div>
+        <div style="padding:0.9rem; border-radius:10px; background:rgba(16, 185, 129, 0.05); border:1px solid rgba(16, 185, 129, 0.15);">
+          <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Média Mensal Estimada</div>
+          <div id="proj-kpi-mensal" style="font-size:1.25rem; font-weight:700; color:#059669; margin-top:2px;">R$ 0,00</div>
+        </div>
+        <div style="padding:0.9rem; border-radius:10px; background:rgba(37, 99, 235, 0.05); border:1px solid rgba(37, 99, 235, 0.15);">
+          <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Projeção Total 12 Meses</div>
+          <div id="proj-kpi-anual" style="font-size:1.25rem; font-weight:700; color:#2563eb; margin-top:2px;">R$ 0,00</div>
+        </div>
+      </div>
+
+      <div id="proj-cronograma-container" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(80px, 1fr)); gap:0.5rem; text-align:center;">
+        <!-- Preenchido via JavaScript -->
+      </div>
+    </div>
+
+    <!-- Painel de Commodities & Ativos Reais -->
+    <div class="card" style="border-radius:14px; padding:1.25rem; border:1px solid var(--border-color); background:var(--card-bg);">
+      <h2 class="card-title" style="margin:0 0 0.25rem 0; font-size:1.15rem; color:var(--text-primary);">🪙 Ativos Reais, Ouro & Commodities</h2>
+      <small style="color:var(--text-secondary); font-size:0.82rem; display:block; margin-bottom:1rem;">Entenda como ativos tangíveis funcionam como proteção inflacionária e reserva soberana.</small>
+      <div id="commodities-grid-container" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem;">
+        <!-- Preenchido via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE SUITABILITY (QUESTIONÁRIO DE PERFIL DO INVESTIDOR) -->
+  <div id="modal-suitability-backdrop" class="modal-backdrop" onclick="if(event.target===this) App.toggleSuitabilityModal()" role="dialog" aria-modal="true" aria-labelledby="modal-suitability-title">
+    <div class="modal-dialog" style="max-width:540px; background:var(--bg-surface) !important; border:1px solid var(--border-color); border-radius:var(--radius-lg); box-shadow:var(--shadow-md);">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <div style="width:30px; height:30px; border-radius:7px; background:rgba(5, 150, 105, 0.14); color:#059669; display:flex; align-items:center; justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </div>
+          <div>
+            <h2 id="modal-suitability-title" class="card-title" style="margin:0; font-size:1.05rem; font-weight:700;">Questionário de Suitability & Perfil</h2>
+            <small style="color:var(--text-secondary); font-size:0.75rem;">Defina suas preferências de risco, prazos e objetivos para a IA.</small>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleSuitabilityModal()" aria-label="Fechar">✕</button>
+      </div>
+
+      <form id="form-suitability" onsubmit="App.submitSuitability(event)">
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="suit-input-perfil" style="font-weight:600; font-size:0.83rem; color:var(--text-primary); display:block; margin-bottom:0.35rem;">1. Como você se classifica perante oscilações de preço? *</label>
+          <select id="suit-input-perfil" class="form-control" required style="width:100%; height:38px;">
+            <option value="CONSERVADOR">Conservador (Priorizo segurança e não suporto ver saldo negativo)</option>
+            <option value="MODERADO" selected>Moderado (Aceito oscilações pontuais para ter ganhos reais acima da inflação)</option>
+            <option value="ARROJADO">Arrojado (Aproveito quedas para comprar mais e foco no longo prazo)</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="suit-input-horizonte" style="font-weight:600; font-size:0.83rem; color:var(--text-primary); display:block; margin-bottom:0.35rem;">2. Qual é o horizonte de tempo da maior parte dos seus recursos? *</label>
+          <select id="suit-input-horizonte" class="form-control" required style="width:100%; height:38px;">
+            <option value="CURTO_PRAZO">Curto Prazo (Até 2 anos — preciso de liquidez)</option>
+            <option value="MEDIO_PRAZO" selected>Médio Prazo (De 2 a 5 anos — compra de imóvel, metas)</option>
+            <option value="LONGO_PRAZO">Longo Prazo (Mais de 5 anos — aposentadoria, independência financeira)</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="suit-input-objetivo" style="font-weight:600; font-size:0.83rem; color:var(--text-primary); display:block; margin-bottom:0.35rem;">3. Qual é o seu objetivo financeiro prioritário? *</label>
+          <select id="suit-input-objetivo" class="form-control" required style="width:100%; height:38px;">
+            <option value="RESERVA_EMERGENCIA">Construir ou Preservar minha Reserva de Emergência</option>
+            <option value="RENDA_PASSIVA_DIVIDENDOS" selected>Receber Renda Passiva Mensal (Dividendos de Ações e FIIs)</option>
+            <option value="CRESCIMENTO_PATRIMONIAL">Multiplicação e Crescimento Patrimonial de Longo Prazo</option>
+            <option value="APOSENTADORIA_LONGO_PRAZO">Previdência e Aposentadoria Tranquila (IPCA+)</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="suit-input-conhecimento" style="font-weight:600; font-size:0.83rem; color:var(--text-primary); display:block; margin-bottom:0.35rem;">4. Qual seu nível de experiência com mercado financeiro e Bolsa? *</label>
+          <select id="suit-input-conhecimento" class="form-control" required style="width:100%; height:38px;">
+            <option value="INICIANTE">Iniciante (Poupança e CDBs básicos)</option>
+            <option value="INTERMEDIARIO" selected>Intermediário (Conheço Tesouro Direto, FIIs e Ações)</option>
+            <option value="AVANCADO">Avançado (Analiso balanços, múltiplos fundamentalistas e macroeconomia)</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.25rem; background:var(--bg-elevated); padding:0.75rem 0.85rem; border-radius:var(--radius-sm); border:1px solid var(--border-color);">
+          <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; font-weight:600; font-size:0.83rem; color:var(--text-primary); margin:0;">
+            <input type="checkbox" id="suit-input-reserva" checked style="width:18px; height:18px; accent-color:#059669; cursor:pointer;" />
+            <span>Já possuo Reserva de Emergência de 6 meses formada em Renda Fixa</span>
+          </label>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border-color); padding-top:1rem;">
+          <button type="button" class="btn btn-secondary" onclick="App.toggleSuitabilityModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" style="font-weight:600;">Salvar Perfil</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- AVISO DE COMPLIANCE / EDUCACIONAL -->
+  <div style="margin-top:1.5rem; text-align:center; padding:1rem; border-top:1px dashed var(--border-color); color:var(--text-muted); font-size:0.75rem; line-height:1.5;">
+    ⚖️ <strong>Aviso Legal & Educacional:</strong> As análises, cotações, rankings Top 10 e recomendações assistidas por IA possuem caráter estritamente informativo e educacional. Não constituem oferta, garantia de retorno nem recomendação absoluta de compra ou venda de valores mobiliários. Decisões de investimento devem sempre considerar seus objetivos pessoais, liquidez e perfil de risco.
+  </div>
+</section>

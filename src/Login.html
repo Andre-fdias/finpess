@@ -1,0 +1,178 @@
+<!-- ==============================================================================
+     FINANÇAS INTELIGENTES — TELA DE LOGIN & CADASTRO SAAS PREMIUM (SPLIT-SCREEN)
+     ============================================================================== -->
+<div id="auth-screen-container" class="auth-wrapper" style="display:none;">
+  <div class="auth-split-grid">
+    <!-- LADO ESQUERDO: BRANDING, DIFERENCIAIS E APELO DE VENDAS -->
+    <div class="auth-branding-panel">
+      <div class="auth-branding-header">
+        <div class="brand-logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </div>
+        <div>
+          <h1 class="auth-brand-title">Finanças Inteligentes</h1>
+          <p class="auth-brand-subtitle">Seu futuro financeiro em boas mãos</p>
+        </div>
+      </div>
+
+      <div class="auth-pitch">
+        <h2 class="auth-pitch-heading">Gestão financeira pessoal e familiar com inteligência de ponta.</h2>
+        <p class="auth-pitch-text">
+          Organize receitas, elimine dívidas, acompanhe investimentos e registre despesas instantaneamente pelo Telegram por voz, texto ou foto de cupom fiscal.
+        </p>
+      </div>
+
+      <!-- CARDS FLUTUANTES DE DESTAQUE COMERCIAL -->
+      <div class="auth-features-list">
+        <div class="auth-feature-card">
+          <div class="auth-feature-icon" style="color:var(--primary-color); background:rgba(22, 133, 255, 0.12);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          </div>
+          <div>
+            <strong style="display:block; font-size:0.92rem; color:var(--text-primary);">Controle de Fluxo de Caixa Real</strong>
+            <span style="font-size:0.8rem; color:var(--text-secondary);">Separação estrita entre saldo realizado e lançamentos previstos.</span>
+          </div>
+        </div>
+
+        <div class="auth-feature-card">
+          <div class="auth-feature-icon" style="color:var(--success-color); background:rgba(16, 185, 129, 0.12);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          </div>
+          <div>
+            <strong style="display:block; font-size:0.92rem; color:var(--text-primary);">Bot Telegram com IA Integrada</strong>
+            <span style="font-size:0.8rem; color:var(--text-secondary);">Transcrição de áudio em PT-BR e leitura óptica de cupons fiscais.</span>
+          </div>
+        </div>
+
+        <div class="auth-feature-card">
+          <div class="auth-feature-icon" style="color:#a855f7; background:rgba(168, 85, 247, 0.12);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </div>
+          <div>
+            <strong style="display:block; font-size:0.92rem; color:var(--text-primary);">100% Seguro no seu Google Drive</strong>
+            <span style="font-size:0.8rem; color:var(--text-secondary);">Privacidade total: seus dados ficam salvos na sua própria planilha.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-branding-footer">
+        <span>© 2026 Finanças Inteligentes. Todos os direitos reservados.</span>
+      </div>
+    </div>
+
+    <!-- LADO DIREITO: FORMULÁRIO DE LOGIN E CADASTRO -->
+    <div class="auth-form-panel">
+      <div class="auth-form-card">
+        <!-- ABAS DE NAVEGAÇÃO ENTRAR / CRIAR CONTA -->
+        <div class="auth-tab-group">
+          <button type="button" id="tab-auth-login" class="auth-tab-btn active" onclick="App.switchAuthTab('login')">
+            Entrar
+          </button>
+          <button type="button" id="tab-auth-register" class="auth-tab-btn" onclick="App.switchAuthTab('register')">
+            Criar Conta
+          </button>
+        </div>
+
+        <!-- FORMULÁRIO DE LOGIN -->
+        <form id="form-auth-login" onsubmit="App.submitLogin(event)">
+          <div class="auth-form-header">
+            <h2 class="auth-title">Acesse seu Painel</h2>
+            <p class="auth-subtitle">Digite seu e-mail e senha para gerenciar suas finanças.</p>
+          </div>
+
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label for="login-email">E-mail Cadastrado *</label>
+            <div class="input-with-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              <input type="email" id="login-email" required placeholder="seu@email.com" autocomplete="username" />
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0.75rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label for="login-senha" style="margin:0;">Sua Senha *</label>
+            </div>
+            <div class="input-with-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <input type="password" id="login-senha" required placeholder="••••••••" autocomplete="current-password" />
+              <button type="button" class="btn-toggle-eye" onclick="App.togglePasswordVisibility('login-senha', this)" title="Ver senha">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </button>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; font-size:0.85rem;">
+            <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer; margin:0; color:var(--text-secondary);">
+              <input type="checkbox" id="login-remember" checked /> Lembrar por 30 dias
+            </label>
+          </div>
+
+          <button type="submit" id="btn-login-submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.85rem; font-size:0.95rem; font-weight:700;">
+            <span>Acessar com Senha</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+
+          <button type="button" class="btn btn-secondary" onclick="App.init()" style="width:100%; justify-content:center; padding:0.75rem; font-size:0.9rem; font-weight:600; margin-top:0.75rem;">
+            <span>🔑 Acesso Direto do Proprietário (Google Drive)</span>
+          </button>
+        </form>
+
+        <!-- FORMULÁRIO DE CADASTRO -->
+        <form id="form-auth-register" onsubmit="App.submitRegister(event)" style="display:none;">
+          <div class="auth-form-header">
+            <h2 class="auth-title">Configurar Acesso</h2>
+            <p class="auth-subtitle">Cadastre ou configure a senha de acesso para a sua planilha.</p>
+          </div>
+
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label for="reg-nome">Nome Completo *</label>
+            <div class="input-with-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <input type="text" id="reg-nome" required placeholder="Seu Nome" autocomplete="name" />
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label for="reg-email">Seu E-mail *</label>
+            <div class="input-with-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              <input type="email" id="reg-email" required placeholder="seu@email.com" autocomplete="username" />
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:1.5rem;">
+            <label for="reg-senha">Crie uma Senha (mínimo 6 dígitos ou caracteres) *</label>
+            <div class="input-with-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <input type="password" id="reg-senha" required minlength="6" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+              <button type="button" class="btn-toggle-eye" onclick="App.togglePasswordVisibility('reg-senha', this)" title="Ver senha">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </button>
+            </div>
+          </div>
+
+          <div style="background:var(--bg-primary); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:0.75rem; margin-bottom:1.25rem; font-size:0.8rem; color:var(--text-secondary);">
+            🔒 <strong>Política de Acesso:</strong> O proprietário da planilha no Google Drive tem acesso direto liberado como Administrador (OWNER).
+          </div>
+
+          <button type="submit" id="btn-reg-submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.85rem; font-size:0.95rem; font-weight:700;">
+            <span>Salvar e Acessar Painel</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </form>
+
+        <div style="margin-top:1.5rem; text-align:center;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.applyAndSaveTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark')" style="margin:0 auto;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            <span>Alternar Tema Claro / Escuro</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
