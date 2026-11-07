@@ -53,6 +53,7 @@ function doGet(e) {
   return template
     .evaluate()
     .setTitle('Finanças Inteligentes — Controle Financeiro Pessoal e Familiar')
+    .setFaviconUrl('https://andre-fdias.github.io/finpess/icon-192.png')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }

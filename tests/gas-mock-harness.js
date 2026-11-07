@@ -250,6 +250,7 @@ function createGasContext(options = {}) {
       createTemplateFromFile: (name) => ({
         evaluate: () => ({
           setTitle: function () { return this; },
+          setFaviconUrl: function () { return this; },
           addMetaTag: function () { return this; },
           setXFrameOptionsMode: function () { return this; },
           getContent: () => fs.readFileSync(path.join(__dirname, '..', 'src', name + '.html'), 'utf8')
