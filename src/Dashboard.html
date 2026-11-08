@@ -1,7 +1,7 @@
 <section id="sec-dashboard" class="module-section active" aria-labelledby="title-dashboard">
-  <!-- Cabeçalho Principal do Dashboard -->
-  <div class="card page-header-card">
-    <div class="page-header-content">
+  <!-- Cabeçalho Unificado do Dashboard (Título + Seletor de Mês + Widget de Saúde Integrado) -->
+  <div class="card dashboard-unified-header">
+    <div class="dash-unified-left">
       <div class="page-icon-badge page-icon-blue">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
@@ -10,40 +10,30 @@
           <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
         </svg>
       </div>
-      <div>
-        <h1 id="title-dashboard" class="page-title">Dashboard Financeiro Consolidado</h1>
-        <p class="page-subtitle">Visão separada entre valores confirmados (caixa real), previstos, pendentes e patrimônio estimado.</p>
-      </div>
-    </div>
-    <div class="page-header-actions">
-      <label for="dash-month-select" style="font-size:0.78rem; font-weight:600; color:var(--text-secondary);">Mês:</label>
-      <input type="month" id="dash-month-select" class="form-control" style="width:145px; height:32px; font-size:0.78rem;" onchange="App.loadDashboard()" />
-      <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadDashboard()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-        <span>Atualizar</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Health Score Widget -->
-  <div class="card" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1.25rem; padding:1.15rem 1.4rem; background:linear-gradient(135deg, var(--bg-surface) 0%, rgba(22, 133, 255, 0.05) 100%);">
-    <div style="display:flex; align-items:center; gap:1.15rem;">
-      <div id="health-score-radial" style="width:58px; height:58px; border-radius:50%; background:conic-gradient(var(--success) 85%, var(--border-color) 0); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(16, 185, 129, 0.25);">
-        <div style="width:46px; height:46px; border-radius:50%; background:var(--bg-surface); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.05rem; color:var(--text-primary);" id="health-score-val">88</div>
-      </div>
-      <div>
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <h3 style="margin:0; font-size:1.05rem; font-weight:700;">Índice de Saúde Financeira</h3>
-          <span class="badge badge-confirmado" id="health-score-badge">Excelente</span>
+      <div class="dash-unified-title-wrap">
+        <div class="dash-title-month-row">
+          <h1 id="title-dashboard" class="page-title" style="margin:0;">Dashboard Consolidado</h1>
+          <div class="dash-month-selector-pill">
+            <label for="dash-month-select" style="font-size:0.78rem; font-weight:600; color:var(--text-secondary);">Mês:</label>
+            <input type="month" id="dash-month-select" class="form-control" style="width:145px; height:30px; font-size:0.78rem;" onchange="App.loadDashboard()" />
+          </div>
         </div>
-        <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:var(--text-secondary);" id="health-score-desc">Seus gastos essenciais e compromissos estão saudáveis em relação às receitas.</p>
+        <p class="page-subtitle" style="margin:0.25rem 0 0 0;">Visão separada entre valores confirmados (caixa real), previstos e patrimônio estimado.</p>
       </div>
     </div>
-    <div style="display:flex; align-items:center; gap:0.6rem;">
-      <button type="button" class="btn btn-secondary btn-sm" onclick="App.togglePrivacyMode()" title="Ocultar ou exibir valores">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-        <span>Modo Privacidade</span>
-      </button>
+
+    <!-- Widget Integrado de Saúde Financeira Compacto -->
+    <div class="dash-unified-right">
+      <div id="health-score-radial" class="health-score-radial-compact">
+        <div id="health-score-val" class="health-score-val-compact">88</div>
+      </div>
+      <div class="health-score-info-compact">
+        <div style="display:flex; align-items:center; gap:0.45rem;">
+          <span style="font-size:0.85rem; font-weight:700; color:var(--text-primary);">Saúde Financeira</span>
+          <span class="badge badge-confirmado" id="health-score-badge" style="font-size:0.68rem; padding:1px 6px;">Excelente</span>
+        </div>
+        <p style="margin:0.15rem 0 0 0; font-size:0.74rem; color:var(--text-secondary); max-width:270px; line-height:1.25;" id="health-score-desc">Gastos essenciais e compromissos saudáveis.</p>
+      </div>
     </div>
   </div>
 

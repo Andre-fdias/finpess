@@ -357,9 +357,33 @@
 
     function renderOnlineUsersPresence(onlineUsers) {
       var container = document.getElementById('active-presence-container');
-      if (!container) return;
-
+      var ddList = document.getElementById('dropdown-online-users-list');
       var users = Array.isArray(onlineUsers) ? onlineUsers : [];
+
+      // Atualiza lista detalhada dentro do Dropdown de Conta Google
+      if (ddList) {
+        var currentModLabel = (state.currentModule || 'dashboard').toUpperCase();
+        var selfNome = state.user ? (UIHelpers ? UIHelpers.escapeHtml(state.user.nome || state.user.email) : (state.user.nome || state.user.email)) : 'Conectado';
+        var selfHtml = '<div class="account-online-user-item is-you">' +
+          '<span class="online-user-dot"></span>' +
+          '<span class="online-user-name"><strong>Você</strong> (' + selfNome + ') • ' + currentModLabel + '</span>' +
+          '</div>';
+
+        var othersListHtml = users.map(function (u) {
+          var sNome = UIHelpers ? UIHelpers.escapeHtml(u.nome || '') : (u.nome || '');
+          var sModulo = UIHelpers ? UIHelpers.escapeHtml(u.modulo_label || 'Navegando') : (u.modulo_label || 'Navegando');
+          var sPapel = u.papel || 'MEMBRO';
+          return '<div class="account-online-user-item">' +
+            '<span class="online-user-dot"></span>' +
+            '<span class="online-user-name"><strong>' + sNome + '</strong> (' + sPapel + ') • ' + sModulo + '</span>' +
+            '</div>';
+        }).join('');
+
+        ddList.innerHTML = selfHtml + othersListHtml;
+      }
+
+      // Se não há outros usuários conectados além de você, oculta os círculos extras
+      if (!container) return;
       if (users.length === 0) {
         container.style.display = 'none';
         container.innerHTML = '';
@@ -368,7 +392,7 @@
 
       container.style.display = 'inline-flex';
       var html = '';
-      var maxDisplay = 4;
+      var maxDisplay = 3;
       var displayed = users.slice(0, maxDisplay);
       var remaining = users.length - maxDisplay;
 
@@ -377,13 +401,12 @@
         var roleBadgeColor = u.papel === 'OWNER' ? 'background:rgba(217,119,6,0.15); color:#d97706;' : (u.papel === 'ADMIN' ? 'background:rgba(37,99,235,0.15); color:#2563eb;' : 'background:rgba(100,116,139,0.15); color:#64748b;');
         var roleLabel = u.papel === 'OWNER' ? '👑 OWNER' : (u.papel === 'ADMIN' ? '🛡️ ADMIN' : '👤 MEMBRO');
         var safeNome = UIHelpers ? UIHelpers.escapeHtml(u.nome || '') : (u.nome || '');
-        var safeEmail = UIHelpers ? UIHelpers.escapeHtml(u.email || '') : (u.email || '');
         var safeModulo = UIHelpers ? UIHelpers.escapeHtml(u.modulo_label || 'Editando') : (u.modulo_label || 'Editando');
         var safeIniciais = UIHelpers ? UIHelpers.escapeHtml(u.iniciais || '??') : (u.iniciais || '??');
         var hasPhoto = Boolean(u.foto_url && String(u.foto_url).trim().length > 4);
         var safePhotoUrl = hasPhoto ? (UIHelpers ? UIHelpers.escapeHtml(u.foto_url) : u.foto_url) : '';
 
-        html += '<div class="presence-avatar-wrapper" style="z-index:' + (displayed.length - i) + ';" title="' + safeNome + ' - ' + safeModulo + '">';
+        html += '<div class="presence-avatar-wrapper" style="z-index:' + (displayed.length - i) + ';" title="' + safeNome + ' (' + safeModulo + ')">';
         html += '  <div class="presence-avatar-pill" style="background:' + (u.cor || '#2563eb') + ';">';
         if (hasPhoto) {
           html += '    <img src="' + safePhotoUrl + '" alt="' + safeNome + '" class="presence-avatar-img" onerror="this.style.display=\'none\'; if(this.nextElementSibling) this.nextElementSibling.style.display=\'flex\';" />';
@@ -392,21 +415,6 @@
           html += '    <span class="presence-avatar-fallback">' + safeIniciais + '</span>';
         }
         html += '    <span class="presence-online-dot"></span>';
-        html += '  </div>';
-        html += '  <div class="presence-tooltip">';
-        html += '    <div class="presence-tooltip-title">';
-        html += '      <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px;">' + safeNome + '</span>';
-        html += '      <span class="presence-tooltip-role" style="' + roleBadgeColor + '">' + roleLabel + '</span>';
-        html += '    </div>';
-        html += '    <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + safeEmail + '</div>';
-        html += '    <div class="presence-tooltip-activity">';
-        html += '      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
-        html += '      <span>' + safeModulo + '</span>';
-        html += '    </div>';
-        html += '    <div class="presence-tooltip-status">';
-        html += '      <span style="width:6px; height:6px; border-radius:50%; background:#10b981; display:inline-block; box-shadow:0 0 4px #10b981;"></span>';
-        html += '      <span>Editando / Online agora</span>';
-        html += '    </div>';
         html += '  </div>';
         html += '</div>';
       }
@@ -1022,13 +1030,50 @@
           userBadge.textContent = state.user.nome + ' (' + state.user.papel + ')';
         }
 
-        var userAvatar = document.querySelector('.user-avatar-circle');
-        if (userAvatar && state.user) {
+        if (state.user) {
           var userInitials = (state.user.nome || state.user.email || 'US').substring(0, 2).toUpperCase();
-          if (state.user.foto_url && String(state.user.foto_url).trim().length > 4) {
-            userAvatar.innerHTML = '<img src="' + (UIHelpers ? UIHelpers.escapeHtml(state.user.foto_url) : state.user.foto_url) + '" class="user-avatar-img" alt="' + (UIHelpers ? UIHelpers.escapeHtml(state.user.nome || '') : '') + '" onerror="this.style.display=\'none\'; if(this.nextElementSibling) this.nextElementSibling.style.display=\'flex\';" /><span style="display:none;">' + userInitials + '</span>';
-          } else {
-            userAvatar.textContent = userInitials;
+          var safeUserNome = UIHelpers ? UIHelpers.escapeHtml(state.user.nome || 'Usuário') : (state.user.nome || 'Usuário');
+          var safeUserEmail = UIHelpers ? UIHelpers.escapeHtml(state.user.email || '') : (state.user.email || '');
+          var safeUserPapel = state.user.papel || 'MEMBRO';
+          var hasPhoto = Boolean(state.user.foto_url && String(state.user.foto_url).trim().length > 4);
+          var safePhotoUrl = hasPhoto ? (UIHelpers ? UIHelpers.escapeHtml(state.user.foto_url) : state.user.foto_url) : '';
+
+          var curAvatarEl = document.getElementById('current-user-avatar') || document.querySelector('.user-avatar-circle');
+          if (curAvatarEl) {
+            if (hasPhoto) {
+              curAvatarEl.innerHTML = '<img src="' + safePhotoUrl + '" class="user-avatar-img" alt="' + safeUserNome + '" onerror="this.style.display=\'none\'; if(this.nextElementSibling) this.nextElementSibling.style.display=\'flex\';" /><span style="display:none;">' + userInitials + '</span>';
+            } else {
+              curAvatarEl.textContent = userInitials;
+            }
+          }
+
+          var ddAvatarEl = document.getElementById('dropdown-user-avatar');
+          if (ddAvatarEl) {
+            if (hasPhoto) {
+              ddAvatarEl.innerHTML = '<img src="' + safePhotoUrl + '" class="user-avatar-img" alt="' + safeUserNome + '" onerror="this.style.display=\'none\'; if(this.nextElementSibling) this.nextElementSibling.style.display=\'flex\';" /><span style="display:none;">' + userInitials + '</span>';
+            } else {
+              ddAvatarEl.textContent = userInitials;
+            }
+          }
+
+          var ddNameEl = document.getElementById('dropdown-user-name');
+          if (ddNameEl) ddNameEl.textContent = state.user.nome || 'Usuário';
+
+          var ddEmailEl = document.getElementById('dropdown-user-email');
+          if (ddEmailEl) ddEmailEl.textContent = state.user.email || '';
+
+          var ddRoleEl = document.getElementById('dropdown-user-role');
+          if (ddRoleEl) {
+            if (safeUserPapel === 'OWNER') {
+              ddRoleEl.className = 'badge badge-aviso';
+              ddRoleEl.textContent = '👑 OWNER';
+            } else if (safeUserPapel === 'ADMIN') {
+              ddRoleEl.className = 'badge badge-info';
+              ddRoleEl.textContent = '🛡️ ADMIN';
+            } else {
+              ddRoleEl.className = 'badge';
+              ddRoleEl.textContent = '👤 MEMBRO';
+            }
           }
         }
 
@@ -9205,6 +9250,23 @@
       }
     }
 
+    function toggleUserAccountDropdown(event) {
+      if (event) {
+        if (event.preventDefault) event.preventDefault();
+        if (event.stopPropagation) event.stopPropagation();
+      }
+      var dd = document.getElementById('user-account-dropdown');
+      if (!dd) return;
+      var isOpen = dd.style.display === 'block';
+      closeNotificationsPanel();
+      dd.style.display = isOpen ? 'none' : 'block';
+    }
+
+    function closeUserAccountDropdown() {
+      var dd = document.getElementById('user-account-dropdown');
+      if (dd) dd.style.display = 'none';
+    }
+
     function toggleNotificationsPanel(event) {
       if (event) {
         if (event.preventDefault) event.preventDefault();
@@ -10257,6 +10319,8 @@
       startAutoSyncEngine: startAutoSyncEngine,
       checkSyncVersion: checkSyncVersion,
       updateNotificationsBadge: updateNotificationsBadge,
+      toggleUserAccountDropdown: toggleUserAccountDropdown,
+      closeUserAccountDropdown: closeUserAccountDropdown,
       toggleNotificationsPanel: toggleNotificationsPanel,
       openNotificationsPanel: openNotificationsPanel,
       closeNotificationsPanel: closeNotificationsPanel,
@@ -10343,6 +10407,9 @@
     }
     if (!e.target.closest('#notifications-bell-container')) {
       App.closeNotificationsPanel();
+    }
+    if (!e.target.closest('.google-presence-cluster-wrapper')) {
+      App.closeUserAccountDropdown();
     }
   });
 

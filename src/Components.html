@@ -513,7 +513,7 @@
       }
 
       return (
-        '<svg viewBox="0 0 ' + svgWidth + ' ' + svgHeight + '" width="100%" height="200" role="img" aria-label="Evolução mensal de receitas e despesas">' +
+        '<svg viewBox="0 0 ' + svgWidth + ' ' + svgHeight + '" width="100%" height="220" preserveAspectRatio="none" role="img" aria-label="Evolução mensal de receitas e despesas" style="display:block; width:100%; height:220px; overflow:visible;">' +
         '<line x1="10" y1="' + chartBottom + '" x2="' + (svgWidth - 10) + '" y2="' + chartBottom + '" stroke="var(--chart-grid)" stroke-width="1" />' +
         barsHtml.join('') +
         '</svg>'

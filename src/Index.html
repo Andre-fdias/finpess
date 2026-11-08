@@ -85,6 +85,42 @@
         </div>
       </div>
 
+      <!-- Busca Global Integrada na Sidebar (Despoluindo o Header) -->
+      <div class="sidebar-search" id="global-search-container">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input
+          type="text"
+          id="global-search-input"
+          class="sidebar-search-input"
+          placeholder="Buscar no sistema... (Ctrl+K)"
+          autocomplete="off"
+          oninput="App.onGlobalSearchInput(event)"
+          onkeydown="App.onGlobalSearchKeyDown(event)"
+          onfocus="App.onGlobalSearchFocus()"
+        />
+        <button
+          type="button"
+          id="global-search-clear-btn"
+          class="global-search-clear"
+          onclick="App.clearGlobalSearch()"
+          style="display:none;"
+          title="Limpar texto"
+        >✕</button>
+        <button
+          type="button"
+          id="global-search-submit-btn"
+          class="global-search-submit-btn"
+          onclick="App.triggerGlobalSearch()"
+          style="display:none;"
+          title="Buscar"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+
+        <!-- Dropdown Flutuante de Resultados da Busca Global -->
+        <div id="global-search-dropdown" class="global-search-dropdown" style="display:none;"></div>
+      </div>
+
       <ul class="nav-list">
         <li class="nav-item">
           <button type="button" class="active" data-nav-target="dashboard" onclick="App.navigate('dashboard')">
@@ -196,42 +232,6 @@
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             <span>Menu</span>
           </button>
-
-          <div class="topbar-search" id="global-search-container">
-            <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input
-              type="text"
-              id="global-search-input"
-              class="topbar-search-input"
-              placeholder="Buscar no sistema... (Ctrl+K)"
-              autocomplete="off"
-              oninput="App.onGlobalSearchInput(event)"
-              onkeydown="App.onGlobalSearchKeyDown(event)"
-              onfocus="App.onGlobalSearchFocus()"
-            />
-            <button
-              type="button"
-              id="global-search-clear-btn"
-              class="global-search-clear"
-              onclick="App.clearGlobalSearch()"
-              style="display:none;"
-              title="Limpar texto"
-            >✕</button>
-            <button
-              type="button"
-              id="global-search-submit-btn"
-              class="global-search-submit-btn"
-              onclick="App.triggerGlobalSearch()"
-              title="Buscar em todo o sistema (ou pressione Enter)"
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <span>Buscar</span>
-            </button>
-
-            <!-- Dropdown Flutuante de Resultados da Busca Global -->
-            <div id="global-search-dropdown" class="global-search-dropdown" style="display:none;"></div>
-          </div>
-
           <span id="global-loader" style="display:none; font-size:0.8rem; color:var(--primary); font-weight:600;">Carregando...</span>
         </div>
 
@@ -328,17 +328,59 @@
             <span class="desktop-only">+ Lançamento</span>
           </button>
 
-          <!-- Indicador Google Sheets Style de Outros Usuários Editando Simultaneamente -->
-          <div id="active-presence-container" class="presence-users-group" title="Outras pessoas editando agora" style="display:none;"></div>
+          <!-- Cluster Unificado de Usuários & Presença (Estilo Google Workspace) -->
+          <div class="google-presence-cluster-wrapper" style="position:relative;">
+            <div class="google-presence-bar" id="google-presence-bar" onclick="App.toggleUserAccountDropdown(event)" title="Sua conta e pessoas online agora (Clique para opções e detalhes)">
+              <!-- Avatares de outros usuários conectados lado a lado -->
+              <div id="active-presence-container" class="presence-users-group" style="display:none;"></div>
 
-          <div class="user-chip">
-            <div class="user-avatar-circle">AC</div>
-            <div class="user-chip-meta">
-              <span id="topbar-user-info" class="user-chip-name"></span>
+              <!-- Avatar do Usuário Conectado -->
+              <div class="current-user-avatar-wrap">
+                <div class="user-avatar-circle" id="current-user-avatar">US</div>
+                <span class="user-online-pulse-dot" title="Você está online"></span>
+              </div>
             </div>
-            <button type="button" class="btn-logout-icon" onclick="App.logout()" title="Sair da conta" style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:2px; margin-left:4px; display:flex; align-items:center;">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-            </button>
+
+            <!-- Mantido invisível para compatibilidade com eventuais verificações de ID -->
+            <span id="topbar-user-info" style="display:none;"></span>
+
+            <!-- Dropdown Popover de Conta & Usuários Conectados Estilo Google -->
+            <div id="user-account-dropdown" class="user-account-dropdown" style="display:none;" onclick="event.stopPropagation();">
+              <div class="account-dropdown-header">
+                <div class="account-dropdown-avatar" id="dropdown-user-avatar">US</div>
+                <div class="account-dropdown-meta">
+                  <div class="account-dropdown-name" id="dropdown-user-name">Usuário</div>
+                  <div class="account-dropdown-email" id="dropdown-user-email">usuario@exemplo.com</div>
+                  <div class="account-dropdown-role"><span class="badge badge-confirmado" id="dropdown-user-role">OWNER</span></div>
+                </div>
+              </div>
+
+              <!-- Lista de Pessoas Online Agora -->
+              <div class="account-dropdown-section">
+                <div class="account-dropdown-section-title">
+                  <span class="online-indicator-dot"></span>
+                  <span>Pessoas Online Agora</span>
+                </div>
+                <div id="dropdown-online-users-list" class="account-online-users-list">
+                  <div class="account-online-user-item is-you">
+                    <span class="online-user-dot"></span>
+                    <span class="online-user-name" id="dropdown-self-status">Você (Navegando no Sistema)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ações da Conta -->
+              <div class="account-dropdown-actions">
+                <button type="button" class="account-action-btn" onclick="App.navigate('settings'); App.closeUserAccountDropdown();">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                  <span>Minhas Configurações & Perfil</span>
+                </button>
+                <button type="button" class="account-action-btn account-logout-btn" onclick="App.logout()">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                  <span>Sair da Conta</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </header>
