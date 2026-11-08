@@ -6,7 +6,7 @@
  */
 
 var SpreadsheetRepository = (function () {
-  var SCHEMA_VERSION = '1.3.0';
+  var SCHEMA_VERSION = '1.3.1';
   var DEFAULT_SPREADSHEET_ID = '1MLW8MLoAdPG8lYZhwwV0UHrSV5wIn2mHJjXgcYsyw9c';
 
   /**
@@ -18,7 +18,7 @@ var SpreadsheetRepository = (function () {
     ],
     USUARIOS: [
       'id', 'email', 'nome', 'papel', 'status', 'grupo_id', 'tema_preferido',
-      'conta_padrao_id', 'notificacoes_email_ativas', 'criado_em', 'atualizado_em', 'aprovado_por',
+      'conta_padrao_id', 'notificacoes_email_ativas', 'foto_url', 'criado_em', 'atualizado_em', 'aprovado_por',
       'hash_senha', 'salt', 'token_sessao',
       'token_sessao_expira_em', 'token_sessao_criado_em', 'token_sessao_ultima_atividade'
     ],

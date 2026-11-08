@@ -100,6 +100,20 @@
             <input type="text" id="pref-nome" class="form-control" required />
           </div>
           <div class="form-group" style="margin-bottom:0.75rem;">
+            <label for="pref-foto-url">Foto de Perfil (URL da Imagem ou Foto Google)</label>
+            <div style="display:flex; gap:0.65rem; align-items:center;">
+              <div id="pref-foto-preview" style="width:40px; height:40px; border-radius:50%; background:var(--primary); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; overflow:hidden; flex-shrink:0; border:2px solid var(--border-color); box-shadow:0 1px 4px rgba(0,0,0,0.15);">
+                <span id="pref-foto-preview-initials">US</span>
+              </div>
+              <div style="flex:1;">
+                <input type="url" id="pref-foto-url" class="form-control" placeholder="Cole o link da sua foto (ex: Google, Drive, Gravatar)" oninput="App.previewProfilePhotoInput(this.value)" />
+              </div>
+            </div>
+            <small style="color:var(--text-muted); font-size:0.72rem; display:block; margin-top:0.35rem; line-height:1.35;">
+              💡 <strong>Dica rápida para puxar sua foto Google:</strong> No Chrome, clique com o botão direito na sua foto do Google (canto superior direito do navegador) e escolha <em>"Copiar endereço da imagem"</em>. Em seguida, cole o link aqui e clique em Salvar.
+            </small>
+          </div>
+          <div class="form-group" style="margin-bottom:0.75rem;">
             <label for="pref-tema">Tema Visual (Persistido na sua Conta)</label>
             <select id="pref-tema" class="form-control" onchange="App.applyAndSaveTheme(this.value)">
               <option value="light">Claro — Light Mode</option>

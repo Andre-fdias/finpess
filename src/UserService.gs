@@ -5,6 +5,32 @@
  */
 
 var UserService = (function () {
+  function resolveUserPhotoUrl(user) {
+    if (!user) return '';
+    if (user.foto_url && String(user.foto_url).trim().length > 4) {
+      return String(user.foto_url).trim();
+    }
+    // Fallback inteligente para Gravatar baseado no e-mail
+    if (user.email && String(user.email).indexOf('@') !== -1) {
+      try {
+        var clean = String(user.email).trim().toLowerCase();
+        if (typeof Utilities !== 'undefined' && Utilities.computeDigest) {
+          var rawBytes = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, clean);
+          var hash = '';
+          for (var i = 0; i < rawBytes.length; i++) {
+            var byteVal = rawBytes[i];
+            if (byteVal < 0) byteVal += 256;
+            var hex = byteVal.toString(16);
+            if (hex.length === 1) hex = '0' + hex;
+            hash += hex;
+          }
+          return 'https://www.gravatar.com/avatar/' + hash + '?d=404&s=128';
+        }
+      } catch (e) {}
+    }
+    return '';
+  }
+
   function getProfileAndPreferences(user) {
     var grupo = SpreadsheetRepository.findById('GRUPOS_FINANCEIROS', user.grupo_id);
     var configs = SpreadsheetRepository.findByGrupo('CONFIGURACOES', user.grupo_id);
@@ -22,7 +48,8 @@ var UserService = (function () {
         grupo_id: user.grupo_id,
         tema_preferido: user.tema_preferido || 'light',
         conta_padrao_id: user.conta_padrao_id || '',
-        notificacoes_email_ativas: Boolean(user.notificacoes_email_ativas)
+        notificacoes_email_ativas: Boolean(user.notificacoes_email_ativas),
+        foto_url: resolveUserPhotoUrl(user)
       },
       grupo: grupo,
       configuracoes: configMap
@@ -63,8 +90,14 @@ var UserService = (function () {
     if (prefs.notificacoes_email_ativas !== undefined) {
       patch.notificacoes_email_ativas = Boolean(prefs.notificacoes_email_ativas);
     }
+    if (prefs.foto_url !== undefined) {
+      patch.foto_url = String(prefs.foto_url).trim();
+    }
 
     var updated = SpreadsheetRepository.updateById('USUARIOS', user.id, patch);
+    if (updated) {
+      updated.foto_url = resolveUserPhotoUrl(updated);
+    }
     AuditService.log({
       grupo_id: user.grupo_id,
       usuario_id: user.id,
