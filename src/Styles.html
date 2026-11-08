@@ -1762,6 +1762,170 @@
   }
 
   /* ==========================================================================
+     SISTEMA DE INFORMATIVOS & TOOLTIPS (INFO POPOVERS)
+     ========================================================================== */
+  .info-popover-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 5px;
+    vertical-align: middle;
+  }
+
+  .info-help-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: rgba(56, 189, 248, 0.12);
+    color: var(--primary, #38bdf8);
+    border: 1px solid rgba(56, 189, 248, 0.28);
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.18s ease;
+    line-height: 1;
+  }
+
+  .info-help-btn:hover {
+    background: var(--primary, #38bdf8);
+    color: #ffffff;
+    border-color: var(--primary, #38bdf8);
+    transform: scale(1.12);
+    box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+  }
+
+  .info-popover-card {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 295px;
+    max-width: calc(100vw - 32px);
+    background: linear-gradient(145deg, #101c36 0%, #080e1e 100%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 14px;
+    padding: 0.9rem 1rem;
+    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.65), 0 0 20px rgba(56, 189, 248, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    z-index: 1050;
+    text-align: left;
+    animation: fadeInPopover 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .info-popover-card.align-right {
+    left: auto;
+    right: 0;
+  }
+
+  .info-popover-card.show {
+    display: block;
+  }
+
+  /* Suporte a Hover suave no Desktop */
+  @media (hover: hover) and (pointer: fine) {
+    .info-popover-wrap:hover .info-popover-card {
+      display: block;
+    }
+  }
+
+  [data-theme="light"] .info-popover-card {
+    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.15), inset 0 1px 0 #ffffff;
+  }
+
+  .info-popover-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.45rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  [data-theme="light"] .info-popover-header {
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .info-popover-badge {
+    font-size: 0.95rem;
+    line-height: 1;
+  }
+
+  .info-popover-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.2px;
+  }
+
+  .info-popover-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 2px 6px;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    line-height: 1;
+    transition: all 0.15s ease;
+  }
+
+  .info-popover-close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+  }
+
+  .info-popover-desc {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin: 0.45rem 0;
+  }
+
+  .info-popover-formula {
+    background: rgba(0, 0, 0, 0.28);
+    border-left: 3px solid var(--primary);
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.72rem;
+    color: #38bdf8;
+    margin: 0.45rem 0;
+    word-break: break-word;
+    line-height: 1.35;
+  }
+
+  [data-theme="light"] .info-popover-formula {
+    background: rgba(0, 0, 0, 0.04);
+    color: #0284c7;
+  }
+
+  .info-popover-tip {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.22);
+    padding: 0.38rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    color: var(--success);
+    line-height: 1.35;
+    margin-top: 0.45rem;
+  }
+
+  @keyframes fadeInPopover {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ==========================================================================
      CARDS BENTO / WALLET GRID PARA CONTAS BANCÁRIAS (DESIGN FIDEDIGNO MOCKUP)
      ========================================================================== */
   .bank-accounts-grid {

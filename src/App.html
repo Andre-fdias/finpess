@@ -1409,6 +1409,10 @@
         '<tr><td>(-) Acordos Ativos de Dívidas</td><td>' + UIHelpers.renderBadge('PREVISTO') + '</td><td class="col-money">-' + UIHelpers.formatBrl(comp.passivos_dividas_acordo_ativo_centavos) + '</td></tr>' +
         '<tr><td><strong>(=) Patrimônio Líquido Estimado</strong></td><td>' + UIHelpers.renderBadge('ESTIMADO') + '</td><td class="col-money"><strong>' + UIHelpers.formatBrl(comp.patrimonio_liquido_estimado_centavos) + '</strong></td></tr>' +
         '</tbody></table>';
+
+      if (UIHelpers && UIHelpers.initInfoPopovers) {
+        UIHelpers.initInfoPopovers(document.getElementById('sec-dashboard'));
+      }
     }
 
     function loadDashboard() {

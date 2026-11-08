@@ -695,6 +695,299 @@
       return s;
     }
 
+    /**
+     * Catálogo de Textos Explicativos do Sistema (Informativos / Tooltips).
+     * Centraliza títulos, explicações, fórmulas de cálculo e dicas para cada função.
+     */
+    var INFO_CATALOG = {
+      // === DASHBOARD ===
+      'dash-consolidado': {
+        title: 'Dashboard Consolidado',
+        desc: 'Centraliza a inteligência financeira do grupo familiar ou empresarial, unindo saldos bancários reais, previsões operacionais, faturas e patrimônio estimado.',
+        tip: 'Mantenha os lançamentos conciliados para que todos os indicadores reflitam a realidade exata do seu caixa.'
+      },
+      'dash-mes': {
+        title: 'Mês de Referência',
+        desc: 'Define o período de apuração de todas as receitas, despesas, faturas e projeções exibidas nesta tela.',
+        tip: 'Altere o mês para visualizar cenários passados ou antecipar o fluxo de caixa dos meses futuros.'
+      },
+      'dash-saude': {
+        title: 'Índice de Saúde Financeira',
+        desc: 'Pontuação de 0 a 100 calculada por algoritmo com base na solvência, comprometimento de renda, contas a vencer e reserva.',
+        formula: 'Base 100 - Penalidades (Vencidos + Estouro Orçamentário + Endividamento)',
+        tip: '85-100: Excelente | 70-84: Bom | 50-69: Atenção | < 50: Crítico'
+      },
+      'dash-saldo-confirmado': {
+        title: 'Saldo Bancário Consolidado',
+        desc: 'Total de dinheiro real disponível neste momento nas suas contas bancárias ativas.',
+        formula: 'Soma dos saldos realizados em todas as contas bancárias ativas',
+        tip: 'Não inclui previsões ou entradas que ainda não caíram na conta.'
+      },
+      'dash-receitas': {
+        title: 'Receitas do Mês',
+        desc: 'Total de entradas financeiras do mês. O valor principal destaca as receitas já confirmadas (dinheiro recebido).',
+        formula: 'Receitas Realizadas (Confirmadas) + Receitas Previstas/Pendentes',
+        tip: 'Acompanhe as previsões para saber quanto ainda deve entrar até o fim do mês.'
+      },
+      'dash-despesas': {
+        title: 'Despesas do Mês',
+        desc: 'Total de saídas financeiras do mês. O valor principal destaca os pagamentos já quitados/confirmados.',
+        formula: 'Despesas Pagas (Confirmadas) + Despesas Previstas/Pendentes',
+        tip: 'Ajuda a manter os gastos dentro da renda mensal sem surpresas.'
+      },
+      'dash-resultado': {
+        title: 'Resultado Mensal',
+        desc: 'Superávit ou déficit financeiro do período. Mostra a diferença entre o que entrou e o que saiu.',
+        formula: 'Receitas Realizadas - Despesas Realizadas (e projeção c/ previstos)',
+        tip: 'Valor positivo indica economia/poupança; valor negativo indica que saiu mais dinheiro do que entrou.'
+      },
+      'dash-vencidas': {
+        title: 'Contas Vencidas',
+        desc: 'Compromissos financeiros que ultrapassaram a data de vencimento sem confirmação de pagamento.',
+        tip: 'Priorize a quitação destas pendências para evitar juros, multas e restrições cadastrais.'
+      },
+      'dash-a-vencer': {
+        title: 'Contas a Vencer',
+        desc: 'Lançamentos e contas previstos para vencer nos próximos dias deste mês.',
+        tip: 'Verifique se há saldo disponível suficiente nas contas de débito programadas.'
+      },
+      'dash-saldo-projetado': {
+        title: 'Saldo Projetado Fim do Mês',
+        desc: 'Estimativa matemática de como o saldo bancário fechará no último dia do mês corrente.',
+        formula: 'Saldo Confirmado + Receitas Previstas - Despesas Previstas - Faturas Abertas',
+        tip: 'Permite agir preventivamente caso o saldo projetado fique negativo.'
+      },
+      'dash-patrimonio': {
+        title: 'Patrimônio Líquido Estimado',
+        desc: 'Soma total dos seus bens e recursos financeiros subtraída de todas as dívidas e obrigações ativas.',
+        formula: '(Saldos em Conta + Carteira de Investimentos) - (Passivos de Empréstimos + Dívidas)',
+        tip: 'Mede o enriquecimento real e a evolução patrimonial da sua família ao longo do tempo.'
+      },
+      'dash-chart-evolucao': {
+        title: 'Evolução Mensal (Receitas x Despesas)',
+        desc: 'Gráfico histórico dos últimos 6 meses comparando entradas reais versus saídas reais.',
+        tip: 'Verifique se as barras de receitas superam as despesas mês a mês de forma sustentável.'
+      },
+      'dash-chart-categorias': {
+        title: 'Gastos por Categoria x Orçamento',
+        desc: 'Termômetro orçamentário que compara os gastos de cada categoria com o teto estabelecido no Planejamento.',
+        tip: 'Verde: dentro do teto (< 70%) | Amarelo: atenção (70-89%) | Vermelho: risco ou estouro (>= 90%).'
+      },
+      'dash-vencimentos-fila': {
+        title: 'Próximos Vencimentos',
+        desc: 'Fila cronológica de contas e compromissos que exigem atenção imediata.',
+        tip: 'Clique no botão de confirmação rápida para liquidar ou clique em "Ver todos" para ir a Lançamentos.'
+      },
+      'dash-patrimonio-composicao': {
+        title: 'Composição do Patrimônio',
+        desc: 'Detalhamento estrutural entre recursos de alta liquidez, ativos investidos e saldo devedor passivo.',
+        tip: 'Ideal para verificar a distribuição entre reserva de emergência, renda fixa, ações e passivos.'
+      }
+    };
+
+    /**
+     * Gera o HTML de um ícone de informação acionável por hover ou clique com o card já incluído.
+     */
+    function renderInfoIcon(infoKey, alignRight) {
+      var keyEsc = escapeHtml(infoKey);
+      var item = INFO_CATALOG[infoKey];
+      var alignAttr = alignRight ? ' data-align="right"' : '';
+      var alignClass = alignRight ? ' align-right' : '';
+
+      if (!item) {
+        return (
+          '<span class="info-popover-wrap" data-info-key="' + keyEsc + '"' + alignAttr + '>' +
+            '<button type="button" class="info-help-btn" onclick="UIHelpers.toggleInfoPopover(event, this)" aria-label="Informações" title="Clique para detalhes">' +
+              '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">' +
+                '<circle cx="12" cy="12" r="10"></circle>' +
+                '<line x1="12" y1="16" x2="12" y2="12"></line>' +
+                '<line x1="12" y1="8" x2="12.01" y2="8"></line>' +
+              '</svg>' +
+            '</button>' +
+          '</span>'
+        );
+      }
+
+      var formulaHtml = item.formula ? '<div class="info-popover-formula"><strong>Fórmula:</strong> ' + escapeHtml(item.formula) + '</div>' : '';
+      var tipHtml = item.tip ? '<div class="info-popover-tip">💡 ' + escapeHtml(item.tip) + '</div>' : '';
+
+      return (
+        '<span class="info-popover-wrap" data-info-key="' + keyEsc + '"' + alignAttr + '>' +
+          '<button type="button" class="info-help-btn" onclick="UIHelpers.toggleInfoPopover(event, this)" aria-label="Informações sobre ' + escapeHtml(item.title) + '" title="Clique para ver explicação">' +
+            '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">' +
+              '<circle cx="12" cy="12" r="10"></circle>' +
+              '<line x1="12" y1="16" x2="12" y2="12"></line>' +
+              '<line x1="12" y1="8" x2="12.01" y2="8"></line>' +
+            '</svg>' +
+          '</button>' +
+          '<div class="info-popover-card' + alignClass + '" role="tooltip">' +
+            '<div class="info-popover-header">' +
+              '<div style="display:flex; align-items:center; gap:0.4rem;">' +
+                '<span class="info-popover-badge">ℹ️</span>' +
+                '<span class="info-popover-title">' + escapeHtml(item.title) + '</span>' +
+              '</div>' +
+              '<button type="button" class="info-popover-close-btn" onclick="UIHelpers.closeAllInfoPopovers(event)" aria-label="Fechar informativo">✕</button>' +
+            '</div>' +
+            '<p class="info-popover-desc">' + escapeHtml(item.desc) + '</p>' +
+            formulaHtml +
+            tipHtml +
+          '</div>' +
+        '</span>'
+      );
+    }
+
+    /**
+     * Inicializa todos os elementos .info-popover-wrap que ainda não possuam conteúdo injetado.
+     */
+    function initInfoPopovers(root) {
+      var scope = root || (typeof document !== 'undefined' ? document : null);
+      if (!scope || !scope.querySelectorAll) return;
+
+      var wraps = scope.querySelectorAll('.info-popover-wrap');
+      for (var i = 0; i < wraps.length; i++) {
+        var wrap = wraps[i];
+        var key = wrap.getAttribute('data-info-key');
+        if (!key || !INFO_CATALOG[key]) continue;
+
+        var item = INFO_CATALOG[key];
+
+        if (!wrap.querySelector('.info-help-btn')) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'info-help-btn';
+          btn.setAttribute('aria-label', 'Informações sobre ' + item.title);
+          btn.title = 'Clique para ver explicação';
+          btn.onclick = function (e) { toggleInfoPopover(e, this); };
+          btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+          wrap.appendChild(btn);
+        }
+
+        if (!wrap.querySelector('.info-popover-card')) {
+          var card = document.createElement('div');
+          card.className = 'info-popover-card';
+          if (wrap.getAttribute('data-align') === 'right') {
+            card.classList.add('align-right');
+          }
+          card.setAttribute('role', 'tooltip');
+
+          var formulaHtml = item.formula ? '<div class="info-popover-formula"><strong>Fórmula:</strong> ' + escapeHtml(item.formula) + '</div>' : '';
+          var tipHtml = item.tip ? '<div class="info-popover-tip">💡 ' + escapeHtml(item.tip) + '</div>' : '';
+
+          card.innerHTML =
+            '<div class="info-popover-header">' +
+              '<div style="display:flex; align-items:center; gap:0.4rem;">' +
+                '<span class="info-popover-badge">ℹ️</span>' +
+                '<span class="info-popover-title">' + escapeHtml(item.title) + '</span>' +
+              '</div>' +
+              '<button type="button" class="info-popover-close-btn" onclick="UIHelpers.closeAllInfoPopovers(event)" aria-label="Fechar informativo">✕</button>' +
+            '</div>' +
+            '<p class="info-popover-desc">' + escapeHtml(item.desc) + '</p>' +
+            formulaHtml +
+            tipHtml;
+
+          wrap.appendChild(card);
+        }
+      }
+    }
+
+    /**
+     * Alterna a exibição do popover explicativo, criando o conteúdo sob demanda caso não exista.
+     */
+    function toggleInfoPopover(ev, elOrKey) {
+      if (ev) {
+        ev.stopPropagation();
+        ev.preventDefault();
+      }
+      var wrap = (elOrKey && elOrKey.closest)
+        ? elOrKey.closest('.info-popover-wrap')
+        : (typeof document !== 'undefined' ? document.querySelector('.info-popover-wrap[data-info-key="' + elOrKey + '"]') : null);
+      if (!wrap) return;
+
+      var key = wrap.getAttribute('data-info-key');
+      var item = INFO_CATALOG[key];
+      if (!item) return;
+
+      var card = wrap.querySelector('.info-popover-card');
+      var wasOpen = card && card.classList.contains('show');
+
+      closeAllInfoPopovers();
+
+      if (wasOpen) return;
+
+      if (!card) {
+        card = document.createElement('div');
+        card.className = 'info-popover-card';
+        if (wrap.getAttribute('data-align') === 'right') {
+          card.classList.add('align-right');
+        }
+        card.setAttribute('role', 'tooltip');
+
+        var formulaHtml = item.formula ? '<div class="info-popover-formula"><strong>Fórmula:</strong> ' + escapeHtml(item.formula) + '</div>' : '';
+        var tipHtml = item.tip ? '<div class="info-popover-tip">💡 ' + escapeHtml(item.tip) + '</div>' : '';
+
+        card.innerHTML =
+          '<div class="info-popover-header">' +
+            '<div style="display:flex; align-items:center; gap:0.4rem;">' +
+              '<span class="info-popover-badge">ℹ️</span>' +
+              '<span class="info-popover-title">' + escapeHtml(item.title) + '</span>' +
+            '</div>' +
+            '<button type="button" class="info-popover-close-btn" onclick="UIHelpers.closeAllInfoPopovers(event)" aria-label="Fechar informativo">✕</button>' +
+          '</div>' +
+          '<p class="info-popover-desc">' + escapeHtml(item.desc) + '</p>' +
+          formulaHtml +
+          tipHtml;
+
+        wrap.appendChild(card);
+      }
+
+      // Posicionamento inteligente (evita sair da tela pela direita)
+      if (typeof window !== 'undefined') {
+        var rect = wrap.getBoundingClientRect();
+        var cardWidth = 300;
+        if (rect.left + cardWidth > window.innerWidth - 16 || wrap.getAttribute('data-align') === 'right') {
+          card.classList.add('align-right');
+        } else {
+          card.classList.remove('align-right');
+        }
+      }
+
+      card.classList.add('show');
+    }
+
+    function closeAllInfoPopovers(ev) {
+      if (ev && ev.stopPropagation) {
+        ev.stopPropagation();
+      }
+      if (typeof document === 'undefined') return;
+      var openCards = document.querySelectorAll('.info-popover-card.show');
+      for (var i = 0; i < openCards.length; i++) {
+        openCards[i].classList.remove('show');
+      }
+    }
+
+    // Listener global para fechar popovers ao clicar fora ou apertar Escape, e auto-init
+    if (typeof document !== 'undefined') {
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest('.info-popover-wrap')) {
+          closeAllInfoPopovers();
+        }
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          closeAllInfoPopovers();
+        }
+      });
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+          initInfoPopovers();
+        });
+      } else {
+        setTimeout(function () {
+          initInfoPopovers();
+        }, 50);
+      }
+    }
+
     return {
       TOP_BANKS: TOP_BANKS,
       findBank: findBank,
@@ -714,7 +1007,12 @@
       formatDateBr: formatDateBr,
       renderBadge: renderBadge,
       renderMonthlyBarChartSvg: renderMonthlyBarChartSvg,
-      renderMarkdown: renderMarkdown
+      renderMarkdown: renderMarkdown,
+      INFO_CATALOG: INFO_CATALOG,
+      renderInfoIcon: renderInfoIcon,
+      initInfoPopovers: initInfoPopovers,
+      toggleInfoPopover: toggleInfoPopover,
+      closeAllInfoPopovers: closeAllInfoPopovers
     };
   })();
 </script>
