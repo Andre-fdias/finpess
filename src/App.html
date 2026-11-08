@@ -2724,11 +2724,11 @@
         // 2. Renderiza a tabela moderna de contas
         var rows = state.bankAccounts.map(function (b) {
           var bankBadge = UIHelpers.getBankBadgeHtml(b.instituicao);
-          var brandBadge = '';
+          var brandName = '';
           var rawObs = b.observacoes || '';
           if (rawObs.indexOf('Bandeira:') !== -1) {
             var m = rawObs.match(/Bandeira:\s*([^\n;|]+)/i);
-            if (m && m[1]) brandBadge = ' ' + UIHelpers.getCardBrandBadgeHtml(m[1].trim());
+            if (m && m[1]) brandName = m[1].trim();
           }
 
           var sConfirmado = Number(b.saldo_confirmado_centavos || 0);
@@ -2778,23 +2778,29 @@
           var saldoConfHtml = '<strong style="color:' + (sConfirmado >= 0 ? 'var(--success)' : 'var(--danger)') + ';">' + UIHelpers.formatBrl(sConfirmado) + '</strong>';
           var saldoProjHtml = '<span style="font-weight:600; color:' + (sProjetado >= 0 ? 'var(--text-primary)' : 'var(--danger)') + ';">' + UIHelpers.formatBrl(sProjetado) + '</span>';
 
-          var cleanObs = (b.observacoes || '')
+          var cleanObs = rawObs
             .replace(/\|\s*Bandeira:\s*[^\n;|]+/i, '')
             .replace(/Bandeira:\s*[^\n;|]+/i, '')
             .replace(/^[\s•\-|]+|[\s•\-|]+$/g, '')
             .trim();
 
+          var nomeLower = String(b.nome_identificacao || '').toLowerCase();
+          var instLower = String(b.instituicao || '').toLowerCase().replace(/^banco\s+/i, '');
+
           var subParts = [];
-          if (b.instituicao) {
-            subParts.push('<span>' + UIHelpers.escapeHtml(b.instituicao) + '</span>');
+          if (b.instituicao && !nomeLower.includes(instLower)) {
+            subParts.push(UIHelpers.escapeHtml(b.instituicao));
           }
-          if (cleanObs) {
-            subParts.push('<span>' + UIHelpers.escapeHtml(cleanObs) + '</span>');
+          if (brandName) {
+            subParts.push('Cartão ' + UIHelpers.escapeHtml(brandName));
+          }
+          if (cleanObs && cleanObs.toLowerCase() !== instLower && !nomeLower.includes(cleanObs.toLowerCase())) {
+            subParts.push(UIHelpers.escapeHtml(cleanObs));
           }
           if (b.proprietario_nome) {
-            subParts.push('<span class="bank-titular-pill" title="Titular da Conta">👤 ' + UIHelpers.escapeHtml(b.proprietario_nome) + '</span>');
+            subParts.push('Titular: ' + UIHelpers.escapeHtml(b.proprietario_nome));
           }
-          var subTextHtml = subParts.length > 0 ? subParts.join('<span class="bank-sub-sep">&bull;</span>') : '<span style="color:var(--text-muted);">-</span>';
+          var subTextHtml = subParts.length > 0 ? subParts.join('<span class="bank-sub-sep">&bull;</span>') : 'Conta Ativa';
 
           return (
             '<tr style="border-left: 3.5px solid ' + rowBorderColor + ';">' +
@@ -2802,13 +2808,8 @@
                 '<div class="bank-table-cell">' +
                   '<div class="bank-badge-wrapper">' + bankBadge + '</div>' +
                   '<div class="bank-info-wrapper">' +
-                    '<div class="bank-row-primary">' +
-                      '<strong class="bank-account-title">' + UIHelpers.escapeHtml(b.nome_identificacao) + '</strong>' +
-                      brandBadge +
-                    '</div>' +
-                    '<div class="bank-row-secondary">' +
-                      subTextHtml +
-                    '</div>' +
+                    '<div class="bank-account-title">' + UIHelpers.escapeHtml(b.nome_identificacao) + '</div>' +
+                    '<div class="bank-account-subtext">' + subTextHtml + '</div>' +
                   '</div>' +
                 '</div>' +
               '</td>' +
