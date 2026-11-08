@@ -2776,10 +2776,95 @@
       }
 
       if (curMode === 'cards') {
+        var BANK_THEMES = {
+          'santander': {
+            color: '#EC0000',
+            glow: 'rgba(236, 0, 0, 0.24)',
+            cardBg: 'linear-gradient(135deg, #FF1E27 0%, #D60007 50%, #990005 100%)'
+          },
+          'inter': {
+            color: '#FF7A00',
+            glow: 'rgba(255, 122, 0, 0.24)',
+            cardBg: 'linear-gradient(135deg, #FF911A 0%, #FF7A00 50%, #D65A00 100%)'
+          },
+          'nubank': {
+            color: '#820AD1',
+            glow: 'rgba(130, 10, 209, 0.24)',
+            cardBg: 'linear-gradient(135deg, #9C2AEB 0%, #820AD1 50%, #5E00A3 100%)'
+          },
+          'caixa': {
+            color: '#005CA9',
+            glow: 'rgba(0, 92, 169, 0.24)',
+            cardBg: 'linear-gradient(135deg, #0A7CD4 0%, #005CA9 50%, #003F75 100%)'
+          },
+          'bradesco': {
+            color: '#CC092F',
+            glow: 'rgba(204, 9, 47, 0.24)',
+            cardBg: 'linear-gradient(135deg, #F01844 0%, #CC092F 50%, #94001E 100%)'
+          },
+          'itau': {
+            color: '#EC7000',
+            glow: 'rgba(236, 112, 0, 0.24)',
+            cardBg: 'linear-gradient(135deg, #FF881A 0%, #EC7000 50%, #B85300 100%)'
+          },
+          'bb': {
+            color: '#003882',
+            glow: 'rgba(0, 56, 130, 0.24)',
+            cardBg: 'linear-gradient(135deg, #0A4EAB 0%, #003882 50%, #002254 100%)'
+          },
+          'c6': {
+            color: '#262626',
+            glow: 'rgba(255, 255, 255, 0.12)',
+            cardBg: 'linear-gradient(135deg, #404040 0%, #262626 50%, #141414 100%)'
+          },
+          'mercadopago': {
+            color: '#00A9E0',
+            glow: 'rgba(0, 169, 224, 0.24)',
+            cardBg: 'linear-gradient(135deg, #1EC2FC 0%, #00A9E0 50%, #007CA8 100%)'
+          },
+          'picpay': {
+            color: '#11C76F',
+            glow: 'rgba(17, 199, 111, 0.24)',
+            cardBg: 'linear-gradient(135deg, #1EE684 0%, #11C76F 50%, #0A8F4E 100%)'
+          },
+          'xp': {
+            color: '#D6A045',
+            glow: 'rgba(214, 160, 69, 0.24)',
+            cardBg: 'linear-gradient(135deg, #E6B866 0%, #D6A045 50%, #996B1F 100%)'
+          },
+          'btg': {
+            color: '#001E62',
+            glow: 'rgba(0, 30, 98, 0.25)',
+            cardBg: 'linear-gradient(135deg, #0D3B99 0%, #001E62 50%, #001038 100%)'
+          },
+          'pagbank': {
+            color: '#00A859',
+            glow: 'rgba(0, 168, 89, 0.24)',
+            cardBg: 'linear-gradient(135deg, #14C76E 0%, #00A859 50%, #00733D 100%)'
+          },
+          'neon': {
+            color: '#00E5FF',
+            glow: 'rgba(0, 229, 255, 0.24)',
+            cardBg: 'linear-gradient(135deg, #4DF0FF 0%, #00E5FF 50%, #009EB0 100%)'
+          },
+          'safra': {
+            color: '#C5A059',
+            glow: 'rgba(197, 160, 89, 0.24)',
+            cardBg: 'linear-gradient(135deg, #E0C080 0%, #C5A059 50%, #8C6A28 100%)'
+          }
+        };
+
         var cardsHtml = accounts.map(function (b) {
           var matched = UIHelpers.findBank(b.instituicao);
           var bankColor = matched ? matched.bg : '#2563eb';
           var bankName = matched ? matched.name : (b.instituicao || 'Banco');
+          var bankId = matched ? matched.id : '';
+          var theme = BANK_THEMES[bankId] || {
+            color: bankColor,
+            glow: 'rgba(37, 99, 235, 0.22)',
+            cardBg: 'linear-gradient(135deg, ' + bankColor + ' 0%, #0f172a 100%)'
+          };
+
           var bankLogoSvg = (matched && matched.icon)
             ? '<svg width="22" height="22" viewBox="' + (matched.viewBox || '0 0 24 24') + '">' + matched.icon + '</svg>'
             : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 10v11M9 10v11M15 10v11M19 10v11M12 2L2 7h20L12 2z"/></svg>';
@@ -2850,7 +2935,7 @@
           var saldoProjColor = sProjetado >= 0 ? 'var(--success)' : 'var(--danger)';
 
           return (
-            '<div class="bank-card-bento ' + (isAtiva ? '' : 'bank-card-inactive') + '" style="--bank-color:' + bankColor + ';">' +
+            '<div class="bank-card-bento ' + (isAtiva ? '' : 'bank-card-inactive') + '" style="--bank-color:' + theme.color + '; --bank-glow:' + theme.glow + ';">' +
               '<div class="bank-card-edge-glow"></div>' +
               '<div class="bank-card-bento-header">' +
                 '<div class="bank-card-bento-brand">' +
@@ -2863,7 +2948,7 @@
                 '</div>' +
               '</div>' +
               '<div class="bank-card-bento-middle">' +
-                '<div class="bank-card-mini-plastic">' +
+                '<div class="bank-card-mini-plastic" style="background:' + theme.cardBg + ';">' +
                   '<div class="bank-card-mini-sheen"></div>' +
                   '<div class="bank-card-mini-logo">' + bankLogoSvg + '</div>' +
                 '</div>' +

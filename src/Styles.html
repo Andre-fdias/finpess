@@ -1766,7 +1766,7 @@
      ========================================================================== */
   .bank-accounts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
     gap: 1.25rem;
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
@@ -1781,21 +1781,31 @@
 
   .bank-card-bento {
     position: relative;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    border-radius: 18px;
-    padding: 1.25rem 1.35rem 1.15rem 1.45rem;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
-    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    background:
+      radial-gradient(ellipse 75% 65% at 0% 0%, var(--bank-glow, rgba(37, 99, 235, 0.16)) 0%, transparent 65%),
+      linear-gradient(145deg, #101c36 0%, #080e1e 100%);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 20px;
+    padding: 1.35rem 1.45rem 1.25rem 1.55rem;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.24s ease;
     display: flex;
     flex-direction: column;
     min-height: 220px;
   }
 
   .bank-card-bento:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
-    border-color: rgba(255, 255, 255, 0.18);
+    transform: translateY(-4px);
+    box-shadow: 0 18px 42px -5px rgba(0, 0, 0, 0.65), 0 0 28px var(--bank-glow, rgba(37, 99, 235, 0.22)), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  [data-theme="light"] .bank-card-bento {
+    background:
+      radial-gradient(ellipse 75% 65% at 0% 0%, var(--bank-glow, rgba(37, 99, 235, 0.08)) 0%, transparent 65%),
+      linear-gradient(145deg, #ffffff 0%, #f4f6fb 100%);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff;
   }
 
   .bank-card-inactive {
@@ -1807,12 +1817,12 @@
   .bank-card-edge-glow {
     position: absolute;
     left: 0;
-    top: 14px;
-    bottom: 14px;
-    width: 4.5px;
+    top: 16px;
+    bottom: 16px;
+    width: 5px;
     border-radius: 0 4px 4px 0;
     background: var(--bank-color, #2563eb);
-    box-shadow: 0 0 14px var(--bank-color, #2563eb);
+    box-shadow: 0 0 16px var(--bank-color, #2563eb), 0 0 6px var(--bank-color, #2563eb);
   }
 
   /* Header do Card: Logo + Nome do Banco / Status + Menu */
@@ -1911,28 +1921,41 @@
   }
 
   .bank-card-mini-plastic {
-    width: 96px;
-    height: 60px;
-    border-radius: 10px;
+    width: 104px;
+    height: 66px;
+    border-radius: 11px;
     flex-shrink: 0;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
-    background-color: var(--bank-color, #2563eb);
-    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(0, 0, 0, 0.48) 100%);
+    box-shadow: 0 10px 22px -3px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.28);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 6px;
+    padding: 8px;
+    transition: transform 0.2s ease;
+  }
+
+  .bank-card-bento:hover .bank-card-mini-plastic {
+    transform: scale(1.04) rotate(-0.5deg);
   }
 
   .bank-card-mini-sheen {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 65%);
+    inset: 0;
+    background: linear-gradient(115deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.12) 35%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .bank-card-mini-sheen::after {
+    content: '';
+    position: absolute;
+    right: -15px;
+    bottom: -15px;
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.22) 0%, transparent 70%);
     pointer-events: none;
   }
 
@@ -1941,11 +1964,12 @@
     align-items: center;
     justify-content: center;
     z-index: 2;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
   }
   .bank-card-mini-logo svg {
     display: block;
-    max-width: 32px;
-    max-height: 32px;
+    max-width: 38px;
+    max-height: 38px;
     filter: brightness(0) invert(1);
   }
 
@@ -1988,15 +2012,21 @@
     display: inline-flex;
     align-items: center;
     gap: 0.55rem;
-    background: var(--bg-app);
-    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.09);
     border-radius: 9999px;
-    padding: 0.35rem 0.85rem;
+    padding: 0.38rem 0.95rem;
     font-size: 0.78rem;
     color: var(--text-secondary);
     margin-bottom: 0.95rem;
     max-width: 100%;
     width: fit-content;
+    backdrop-filter: blur(8px);
+  }
+
+  [data-theme="light"] .bank-card-bento-pill {
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.08);
   }
 
   .bank-card-pill-user {
@@ -2026,16 +2056,20 @@
   .bank-card-bento-footer {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
-    padding-top: 0.85rem;
-    border-top: 1px solid var(--border-color);
+    gap: 0.75rem;
+    padding-top: 0.95rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     margin-top: auto;
+  }
+
+  [data-theme="light"] .bank-card-bento-footer {
+    border-top: 1px solid var(--border-color);
   }
 
   .bank-card-metric-col {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
   }
 
   .bank-card-metric-label {
@@ -2049,7 +2083,7 @@
   }
 
   .bank-card-metric-val {
-    font-size: 0.98rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: var(--text-primary);
     white-space: nowrap;
