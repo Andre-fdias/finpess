@@ -1762,6 +1762,337 @@
   }
 
   /* ==========================================================================
+     CARDS BENTO / WALLET GRID PARA CONTAS BANCÁRIAS (DESIGN FIDEDIGNO MOCKUP)
+     ========================================================================== */
+  .bank-accounts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 1.25rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  @media (max-width: 480px) {
+    .bank-accounts-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+
+  .bank-card-bento {
+    position: relative;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    padding: 1.25rem 1.35rem 1.15rem 1.45rem;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 220px;
+  }
+
+  .bank-card-bento:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  .bank-card-inactive {
+    opacity: 0.65;
+    filter: grayscale(0.25);
+  }
+
+  /* Fita de brilho lateral no tom vibrante da instituição */
+  .bank-card-edge-glow {
+    position: absolute;
+    left: 0;
+    top: 14px;
+    bottom: 14px;
+    width: 4.5px;
+    border-radius: 0 4px 4px 0;
+    background: var(--bank-color, #2563eb);
+    box-shadow: 0 0 14px var(--bank-color, #2563eb);
+  }
+
+  /* Header do Card: Logo + Nome do Banco / Status + Menu */
+  .bank-card-bento-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.95rem;
+    gap: 0.5rem;
+  }
+
+  .bank-card-bento-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    overflow: hidden;
+  }
+
+  .bank-card-bento-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+  .bank-card-bento-logo svg {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .bank-card-bento-bank-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bank-card-bento-top-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-shrink: 0;
+  }
+
+  /* Status Pill Ativo/Inativo com Glow */
+  .bank-card-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.24rem 0.65rem;
+    border-radius: 9999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .bank-card-status-pill.active {
+    background: rgba(16, 185, 129, 0.14);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+  }
+  .bank-card-status-pill.inactive {
+    background: rgba(148, 163, 184, 0.12);
+    color: #94a3b8;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+  }
+
+  /* Dropdown de Ações dentro do Card */
+  .bank-card-dropdown {
+    position: relative;
+  }
+  .bank-card-dropdown .btn-dots-action {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    color: var(--text-secondary);
+  }
+  .bank-card-dropdown .btn-dots-action:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  /* Bloco Intermediário: Mini Cartão Físico + Título e Subtítulo */
+  .bank-card-bento-middle {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .bank-card-mini-plastic {
+    width: 96px;
+    height: 60px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+    background-color: var(--bank-color, #2563eb);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(0, 0, 0, 0.48) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+  }
+
+  .bank-card-mini-sheen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 65%);
+    pointer-events: none;
+  }
+
+  .bank-card-mini-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+  .bank-card-mini-logo svg {
+    display: block;
+    max-width: 32px;
+    max-height: 32px;
+    filter: brightness(0) invert(1);
+  }
+
+  .bank-card-bento-details {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .bank-card-bento-title {
+    font-size: 1.28rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 3px 0;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.3px;
+  }
+
+  .bank-card-bento-sub {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bank-card-sub-brand {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Cápsula Metadados: Titular | Tipo de Conta */
+  .bank-card-bento-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    background: var(--bg-app);
+    border: 1px solid var(--border-color);
+    border-radius: 9999px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.95rem;
+    max-width: 100%;
+    width: fit-content;
+  }
+
+  .bank-card-pill-user {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--primary, #38bdf8);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bank-card-pill-divider {
+    opacity: 0.35;
+    font-weight: 300;
+  }
+
+  .bank-card-pill-type {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+  }
+
+  /* Rodapé com 3 Métricas Financeiras */
+  .bank-card-bento-footer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: auto;
+  }
+
+  .bank-card-metric-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .bank-card-metric-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: capitalize;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bank-card-metric-val {
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    letter-spacing: -0.2px;
+  }
+
+  /* View Toggle: Botões de alternância Cards x Tabela */
+  .view-toggle-pill-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: var(--bg-app);
+    padding: 3px;
+    border-radius: 9999px;
+    border: 1px solid var(--border-color);
+  }
+
+  .btn-view-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 9999px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-view-toggle:hover {
+    color: var(--text-primary);
+  }
+
+  .btn-view-toggle.active {
+    background: var(--primary);
+    color: #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  }
+
+  /* ==========================================================================
      BENTO GRID: BARRAS DE LIMITE DE ORÇAMENTO (ESTILO ZEN)
      ========================================================================== */
   .zen-budget-cell {

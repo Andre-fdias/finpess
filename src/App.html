@@ -9,6 +9,9 @@
       user: null,
       categories: [],
       bankAccounts: [],
+      banksViewMode: (function () {
+        try { return localStorage.getItem('finpess_banks_view_mode') || 'cards'; } catch (e) { return 'cards'; }
+      })(),
       launches: [],
       currentDetailLaunchId: null,
       calendarView: 'MENSAL',
@@ -2672,6 +2675,64 @@
       }
     }
 
+    function updateBankAccountsKpis() {
+      var totalConfirmado = 0;
+      var totalProjetado = 0;
+      var totalPrevisto = 0;
+      var ativasCount = 0;
+
+      (state.bankAccounts || []).forEach(function (b) {
+        if (b.situacao === 'ATIVA') {
+          totalConfirmado += Number(b.saldo_confirmado_centavos || 0);
+          totalProjetado += Number(b.saldo_projetado_centavos || 0);
+          totalPrevisto += Number(b.saldo_previsto_centavos || 0);
+          ativasCount++;
+        }
+      });
+
+      var elConf = document.getElementById('banks-kpi-confirmado');
+      if (elConf) {
+        elConf.textContent = UIHelpers.formatBrl(totalConfirmado);
+        elConf.className = 'summary-value ' + (totalConfirmado >= 0 ? 'summary-val-entrada' : 'summary-val-saida');
+      }
+      var elPrev = document.getElementById('banks-kpi-previsto');
+      if (elPrev) {
+        elPrev.textContent = (totalPrevisto > 0 ? '+' : '') + UIHelpers.formatBrl(totalPrevisto);
+        elPrev.className = 'summary-value ' + (totalPrevisto >= 0 ? 'summary-val-entrada' : 'summary-val-saida');
+      }
+      var elProj = document.getElementById('banks-kpi-projetado');
+      if (elProj) {
+        elProj.textContent = UIHelpers.formatBrl(totalProjetado);
+        elProj.className = 'summary-value ' + (totalProjetado >= 0 ? 'summary-val-entrada' : 'summary-val-saida');
+      }
+      var elAtiv = document.getElementById('banks-kpi-ativas');
+      if (elAtiv) {
+        elAtiv.textContent = ativasCount + ' ativa(s)';
+      }
+      var elTotDesc = document.getElementById('banks-kpi-total-desc');
+      if (elTotDesc) {
+        elTotDesc.textContent = 'De ' + (state.bankAccounts || []).length + ' conta(s) cadastrada(s)';
+      }
+    }
+
+    function setBanksViewMode(mode) {
+      state.banksViewMode = mode;
+      try {
+        localStorage.setItem('finpess_banks_view_mode', mode);
+      } catch (e) {}
+      renderBankAccountsView(state.bankAccounts || []);
+    }
+
+    function renderBankAccounts(accountsData) {
+      if (Array.isArray(accountsData)) {
+        state.bankAccounts = accountsData;
+        updateBankAccountsKpis();
+        renderBankAccountsView(state.bankAccounts);
+      } else {
+        loadBankAccounts();
+      }
+    }
+
     function loadBankAccounts() {
       callServer('users.listGroupMembers', {}, function (resMembers) {
         state.groupMembers = resMembers.data || [];
@@ -2681,48 +2742,169 @@
       callServer('bankAccounts.list', { includeInactive: true }, function (res) {
         state.bankAccounts = res.data || [];
         populateSelects();
+        updateBankAccountsKpis();
+        renderBankAccountsView(state.bankAccounts);
+      });
+    }
 
-        // 1. Atualiza os cards de métricas executivas / KPIs
-        var totalConfirmado = 0;
-        var totalProjetado = 0;
-        var totalPrevisto = 0;
-        var ativasCount = 0;
+    function renderBankAccountsView(accounts) {
+      var container = document.getElementById('banks-table-container');
+      if (!container) return;
 
-        state.bankAccounts.forEach(function (b) {
-          if (b.situacao === 'ATIVA') {
-            totalConfirmado += Number(b.saldo_confirmado_centavos || 0);
-            totalProjetado += Number(b.saldo_projetado_centavos || 0);
-            totalPrevisto += Number(b.saldo_previsto_centavos || 0);
-            ativasCount++;
+      var curMode = state.banksViewMode || 'cards';
+      var btnCards = document.getElementById('btn-bank-view-cards');
+      var btnTable = document.getElementById('btn-bank-view-table');
+      if (btnCards && btnTable) {
+        if (curMode === 'cards') {
+          btnCards.classList.add('active');
+          btnTable.classList.remove('active');
+        } else {
+          btnTable.classList.add('active');
+          btnCards.classList.remove('active');
+        }
+      }
+
+      if (!accounts || accounts.length === 0) {
+        container.innerHTML =
+          '<div style="text-align:center; padding:3rem 1.5rem; background:var(--bg-surface); border:1px dashed var(--border-color); border-radius:var(--radius-md);">' +
+            '<div style="font-size:2.5rem; margin-bottom:0.75rem;">🏦</div>' +
+            '<h3 style="margin:0 0 0.5rem 0; font-size:1.15rem; color:var(--text-primary);">Nenhuma conta bancária cadastrada</h3>' +
+            '<p style="color:var(--text-secondary); font-size:0.85rem; max-width:460px; margin:0 auto 1.25rem auto;">Cadastre suas contas correntes, poupanças e carteiras digitais para acompanhar saldos reais e conciliação contínua.</p>' +
+            '<button type="button" class="btn btn-primary btn-sm" onclick="App.toggleNewBankAccountCard(true)">+ Cadastrar Primeira Conta</button>' +
+          '</div>';
+        return;
+      }
+
+      if (curMode === 'cards') {
+        var cardsHtml = accounts.map(function (b) {
+          var matched = UIHelpers.findBank(b.instituicao);
+          var bankColor = matched ? matched.bg : '#2563eb';
+          var bankName = matched ? matched.name : (b.instituicao || 'Banco');
+          var bankLogoSvg = (matched && matched.icon)
+            ? '<svg width="22" height="22" viewBox="' + (matched.viewBox || '0 0 24 24') + '">' + matched.icon + '</svg>'
+            : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 10v11M9 10v11M15 10v11M19 10v11M12 2L2 7h20L12 2z"/></svg>';
+
+          var brandName = '';
+          var rawObs = b.observacoes || '';
+          if (rawObs.indexOf('Bandeira:') !== -1) {
+            var m = rawObs.match(/Bandeira:\s*([^\n;|]+)/i);
+            if (m && m[1]) brandName = m[1].trim();
           }
-        });
+          var brandBadgeHtml = brandName ? UIHelpers.getCardBrandBadgeHtml(brandName) : '';
 
-        var elConf = document.getElementById('banks-kpi-confirmado');
-        if (elConf) {
-          elConf.textContent = UIHelpers.formatBrl(totalConfirmado);
-          elConf.className = 'summary-value ' + (totalConfirmado >= 0 ? 'summary-val-entrada' : 'summary-val-saida');
-        }
-        var elPrev = document.getElementById('banks-kpi-previsto');
-        if (elPrev) {
-          elPrev.textContent = (totalPrevisto > 0 ? '+' : '') + UIHelpers.formatBrl(totalPrevisto);
-          elPrev.className = 'summary-value ' + (totalPrevisto >= 0 ? 'summary-val-entrada' : 'summary-val-saida');
-        }
-        var elProj = document.getElementById('banks-kpi-projetado');
-        if (elProj) {
-          elProj.textContent = UIHelpers.formatBrl(totalProjetado);
-          elProj.className = 'summary-value ' + (totalProjetado >= 0 ? 'summary-val-entrada' : 'summary-val-saida');
-        }
-        var elAtiv = document.getElementById('banks-kpi-ativas');
-        if (elAtiv) {
-          elAtiv.textContent = ativasCount + ' ativa(s)';
-        }
-        var elTotDesc = document.getElementById('banks-kpi-total-desc');
-        if (elTotDesc) {
-          elTotDesc.textContent = 'De ' + state.bankAccounts.length + ' conta(s) cadastrada(s)';
-        }
+          var isAtiva = b.situacao === 'ATIVA';
+          var sInicial = Number(b.saldo_inicial_centavos || 0);
+          var sConfirmado = Number(b.saldo_confirmado_centavos || 0);
+          var sProjetado = Number(b.saldo_projetado_centavos || 0);
 
-        // 2. Renderiza a tabela moderna de contas
-        var rows = state.bankAccounts.map(function (b) {
+          var tipoLabel = {
+            'CORRENTE': 'Conta Corrente',
+            'POUPANCA': 'Poupança',
+            'PAGAMENTO': 'Conta de Pagamento',
+            'DINHEIRO': 'Carteira Física',
+            'OUTRA': 'Outra'
+          }[b.tipo_conta] || b.tipo_conta || 'Conta Corrente';
+
+          var dropdownId = 'acc-card-actions-' + b.id;
+          var menuItems = [
+            '<button type="button" class="dropdown-action-btn" onclick="App.viewBankStatement(\'' + UIHelpers.escapeHtml(b.id) + '\'); App.closeAllActionDropdowns();">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>' +
+              '<span>Ver Extrato Analítico</span>' +
+            '</button>',
+            '<button type="button" class="dropdown-action-btn" onclick="App.openEditBankAccountModal(\'' + UIHelpers.escapeHtml(b.id) + '\'); App.closeAllActionDropdowns();">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>' +
+              '<span>Editar Conta</span>' +
+            '</button>',
+            '<button type="button" class="dropdown-action-btn" onclick="App.openReconcileAccountModal(\'' + UIHelpers.escapeHtml(b.id) + '\'); App.closeAllActionDropdowns();">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>' +
+              '<span>Conciliar Saldo Manual</span>' +
+            '</button>',
+            '<div class="dropdown-action-divider"></div>',
+            '<button type="button" class="dropdown-action-btn ' + (isAtiva ? 'dropdown-action-danger' : 'dropdown-action-success') + '" onclick="App.toggleAccountStatus(\'' + UIHelpers.escapeHtml(b.id) + '\'); App.closeAllActionDropdowns();">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>' +
+              '<span>' + (isAtiva ? 'Inativar Conta' : 'Reativar Conta') + '</span>' +
+            '</button>'
+          ];
+
+          var dropdownHtml =
+            '<div class="table-actions-dropdown bank-card-dropdown">' +
+              '<button type="button" class="btn-dots-action" onclick="App.toggleRowDropdown(event, \'' + dropdownId + '\')" title="Opções da conta" aria-label="Ações">' +
+                '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2.2"></circle><circle cx="12" cy="12" r="2.2"></circle><circle cx="12" cy="19" r="2.2"></circle></svg>' +
+              '</button>' +
+              '<div id="' + dropdownId + '" class="table-dropdown-menu bank-card-menu">' +
+                menuItems.join('') +
+              '</div>' +
+            '</div>';
+
+          var statusBadgeHtml = isAtiva
+            ? '<span class="bank-card-status-pill active"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Ativo</span>'
+            : '<span class="bank-card-status-pill inactive"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Inativo</span>';
+
+          var instDisplay = b.instituicao ? UIHelpers.escapeHtml(b.instituicao) : 'Banco';
+          if (!instDisplay.toLowerCase().startsWith('banco') && instDisplay.toLowerCase() !== 'mercado pago' && instDisplay.toLowerCase() !== 'picpay') {
+            instDisplay = 'Banco ' + instDisplay;
+          }
+
+          var ownerName = b.proprietario_nome ? UIHelpers.escapeHtml(b.proprietario_nome) : 'Conta Principal';
+          var saldoConfColor = sConfirmado >= 0 ? 'var(--success)' : 'var(--danger)';
+          var saldoProjColor = sProjetado >= 0 ? 'var(--success)' : 'var(--danger)';
+
+          return (
+            '<div class="bank-card-bento ' + (isAtiva ? '' : 'bank-card-inactive') + '" style="--bank-color:' + bankColor + ';">' +
+              '<div class="bank-card-edge-glow"></div>' +
+              '<div class="bank-card-bento-header">' +
+                '<div class="bank-card-bento-brand">' +
+                  '<span class="bank-card-bento-logo" aria-hidden="true">' + bankLogoSvg + '</span>' +
+                  '<span class="bank-card-bento-bank-name">' + UIHelpers.escapeHtml(bankName) + '</span>' +
+                '</div>' +
+                '<div class="bank-card-bento-top-actions">' +
+                  statusBadgeHtml +
+                  dropdownHtml +
+                '</div>' +
+              '</div>' +
+              '<div class="bank-card-bento-middle">' +
+                '<div class="bank-card-mini-plastic">' +
+                  '<div class="bank-card-mini-sheen"></div>' +
+                  '<div class="bank-card-mini-logo">' + bankLogoSvg + '</div>' +
+                '</div>' +
+                '<div class="bank-card-bento-details">' +
+                  '<h3 class="bank-card-bento-title" title="' + UIHelpers.escapeHtml(b.nome_identificacao) + '">' + UIHelpers.escapeHtml(b.nome_identificacao) + '</h3>' +
+                  '<div class="bank-card-bento-sub">' +
+                    '<span>' + instDisplay + '</span>' +
+                    (brandBadgeHtml ? '<span class="bank-card-sub-brand">' + brandBadgeHtml + '</span>' : '') +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+              '<div class="bank-card-bento-pill">' +
+                '<span class="bank-card-pill-user">' +
+                  '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>' +
+                  '<span>' + ownerName + '</span>' +
+                '</span>' +
+                '<span class="bank-card-pill-divider">|</span>' +
+                '<span class="bank-card-pill-type">' + tipoLabel + '</span>' +
+              '</div>' +
+              '<div class="bank-card-bento-footer">' +
+                '<div class="bank-card-metric-col">' +
+                  '<div class="bank-card-metric-label">Saldo Inicial</div>' +
+                  '<div class="bank-card-metric-val">' + UIHelpers.formatBrl(sInicial) + '</div>' +
+                '</div>' +
+                '<div class="bank-card-metric-col">' +
+                  '<div class="bank-card-metric-label">Saldo Confirmado</div>' +
+                  '<div class="bank-card-metric-val" style="color:' + saldoConfColor + ';">' + UIHelpers.formatBrl(sConfirmado) + '</div>' +
+                '</div>' +
+                '<div class="bank-card-metric-col">' +
+                  '<div class="bank-card-metric-label">Saldo Projetado</div>' +
+                  '<div class="bank-card-metric-val" style="color:' + saldoProjColor + ';">' + UIHelpers.formatBrl(sProjetado) + '</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>'
+          );
+        }).join('');
+
+        container.innerHTML = '<div class="bank-accounts-grid">' + cardsHtml + '</div>';
+      } else {
+        // Modo Tabela
+        var rows = accounts.map(function (b) {
           var bankBadge = UIHelpers.getBankBadgeHtml(b.instituicao);
           var brandName = '';
           var rawObs = b.observacoes || '';
@@ -2744,7 +2926,7 @@
             'OUTRA': 'Outra'
           }[b.tipo_conta] || b.tipo_conta;
 
-          var dropdownId = 'acc-actions-' + b.id;
+          var dropdownId = 'acc-table-actions-' + b.id;
           var menuItems = [
             '<button type="button" class="dropdown-action-btn" onclick="App.viewBankStatement(\'' + UIHelpers.escapeHtml(b.id) + '\'); App.closeAllActionDropdowns();">' +
               '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>' +
@@ -2823,10 +3005,8 @@
           );
         }).join('');
 
-        document.getElementById('banks-table-container').innerHTML = rows
-          ? '<table class="data-table"><thead><tr><th>Conta / Instituição</th><th>Tipo</th><th class="col-money">Saldo Inicial</th><th class="col-money">Saldo Confirmado</th><th class="col-money">Saldo Projetado</th><th>Situação</th><th style="text-align:right;">Ações</th></tr></thead><tbody>' + rows + '</tbody></table>'
-          : '<p style="color:var(--text-muted); padding:1.5rem; text-align:center;">Nenhuma conta bancária cadastrada. Clique no botão acima para adicionar a sua primeira conta!</p>';
-      });
+        container.innerHTML = '<div class="table-responsive"><table class="data-table"><thead><tr><th>Conta / Instituição</th><th>Tipo</th><th class="col-money">Saldo Inicial</th><th class="col-money">Saldo Confirmado</th><th class="col-money">Saldo Projetado</th><th>Situação</th><th style="text-align:right;">Ações</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+      }
     }
 
     function openEditBankAccountModal(accId) {
@@ -10183,6 +10363,8 @@
       toggleNewBankAccountCard: toggleNewBankAccountCard,
       toggleNewTransferCard: toggleNewTransferCard,
       loadBankAccounts: loadBankAccounts,
+      renderBankAccounts: renderBankAccounts,
+      setBanksViewMode: setBanksViewMode,
       populateBankOwnerSelects: populateBankOwnerSelects,
       openEditBankAccountModal: openEditBankAccountModal,
       closeEditBankAccountModal: closeEditBankAccountModal,

@@ -207,15 +207,25 @@
     </form>
   </div>
 
-  <!-- Tabela de Contas Bancárias Cadastradas -->
+  <!-- Contas Bancárias Cadastradas (Modo Cards Bento / Tabela) -->
   <div class="card" style="margin-bottom:1.25rem;">
-    <div class="card-header" style="flex-wrap:wrap; gap:0.5rem; justify-content:space-between; align-items:center;">
+    <div class="card-header" style="flex-wrap:wrap; gap:0.6rem; justify-content:space-between; align-items:center;">
       <div>
         <h2 class="card-title" style="margin:0; font-size:1.1rem;">Contas Cadastradas e Posição Financeira</h2>
         <small style="color:var(--text-secondary); font-size:0.8rem;">Acompanhe saldos confirmados, projeções futuras e utilize as opções rápidas para extrato ou conciliação.</small>
       </div>
+      <div class="view-toggle-pill-group" aria-label="Modo de visualização das contas">
+        <button type="button" class="btn-view-toggle active" id="btn-bank-view-cards" onclick="App.setBanksViewMode('cards')" title="Visualização em Cards Modernos">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          <span>Cards</span>
+        </button>
+        <button type="button" class="btn-view-toggle" id="btn-bank-view-table" onclick="App.setBanksViewMode('table')" title="Visualização em Tabela">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          <span>Tabela</span>
+        </button>
+      </div>
     </div>
-    <div id="banks-table-container" class="table-responsive"></div>
+    <div id="banks-table-container"></div>
   </div>
 
   <!-- Modal de Edição de Conta Bancária -->
