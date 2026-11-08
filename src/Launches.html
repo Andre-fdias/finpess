@@ -11,8 +11,11 @@
         </svg>
       </div>
       <div>
-        <h1 id="title-launches" class="page-title">Lançamentos Financeiros (Entradas e Saídas)</h1>
-        <p class="page-subtitle">Registre seus ganhos e gastos. Mantenha seu fluxo de caixa sempre atualizado.</p>
+        <h1 id="title-launches" class="page-title" style="display:inline-flex; align-items:center; gap:0.45rem; margin:0;">
+          Lançamentos Financeiros (Entradas e Saídas)
+          <span class="info-popover-wrap" data-info-key="lan-modulo"></span>
+        </h1>
+        <p class="page-subtitle" style="margin:0.25rem 0 0 0;">Registre seus ganhos e gastos. Mantenha seu fluxo de caixa sempre atualizado.</p>
       </div>
     </div>
     <div class="page-header-actions">
@@ -20,13 +23,15 @@
       <button type="button" class="btn btn-secondary btn-sm" onclick="App.triggerReceiptUpload()" id="btn-scan-receipt" style="display:inline-flex; align-items:center; gap:0.4rem;" title="Escanear cupom fiscal ou recibo por foto">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
         <span>📸 Ler Cupom (Foto)</span>
+        <span class="info-popover-wrap" data-info-key="lan-ler-cupom" style="margin-left:2px;"></span>
       </button>
       <input type="file" id="input-receipt-file" accept="image/*" capture="environment" style="display:none;" onchange="App.handleReceiptFile(event)">
 
-      <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleFilterPanel()" id="btn-toggle-filters" title="Abrir ou fechar painel de filtros">
+      <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleFilterPanel()" id="btn-toggle-filters" title="Abrir ou fechar painel de filtros" style="display:inline-flex; align-items:center; gap:0.35rem;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
         <span>Filtros</span>
         <span id="icon-filter-toggle" style="font-size:9px; opacity:0.8;">▼</span>
+        <span class="info-popover-wrap" data-info-key="lan-filtros" style="margin-left:2px;"></span>
       </button>
       <button type="button" class="btn btn-primary btn-sm" onclick="App.toggleNewLaunchCard()" id="btn-toggle-new-launch">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -43,7 +48,10 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
         </div>
         <div>
-          <h2 class="card-title">Novo Lançamento Manual</h2>
+          <h2 class="card-title" style="display:inline-flex; align-items:center; gap:0.4rem; margin:0;">
+            Novo Lançamento Manual
+            <span class="info-popover-wrap" data-info-key="lan-novo-manual"></span>
+          </h2>
           <small style="color:var(--text-secondary); font-size:0.75rem;">Preencha os dados abaixo para registrar um novo lançamento no sistema.</small>
         </div>
       </div>
@@ -56,7 +64,10 @@
     <form id="form-launch" onsubmit="App.submitLaunch(event)">
       <div class="form-grid">
         <div class="form-group">
-          <label for="lan-tipo">Tipo *</label>
+          <label for="lan-tipo" style="display:inline-flex; align-items:center; gap:0.35rem;">
+            Tipo *
+            <span class="info-popover-wrap" data-info-key="lan-form-tipo"></span>
+          </label>
           <select id="lan-tipo" class="form-control" required>
             <option value="SAIDA">↓ Saída (Despesa)</option>
             <option value="ENTRADA">↑ Entrada (Receita)</option>
@@ -75,7 +86,10 @@
           <input type="date" id="lan-data" class="form-control" required />
         </div>
         <div class="form-group">
-          <label for="lan-competencia">Data de Competência</label>
+          <label for="lan-competencia" style="display:inline-flex; align-items:center; gap:0.35rem;">
+            Data de Competência
+            <span class="info-popover-wrap" data-info-key="lan-form-competencia"></span>
+          </label>
           <input type="date" id="lan-competencia" class="form-control" />
         </div>
         <div class="form-group">
@@ -105,7 +119,10 @@
           </select>
         </div>
         <div class="form-group">
-          <label for="lan-situacao">Situação *</label>
+          <label for="lan-situacao" style="display:inline-flex; align-items:center; gap:0.35rem;">
+            Situação *
+            <span class="info-popover-wrap" data-info-key="lan-form-situacao"></span>
+          </label>
           <select id="lan-situacao" class="form-control" required>
             <option value="CONFIRMADO">Confirmado (Altera Saldo Real)</option>
             <option value="PREVISTO">Previsto (Não Altera Saldo Real)</option>
@@ -160,19 +177,22 @@
           <select id="quick-launch-year-select" class="form-control quick-year-select" onchange="App.onQuickMonthSelectChange()" aria-label="Selecionar ano" style="width:88px !important; min-width:88px !important; border:none !important; background:transparent !important; font-weight:700 !important; font-size:0.88rem !important; padding:2px 6px !important; cursor:pointer !important; color:var(--text-primary) !important; height:30px !important;">
           </select>
           <button type="button" class="btn btn-secondary btn-sm btn-nav-arrow" onclick="App.navigateLaunchMonth(1)" title="Próximo mês" style="padding:0; width:28px; height:28px; min-width:28px; border:none; background:transparent; font-size:12px; cursor:pointer;">▶</button>
+          <span class="info-popover-wrap" data-info-key="lan-mes-nav" style="margin-left:2px;"></span>
         </div>
         <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleFilterPanel()" id="btn-card-toggle-filters" title="Exibir ou ocultar painel de filtros">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
           <span>Filtros</span>
           <span id="icon-card-filter-toggle" style="font-size:9px; opacity:0.8;">▼</span>
         </button>
-        <button type="button" class="btn btn-secondary btn-sm" onclick="App.exportCsv()" title="Exportar dados filtrados em CSV com acentuação corrigida para Excel">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.exportCsv()" title="Exportar dados filtrados em CSV com acentuação corrigida para Excel" style="display:inline-flex; align-items:center; gap:0.35rem;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           <span>Exportar CSV</span>
+          <span class="info-popover-wrap" data-info-key="lan-exportar-csv" data-align="right" style="margin-left:2px;"></span>
         </button>
-        <button type="button" class="btn btn-secondary btn-sm" onclick="App.printLaunchesReport()" title="Gerar relatório financeiro para impressão ou PDF">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.printLaunchesReport()" title="Gerar relatório financeiro para impressão ou PDF" style="display:inline-flex; align-items:center; gap:0.35rem;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
           <span>Relatório (PDF)</span>
+          <span class="info-popover-wrap" data-info-key="lan-relatorio-pdf" data-align="right" style="margin-left:2px;"></span>
         </button>
       </div>
     </div>
@@ -287,7 +307,10 @@
     <div class="filter-summary-cards" id="launches-summary-cards">
       <div class="filter-summary-card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span class="summary-label">Entradas (Realizadas)</span>
+          <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.35rem;">
+            Entradas (Realizadas)
+            <span class="info-popover-wrap" data-info-key="lan-resumo-entradas"></span>
+          </span>
           <span class="badge badge-confirmado" style="font-size:0.65rem; padding:1px 5px;">Confirmadas</span>
         </div>
         <strong class="summary-value summary-val-entrada" id="summary-filtro-entradas">+R$ 0,00</strong>
@@ -295,7 +318,10 @@
       </div>
       <div class="filter-summary-card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span class="summary-label">Saídas (Realizadas)</span>
+          <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.35rem;">
+            Saídas (Realizadas)
+            <span class="info-popover-wrap" data-info-key="lan-resumo-saidas"></span>
+          </span>
           <span class="badge badge-cancelado" style="font-size:0.65rem; padding:1px 5px;">Confirmadas</span>
         </div>
         <strong class="summary-value summary-val-saida" id="summary-filtro-saidas">-R$ 0,00</strong>
@@ -303,7 +329,10 @@
       </div>
       <div class="filter-summary-card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span class="summary-label">Balanço Realizado</span>
+          <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.35rem;">
+            Balanço Realizado
+            <span class="info-popover-wrap" data-info-key="lan-resumo-balanco"></span>
+          </span>
           <span id="summary-filtro-total" style="font-size:0.72rem; color:var(--text-muted); font-weight:600;">0 registro(s)</span>
         </div>
         <strong class="summary-value summary-val-saldo" id="summary-filtro-saldo">R$ 0,00</strong>
@@ -311,7 +340,10 @@
       </div>
       <div class="filter-summary-card" style="border:1px dashed #7c3aed; background:rgba(124,58,237,0.035);">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span class="summary-label" style="color:#7c3aed; font-weight:700;">Previsões a Realizar</span>
+          <span class="summary-label" style="color:#7c3aed; font-weight:700; display:inline-flex; align-items:center; gap:0.35rem;">
+            Previsões a Realizar
+            <span class="info-popover-wrap" data-info-key="lan-resumo-previsoes" data-align="right"></span>
+          </span>
           <span class="badge badge-previsto" style="font-size:0.65rem; padding:1px 5px;">Não Calculado</span>
         </div>
         <strong class="summary-value" id="summary-filtro-previsto" style="color:#7c3aed;">R$ 0,00</strong>
@@ -332,7 +364,10 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
           </div>
           <div>
-            <h2 id="modal-launch-details-title" class="card-title">Detalhes Completos do Lançamento</h2>
+            <h2 id="modal-launch-details-title" class="card-title" style="display:inline-flex; align-items:center; gap:0.4rem; margin:0;">
+              Detalhes Completos do Lançamento
+              <span class="info-popover-wrap" data-info-key="lan-modal-detalhes"></span>
+            </h2>
             <small style="color:var(--text-secondary); font-size:0.75rem;">Visualização detalhada de todos os campos cadastrados no sistema.</small>
           </div>
         </div>
@@ -366,7 +401,10 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
           </div>
           <div>
-            <h2 id="modal-launch-edit-title" class="card-title">Editar Lançamento Financeiro</h2>
+            <h2 id="modal-launch-edit-title" class="card-title" style="display:inline-flex; align-items:center; gap:0.4rem; margin:0;">
+              Editar Lançamento Financeiro
+              <span class="info-popover-wrap" data-info-key="lan-modal-edicao"></span>
+            </h2>
             <small style="color:var(--text-secondary); font-size:0.75rem;">Altere os campos necessários e confirme para atualizar os saldos em tempo real.</small>
           </div>
         </div>

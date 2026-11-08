@@ -1811,7 +1811,7 @@
         }).join('');
 
         document.getElementById('launches-table-container').innerHTML = rows
-          ? '<table class="data-table"><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Conta</th><th>Situação</th><th class="col-money">Valor</th><th>Ações</th></tr></thead><tbody>' + rows + '</tbody></table>'
+          ? '<table class="data-table"><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Conta</th><th>Situação <span class="info-popover-wrap" data-info-key="lan-col-situacao"></span></th><th class="col-money">Valor</th><th>Ações</th></tr></thead><tbody>' + rows + '</tbody></table>'
           : '<p style="color:var(--text-muted); padding:1rem 0;">Nenhum lançamento encontrado para os filtros informados.</p>';
 
         document.getElementById('launches-pagination').innerHTML =
@@ -1820,6 +1820,10 @@
           (data.page > 1 ? '<button type="button" class="btn btn-secondary btn-sm" onclick="App.loadLaunches(' + (data.page - 1) + ')">Anterior</button>' : '') +
           (data.page < data.totalPages ? '<button type="button" class="btn btn-secondary btn-sm" onclick="App.loadLaunches(' + (data.page + 1) + ')">Próxima</button>' : '') +
           '</div>';
+
+        if (UIHelpers && UIHelpers.initInfoPopovers) {
+          UIHelpers.initInfoPopovers(document.getElementById('sec-launches'));
+        }
       });
     }
 

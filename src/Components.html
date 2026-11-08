@@ -782,6 +782,97 @@
         title: 'Composição do Patrimônio',
         desc: 'Detalhamento estrutural entre recursos de alta liquidez, ativos investidos e saldo devedor passivo.',
         tip: 'Ideal para verificar a distribuição entre reserva de emergência, renda fixa, ações e passivos.'
+      },
+
+      // === LANÇAMENTOS ===
+      'lan-modulo': {
+        title: 'Lançamentos Financeiros (Entradas e Saídas)',
+        desc: 'Módulo central de fluxo de caixa onde são registradas e auditadas todas as receitas, despesas, faturas, retiradas e previsões financeiras do grupo.',
+        tip: 'Mantenha a descrição, categoria e conta corretas para que os relatórios e o dashboard reflitam seus hábitos de consumo com precisão.'
+      },
+      'lan-ler-cupom': {
+        title: 'Leitura Inteligente de Cupom / OCR',
+        desc: 'Permite tirar foto ou anexar a imagem de um comprovante, cupom fiscal ou nota para pré-preencher valor, data e estabelecimento automaticamente via IA.',
+        tip: 'Fotografe o documento em ambiente bem iluminado focando no total da nota e na data da compra.'
+      },
+      'lan-filtros': {
+        title: 'Painel de Filtros Avançados',
+        desc: 'Permite filtrar lançamentos por período personalizado, busca textual por descrição ou observação, tipo de movimento (entrada/saída), situação e conta bancária.',
+        tip: 'Use a combinação de Conta + Situação para realizar a conciliação bancária mensal de forma rápida.'
+      },
+      'lan-novo-manual': {
+        title: 'Novo Lançamento Manual',
+        desc: 'Formulário completo para cadastro ágil de receitas ou despesas com rateio por categoria, subcategoria e forma de pagamento.',
+        tip: 'Você também pode usar o botão global "+ Lançamento" na barra superior de qualquer tela do sistema.'
+      },
+      'lan-form-tipo': {
+        title: 'Tipo do Lançamento',
+        desc: 'Define a natureza contábil do registro: Saída (Despesa, pagamento ou compra) reduz o saldo da conta; Entrada (Receita, salário, rendimento) aumenta o saldo.',
+        tip: 'Para transferências entre contas próprias, use a tela de Contas ou a opção correspondente para manter a bilateralidade.'
+      },
+      'lan-form-competencia': {
+        title: 'Data do Lançamento vs. Competência',
+        desc: 'Data do Lançamento é o dia do movimento financeiro (regime de caixa). Data de Competência é o mês em que o fato gerador ou serviço ocorreu (regime contábil).',
+        tip: 'Exemplo: a fatura de cartão paga em novembro referente a compras feitas em outubro tem data de lançamento em novembro e competência em outubro.'
+      },
+      'lan-form-situacao': {
+        title: 'Situação do Lançamento',
+        desc: 'Confirmado: movimenta o saldo real imediatamente. Previsto: projeta o fluxo futuro sem alterar o saldo real. Pendente: requer liquidação posterior.',
+        tip: 'Lançamentos previstos não afetam o saldo bancário da conta até que você os confirme.'
+      },
+      'lan-mes-nav': {
+        title: 'Navegador Mensal Rápido',
+        desc: 'Permite alternar entre os meses do ano com apenas um clique ou selecionar "Ano Todo" para ter uma visão ampla de todo o exercício.',
+        tip: 'Ao mudar o mês, os totalizadores e a listagem se ajustam instantaneamente ao período escolhido.'
+      },
+      'lan-exportar-csv': {
+        title: 'Exportação para CSV / Excel',
+        desc: 'Gera um arquivo compatível com Excel e Google Sheets (.csv com codificação UTF-8 BOM) contendo os lançamentos exatamente como estão filtrados na tela.',
+        tip: 'Ideal para análises adicionais em planilhas ou envio de dados contábeis.'
+      },
+      'lan-relatorio-pdf': {
+        title: 'Relatório Financeiro Executivo (PDF)',
+        desc: 'Monta uma visualização corporativa formatada pronta para impressão ou salvamento como PDF, com demonstrativo resumido e tabela detalhada.',
+        tip: 'Excelente para prestação de contas, arquivo pessoal ou conciliação periódica.'
+      },
+      'lan-resumo-entradas': {
+        title: 'Entradas Realizadas (Receitas)',
+        desc: 'Soma exclusiva das receitas com situação "Confirmado" no período filtrado. Dinheiro que efetivamente entrou na sua conta bancária.',
+        formula: 'Soma dos valores de tipo ENTRADA com situacao = CONFIRMADO',
+        tip: 'Não inclui receitas previstas ou pendentes.'
+      },
+      'lan-resumo-saidas': {
+        title: 'Saídas Realizadas (Despesas)',
+        desc: 'Soma exclusiva dos pagamentos com situação "Confirmado" no período filtrado. Dinheiro que efetivamente saiu da sua conta bancária.',
+        formula: 'Soma dos valores de tipo SAIDA com situacao = CONFIRMADO',
+        tip: 'Não inclui contas agendadas ou faturas futuras que ainda não foram pagas.'
+      },
+      'lan-resumo-balanco': {
+        title: 'Balanço Realizado do Período',
+        desc: 'Resultado financeiro líquido obtido no período selecionado, considerando apenas o dinheiro movimentado de verdade.',
+        formula: 'Entradas Realizadas - Saídas Realizadas',
+        tip: 'Verde (positivo) indica economia/superávit no período; Vermelho (negativo) indica que os gastos superaram as receitas.'
+      },
+      'lan-resumo-previsoes': {
+        title: 'Previsões a Realizar (Pendentes)',
+        desc: 'Saldo projetado das contas a pagar versus contas a receber futuras no período. Não afeta o saldo bancário atual até a confirmação.',
+        formula: 'Receitas Previstas - Despesas Previstas',
+        tip: 'Acompanhe este número para garantir que haverá saldo em caixa para honrar todos os compromissos agendados.'
+      },
+      'lan-col-situacao': {
+        title: 'Alteração Rápida de Situação',
+        desc: 'Permite alterar a situação do lançamento (Confirmados, Previstos, Pendentes) diretamente na tabela sem abrir tela de edição.',
+        tip: 'Ao marcar como Confirmado, o saldo da conta vinculada é atualizado instantaneamente.'
+      },
+      'lan-modal-detalhes': {
+        title: 'Detalhes Completos do Lançamento',
+        desc: 'Exibe todas as propriedades e trilhas de auditoria da transação: ID único, usuário responsável, origem (WEB, TELEGRAM, IMPORTAÇÃO), data e hora de criação.',
+        tip: 'Use esta visualização antes de editar ou excluir para conferir o histórico completo.'
+      },
+      'lan-modal-edicao': {
+        title: 'Edição de Lançamento e Conciliação',
+        desc: 'Permite retificar qualquer dado do lançamento. Caso o valor ou a conta sejam alterados, os saldos das contas envolvidas são automaticamente estornados e recalculados.',
+        tip: 'Garante integridade contábil estrita sem risco de descompasso de saldo.'
       }
     };
 
