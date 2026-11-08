@@ -85,42 +85,6 @@
         </div>
       </div>
 
-      <!-- Busca Global Integrada na Sidebar (Despoluindo o Header) -->
-      <div class="sidebar-search" id="global-search-container">
-        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <input
-          type="text"
-          id="global-search-input"
-          class="sidebar-search-input"
-          placeholder="Buscar no sistema... (Ctrl+K)"
-          autocomplete="off"
-          oninput="App.onGlobalSearchInput(event)"
-          onkeydown="App.onGlobalSearchKeyDown(event)"
-          onfocus="App.onGlobalSearchFocus()"
-        />
-        <button
-          type="button"
-          id="global-search-clear-btn"
-          class="global-search-clear"
-          onclick="App.clearGlobalSearch()"
-          style="display:none;"
-          title="Limpar texto"
-        >✕</button>
-        <button
-          type="button"
-          id="global-search-submit-btn"
-          class="global-search-submit-btn"
-          onclick="App.triggerGlobalSearch()"
-          style="display:none;"
-          title="Buscar"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        </button>
-
-        <!-- Dropdown Flutuante de Resultados da Busca Global -->
-        <div id="global-search-dropdown" class="global-search-dropdown" style="display:none;"></div>
-      </div>
-
       <ul class="nav-list">
         <li class="nav-item">
           <button type="button" class="active" data-nav-target="dashboard" onclick="App.navigate('dashboard')">
@@ -325,7 +289,7 @@
 
           <button type="button" class="btn btn-primary btn-sm" onclick="App.navigate('launches')" style="padding:0.4rem 0.75rem; font-weight:600;" title="Criar novo lançamento financeiro">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span class="desktop-only">+ Lançamento</span>
+            <span class="desktop-only">Lançamento</span>
           </button>
 
           <!-- Cluster Unificado de Usuários & Presença (Estilo Google Workspace) -->
