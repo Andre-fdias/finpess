@@ -23,16 +23,17 @@
       <button type="button" class="btn btn-secondary btn-sm" onclick="App.triggerReceiptUpload()" id="btn-scan-receipt" style="display:inline-flex; align-items:center; gap:0.4rem;" title="Escanear cupom fiscal ou recibo por foto">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
         <span>📸 Ler Cupom (Foto)</span>
-        <span class="info-popover-wrap" data-info-key="lan-ler-cupom" style="margin-left:2px;"></span>
       </button>
       <input type="file" id="input-receipt-file" accept="image/*" capture="environment" style="display:none;" onchange="App.handleReceiptFile(event)">
+      <span class="info-popover-wrap" data-info-key="lan-ler-cupom" style="margin-left:0; margin-right:4px;"></span>
 
       <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleFilterPanel()" id="btn-toggle-filters" title="Abrir ou fechar painel de filtros" style="display:inline-flex; align-items:center; gap:0.35rem;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
         <span>Filtros</span>
         <span id="icon-filter-toggle" style="font-size:9px; opacity:0.8;">▼</span>
-        <span class="info-popover-wrap" data-info-key="lan-filtros" style="margin-left:2px;"></span>
       </button>
+      <span class="info-popover-wrap" data-info-key="lan-filtros" data-align="right" style="margin-left:0; margin-right:4px;"></span>
+
       <button type="button" class="btn btn-primary btn-sm" onclick="App.toggleNewLaunchCard()" id="btn-toggle-new-launch">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         <span id="label-btn-new-launch">+ Novo Lançamento</span>
@@ -187,13 +188,13 @@
         <button type="button" class="btn btn-secondary btn-sm" onclick="App.exportCsv()" title="Exportar dados filtrados em CSV com acentuação corrigida para Excel" style="display:inline-flex; align-items:center; gap:0.35rem;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           <span>Exportar CSV</span>
-          <span class="info-popover-wrap" data-info-key="lan-exportar-csv" data-align="right" style="margin-left:2px;"></span>
         </button>
+        <span class="info-popover-wrap" data-info-key="lan-exportar-csv" data-align="right" style="margin-left:0; margin-right:4px;"></span>
         <button type="button" class="btn btn-secondary btn-sm" onclick="App.printLaunchesReport()" title="Gerar relatório financeiro para impressão ou PDF" style="display:inline-flex; align-items:center; gap:0.35rem;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
           <span>Relatório (PDF)</span>
-          <span class="info-popover-wrap" data-info-key="lan-relatorio-pdf" data-align="right" style="margin-left:2px;"></span>
         </button>
+        <span class="info-popover-wrap" data-info-key="lan-relatorio-pdf" data-align="right" style="margin-left:0; margin-right:4px;"></span>
       </div>
     </div>
 

@@ -956,7 +956,14 @@
         if (!wrap.querySelector('.info-popover-card')) {
           var card = document.createElement('div');
           card.className = 'info-popover-card';
-          if (wrap.getAttribute('data-align') === 'right') {
+          var isRight = wrap.getAttribute('data-align') === 'right';
+          if (!isRight && typeof window !== 'undefined') {
+            var rect = wrap.getBoundingClientRect();
+            if (rect.left + 310 > window.innerWidth - 16) {
+              isRight = true;
+            }
+          }
+          if (isRight) {
             card.classList.add('align-right');
           }
           card.setAttribute('role', 'tooltip');
@@ -978,6 +985,18 @@
 
           wrap.appendChild(card);
         }
+
+        wrap.onmouseenter = function () {
+          var c = this.querySelector('.info-popover-card');
+          if (c && typeof window !== 'undefined') {
+            var r = this.getBoundingClientRect();
+            if (r.left + 310 > window.innerWidth - 16 || this.getAttribute('data-align') === 'right') {
+              c.classList.add('align-right');
+            } else {
+              c.classList.remove('align-right');
+            }
+          }
+        };
       }
     }
 
