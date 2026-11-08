@@ -591,28 +591,144 @@
     gap: 0.85rem;
   }
 
-  .theme-select-container {
-    display: flex;
+  /* Seletor de Tema Segmentado Moderno em Pill (☀️ Claro, 🌙 Escuro, 🖥️ Auto) */
+  .theme-pill-group {
+    display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-  }
-
-  .theme-label {
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-  }
-
-  .theme-select-container select {
-    min-height: 32px;
-    height: 32px;
-    padding: 0.2rem 0.5rem;
-    font-size: 0.78rem;
-    border-radius: var(--radius-sm);
-    width: 105px;
-    background: var(--bg-surface);
+    background: var(--bg-app);
     border: 1px solid var(--border-color);
+    border-radius: 9999px;
+    padding: 3px;
+    gap: 3px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+  }
+
+  .theme-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+  }
+
+  .theme-pill-btn:hover {
     color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .theme-pill-btn.active {
+    background: #1e293b;
+    color: #3b82f6;
+    box-shadow: 0 0 0 1.5px rgba(59, 130, 246, 0.4), 0 2px 8px rgba(37, 99, 235, 0.35);
+  }
+
+  [data-theme="dark"] .theme-pill-group {
+    background: rgba(15, 23, 42, 0.75);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  [data-theme="dark"] .theme-pill-btn.active {
+    background: #1e293b;
+    color: #60a5fa;
+    box-shadow: 0 0 0 1.5px rgba(96, 165, 250, 0.5), 0 0 12px rgba(59, 130, 246, 0.4);
+  }
+
+  [data-theme="light"] .theme-pill-group {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+  }
+
+  [data-theme="light"] .theme-pill-btn.active {
+    background: #ffffff;
+    color: #2563eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 0 1.5px #2563eb;
+  }
+
+  /* Botão Circular no Topbar (Refresh / Ações) */
+  .btn-topbar-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .btn-topbar-circle:hover {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+  }
+
+  /* Botão Atualizar - 2 Estados de Cores */
+  /* Estado 1: Verde (Sincronizado / Atualizado) */
+  .btn-refresh-sync.status-synced {
+    color: #10b981;
+    border-color: rgba(16, 185, 129, 0.35);
+    background: rgba(16, 185, 129, 0.08);
+  }
+  .btn-refresh-sync.status-synced:hover {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.16);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+  }
+
+  /* Estado 2: Amarelo/Âmbar (Alterações detectadas por outro usuário / Atualização pendente) */
+  .btn-refresh-sync.status-pending {
+    color: #f59e0b;
+    border-color: rgba(245, 158, 11, 0.55);
+    background: rgba(245, 158, 11, 0.14);
+    animation: pulse-sync-pending 1.8s infinite;
+  }
+  .btn-refresh-sync.status-pending:hover {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.22);
+  }
+
+  /* Estado de Erro: Vermelho */
+  .btn-refresh-sync.status-error {
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.5);
+    background: rgba(239, 68, 68, 0.12);
+  }
+
+  @keyframes pulse-sync-pending {
+    0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6); }
+    70% { box-shadow: 0 0 0 9px rgba(245, 158, 11, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+  }
+
+  /* Giro do Ícone durante atualização */
+  .btn-refresh-sync.is-spinning .sync-icon-svg {
+    animation: spin-sync 0.85s linear infinite;
+  }
+  @keyframes spin-sync {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .btn-icon-only {
+    width: 36px;
+    height: 36px;
+    padding: 0 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .notification-bell-btn {
@@ -861,6 +977,33 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
     user-select: none;
     position: relative;
+    overflow: visible;
+  }
+
+  .presence-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .presence-avatar-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    text-transform: uppercase;
+  }
+
+  .user-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
   }
 
   .presence-online-dot {
@@ -2727,47 +2870,59 @@
     }
   }
 
-  /* Suporte Forçado para Dispositivos Móveis (Mesmo em Iframes / PWA Shell) */
-  html.is-mobile-device .app-shell,
-  body.is-mobile-device .app-shell {
-    padding-bottom: 64px !important;
+  /* Regra Estrita: Em telas >= 768px onde a sidebar está visível na lateral,
+     o botão Menu NUNCA deve ser exibido. Não podem aparecer os dois ao mesmo tempo! */
+  @media (min-width: 768px) {
+    .mobile-menu-toggle,
+    html.is-mobile-device .mobile-menu-toggle,
+    body.is-mobile-device .mobile-menu-toggle {
+      display: none !important;
+    }
   }
 
-  html.is-mobile-device .main-area,
-  body.is-mobile-device .main-area {
-    margin-left: 0 !important;
-    width: 100% !important;
-  }
+  /* Suporte Forçado para Dispositivos Móveis (Apenas em telas pequenas < 768px) */
+  @media (max-width: 767px) {
+    html.is-mobile-device .app-shell,
+    body.is-mobile-device .app-shell {
+      padding-bottom: 64px !important;
+    }
 
-  html.is-mobile-device .mobile-menu-toggle,
-  body.is-mobile-device .mobile-menu-toggle {
-    display: inline-flex !important;
-  }
+    html.is-mobile-device .main-area,
+    body.is-mobile-device .main-area {
+      margin-left: 0 !important;
+      width: 100% !important;
+    }
 
-  html.is-mobile-device .sidebar,
-  body.is-mobile-device .sidebar {
-    position: fixed !important;
-    left: -260px !important;
-    top: 0 !important;
-    bottom: 0 !important;
-    width: 250px !important;
-    transition: left 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.4) !important;
-    z-index: 100 !important;
-  }
+    html.is-mobile-device .mobile-menu-toggle,
+    body.is-mobile-device .mobile-menu-toggle {
+      display: inline-flex !important;
+    }
 
-  html.is-mobile-device .sidebar.mobile-open,
-  body.is-mobile-device .sidebar.mobile-open {
-    left: 0 !important;
-  }
+    html.is-mobile-device .sidebar,
+    body.is-mobile-device .sidebar {
+      position: fixed !important;
+      left: -260px !important;
+      top: 0 !important;
+      bottom: 0 !important;
+      width: 250px !important;
+      transition: left 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      box-shadow: 2px 0 16px rgba(0, 0, 0, 0.4) !important;
+      z-index: 100 !important;
+    }
 
-  html.is-mobile-device .kpi-grid,
-  body.is-mobile-device .kpi-grid,
-  html.is-mobile-device .grid-2col,
-  body.is-mobile-device .grid-2col,
-  html.is-mobile-device .form-grid,
-  body.is-mobile-device .form-grid {
-    grid-template-columns: minmax(0, 1fr) !important;
+    html.is-mobile-device .sidebar.mobile-open,
+    body.is-mobile-device .sidebar.mobile-open {
+      left: 0 !important;
+    }
+
+    html.is-mobile-device .kpi-grid,
+    body.is-mobile-device .kpi-grid,
+    html.is-mobile-device .grid-2col,
+    body.is-mobile-device .grid-2col,
+    html.is-mobile-device .form-grid,
+    body.is-mobile-device .form-grid {
+      grid-template-columns: minmax(0, 1fr) !important;
+    }
   }
 
   html.is-mobile-device .content-container,

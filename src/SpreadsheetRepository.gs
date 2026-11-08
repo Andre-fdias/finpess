@@ -669,6 +669,7 @@ var SpreadsheetRepository = (function () {
       nome: user.nome || user.email.split('@')[0],
       email: user.email,
       papel: user.papel || 'MEMBRO',
+      foto_url: user.foto_url || '',
       iniciais: getInitials(user.nome || user.email),
       cor: getDeterministicColor(user.email || user.id),
       modulo: modKey,

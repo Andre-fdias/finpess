@@ -168,30 +168,53 @@
     }
 
     function updateSyncIndicator(status) {
+      var btn = document.getElementById('btn-refresh-sync');
       var ind = document.getElementById('sync-status-indicator');
       var txt = document.getElementById('sync-status-text');
-      if (!ind || !txt) return;
 
-      if (status === 'syncing') {
-        ind.style.background = '#3b82f6';
-        ind.style.boxShadow = '0 0 8px #3b82f6';
-        txt.textContent = 'Atualizando...';
-      } else if (status === 'updated') {
-        ind.style.background = '#10b981';
-        ind.style.boxShadow = '0 0 8px #10b981';
-        txt.textContent = 'Atualizado agora';
-        setTimeout(function () {
-          if (txt && txt.textContent === 'Atualizado agora') txt.textContent = 'Sincronizado';
-          if (ind) ind.style.boxShadow = 'none';
-        }, 3000);
-      } else if (status === 'error') {
-        ind.style.background = '#ef4444';
-        ind.style.boxShadow = 'none';
-        txt.textContent = 'Reconectando...';
-      } else {
-        ind.style.background = '#10b981';
-        ind.style.boxShadow = 'none';
-        txt.textContent = 'Sincronizado';
+      if (btn) {
+        btn.classList.remove('status-synced', 'status-pending', 'status-error', 'is-spinning');
+        if (status === 'syncing') {
+          btn.classList.add('is-spinning');
+          btn.setAttribute('title', 'Sincronizando dados...');
+        } else if (status === 'pending' || status === 'dirty') {
+          btn.classList.add('status-pending');
+          btn.setAttribute('title', 'Alterações detectadas por outro usuário! Clique para sincronizar.');
+        } else if (status === 'error') {
+          btn.classList.add('status-error');
+          btn.setAttribute('title', 'Falha na conexão. Clique para tentar novamente.');
+        } else {
+          btn.classList.add('status-synced');
+          btn.setAttribute('title', 'Sistema atualizado. Clique para sincronizar agora.');
+        }
+      }
+
+      if (ind) {
+        if (status === 'syncing') {
+          ind.style.background = '#3b82f6';
+          ind.style.boxShadow = '0 0 8px #3b82f6';
+        } else if (status === 'pending' || status === 'dirty') {
+          ind.style.background = '#f59e0b';
+          ind.style.boxShadow = '0 0 8px #f59e0b';
+        } else if (status === 'error') {
+          ind.style.background = '#ef4444';
+          ind.style.boxShadow = 'none';
+        } else {
+          ind.style.background = '#10b981';
+          ind.style.boxShadow = 'none';
+        }
+      }
+
+      if (txt) {
+        if (status === 'syncing') {
+          txt.textContent = 'Atualizando...';
+        } else if (status === 'pending' || status === 'dirty') {
+          txt.textContent = 'Atualizar';
+        } else if (status === 'error') {
+          txt.textContent = 'Reconectando...';
+        } else {
+          txt.textContent = 'Sincronizado';
+        }
       }
     }
 
@@ -357,10 +380,17 @@
         var safeEmail = UIHelpers ? UIHelpers.escapeHtml(u.email || '') : (u.email || '');
         var safeModulo = UIHelpers ? UIHelpers.escapeHtml(u.modulo_label || 'Editando') : (u.modulo_label || 'Editando');
         var safeIniciais = UIHelpers ? UIHelpers.escapeHtml(u.iniciais || '??') : (u.iniciais || '??');
+        var hasPhoto = Boolean(u.foto_url && String(u.foto_url).trim().length > 4);
+        var safePhotoUrl = hasPhoto ? (UIHelpers ? UIHelpers.escapeHtml(u.foto_url) : u.foto_url) : '';
 
         html += '<div class="presence-avatar-wrapper" style="z-index:' + (displayed.length - i) + ';" title="' + safeNome + ' - ' + safeModulo + '">';
         html += '  <div class="presence-avatar-pill" style="background:' + (u.cor || '#2563eb') + ';">';
-        html += '    <span>' + safeIniciais + '</span>';
+        if (hasPhoto) {
+          html += '    <img src="' + safePhotoUrl + '" alt="' + safeNome + '" class="presence-avatar-img" onerror="this.style.display=\'none\'; if(this.nextElementSibling) this.nextElementSibling.style.display=\'flex\';" />';
+          html += '    <span class="presence-avatar-fallback" style="display:none;">' + safeIniciais + '</span>';
+        } else {
+          html += '    <span class="presence-avatar-fallback">' + safeIniciais + '</span>';
+        }
         html += '    <span class="presence-online-dot"></span>';
         html += '  </div>';
         html += '  <div class="presence-tooltip">';
@@ -406,6 +436,8 @@
           if (res.version) {
             if (state.lastSyncVersion && res.version > state.lastSyncVersion) {
               state.lastSyncVersion = res.version;
+              // Alterações detectadas por outro usuário: ativa o estado amarelo de alerta
+              updateSyncIndicator('pending');
               refreshCurrentViewQuiet(onUpdated);
             } else {
               state.lastSyncVersion = res.version;
@@ -461,6 +493,20 @@
       if (topSelect && topSelect.value !== normalized) topSelect.value = normalized;
       var prefSelect = document.getElementById('pref-tema');
       if (prefSelect && prefSelect.value !== normalized) prefSelect.value = normalized;
+
+      // Atualiza botões do Pill de Tema moderno no Header
+      var themeBtns = document.querySelectorAll('.theme-pill-btn');
+      for (var i = 0; i < themeBtns.length; i++) {
+        var btn = themeBtns[i];
+        var val = btn.getAttribute('data-theme-val');
+        if (val === normalized) {
+          btn.classList.add('active');
+          btn.setAttribute('aria-checked', 'true');
+        } else {
+          btn.classList.remove('active');
+          btn.setAttribute('aria-checked', 'false');
+        }
+      }
     }
 
     function applyAndSaveTheme(themeValue) {
@@ -860,12 +906,25 @@
       try {
         var ua = navigator.userAgent || '';
         var isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-        var isSmallScreen = window.screen && (Math.min(window.screen.width, window.screen.height) <= 768);
         var isSmallWindow = (window.innerWidth <= 768 && window.innerWidth > 0);
-        if (isMobileUA || isSmallScreen || isSmallWindow) {
+        if (isSmallWindow || (isMobileUA && window.innerWidth < 768)) {
           document.documentElement.classList.add('is-mobile-device');
           document.body.classList.add('is-mobile-device');
+        } else {
+          document.documentElement.classList.remove('is-mobile-device');
+          document.body.classList.remove('is-mobile-device');
         }
+        window.addEventListener('resize', function () {
+          if (window.innerWidth >= 768) {
+            document.documentElement.classList.remove('is-mobile-device');
+            document.body.classList.remove('is-mobile-device');
+            var sb = document.querySelector('.sidebar');
+            if (sb) sb.classList.remove('mobile-open');
+          } else {
+            document.documentElement.classList.add('is-mobile-device');
+            document.body.classList.add('is-mobile-device');
+          }
+        });
       } catch (eMobile) {}
 
       try {
@@ -876,6 +935,14 @@
       try {
         if (localStorage.getItem('fin_privacy_masked') === 'true') {
           document.body.classList.add('privacy-masked');
+          var btnPriv = document.getElementById('btn-privacy-toggle');
+          if (btnPriv) {
+            btnPriv.setAttribute('title', 'Exibir valores financeiros (Modo Privacidade ativo)');
+            var eyeSvg = btnPriv.querySelector('svg');
+            if (eyeSvg) {
+              eyeSvg.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+            }
+          }
           var pText = document.getElementById('privacy-toggle-text');
           if (pText) pText.textContent = 'Exibir';
         }
@@ -953,6 +1020,16 @@
         var userBadge = document.getElementById('topbar-user-info');
         if (userBadge && state.user) {
           userBadge.textContent = state.user.nome + ' (' + state.user.papel + ')';
+        }
+
+        var userAvatar = document.querySelector('.user-avatar-circle');
+        if (userAvatar && state.user) {
+          var userInitials = (state.user.nome || state.user.email || 'US').substring(0, 2).toUpperCase();
+          if (state.user.foto_url && String(state.user.foto_url).trim().length > 4) {
+            userAvatar.innerHTML = '<img src="' + (UIHelpers ? UIHelpers.escapeHtml(state.user.foto_url) : state.user.foto_url) + '" class="user-avatar-img" alt="' + (UIHelpers ? UIHelpers.escapeHtml(state.user.nome || '') : '') + '" onerror="this.style.display=\'none\'; if(this.nextElementSibling) this.nextElementSibling.style.display=\'flex\';" /><span style="display:none;">' + userInitials + '</span>';
+          } else {
+            userAvatar.textContent = userInitials;
+          }
         }
 
         populateSelects();
@@ -1095,6 +1172,20 @@
       try {
         localStorage.setItem('fin_privacy_masked', isMasked ? 'true' : 'false');
       } catch (e) {}
+
+      var btnPriv = document.getElementById('btn-privacy-toggle');
+      if (btnPriv) {
+        btnPriv.setAttribute('title', isMasked ? 'Exibir valores financeiros (Modo Privacidade ativo)' : 'Ocultar valores financeiros');
+        var eyeSvg = btnPriv.querySelector('svg');
+        if (eyeSvg) {
+          if (isMasked) {
+            eyeSvg.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+          } else {
+            eyeSvg.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+          }
+        }
+      }
+
       var pText = document.getElementById('privacy-toggle-text');
       if (pText) pText.textContent = isMasked ? 'Exibir' : 'Ocultar';
       showToast(isMasked ? 'Modo Privacidade ativado: valores monetários ocultos.' : 'Valores monetários visíveis.', 'info');

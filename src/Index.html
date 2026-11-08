@@ -282,14 +282,45 @@
             </div>
           </div>
 
-          <button type="button" id="btn-sync-status" class="btn btn-secondary btn-sm" onclick="App.triggerManualSync()" title="Sincronização multiusuário ativa (Auto-sync a cada 10 min e tempo real)" style="padding:0.4rem 0.65rem; display:inline-flex; align-items:center; gap:0.4rem; font-size:0.8rem;">
-            <span id="sync-status-indicator" style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block; transition:all 0.3s ease;"></span>
-            <span id="sync-status-text" class="desktop-only" style="color:var(--text-secondary); font-size:0.78rem;">Sincronizado</span>
+          <!-- Botão Atualizar (Refresh Dinâmico 2 Cores) -->
+          <button type="button" id="btn-refresh-sync" class="btn-topbar-circle btn-refresh-sync status-synced" onclick="App.triggerManualSync()" title="Sistema atualizado. Clique para sincronizar agora." aria-label="Sincronizar sistema">
+            <svg class="sync-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+            </svg>
           </button>
 
-          <button type="button" id="btn-privacy-toggle" class="btn btn-secondary btn-sm" onclick="App.togglePrivacyMode()" title="Ocultar ou exibir valores financeiros" style="padding:0.4rem 0.65rem;">
-            <svg id="privacy-icon-eye" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-            <span id="privacy-toggle-text" style="font-size:0.8rem;">Ocultar</span>
+          <!-- Seletor de Tema em Pill Segmentado (☀️ Claro, 🌙 Escuro, 🖥️ Auto) -->
+          <div class="theme-pill-group" role="radiogroup" aria-label="Tema visual" title="Alternar tema: Claro, Escuro ou Automático">
+            <button type="button" class="theme-pill-btn" data-theme-val="light" onclick="App.applyAndSaveTheme('light')" role="radio" aria-checked="false" title="Tema Claro (☀️)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            </button>
+            <button type="button" class="theme-pill-btn" data-theme-val="dark" onclick="App.applyAndSaveTheme('dark')" role="radio" aria-checked="false" title="Tema Escuro (🌙)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            </button>
+            <button type="button" class="theme-pill-btn" data-theme-val="auto" onclick="App.applyAndSaveTheme('auto')" role="radio" aria-checked="false" title="Tema do Sistema (🖥️ Auto)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Botão Modo Privacidade (Apenas Ícone com Tooltip ao passar o mouse) -->
+          <button type="button" id="btn-privacy-toggle" class="btn btn-secondary btn-sm btn-icon-only" onclick="App.togglePrivacyMode()" title="Ocultar valores financeiros" aria-label="Ocultar ou exibir valores financeiros">
+            <svg id="privacy-icon-eye" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
           </button>
 
           <button type="button" class="btn btn-primary btn-sm" onclick="App.navigate('launches')" style="padding:0.4rem 0.75rem; font-weight:600;" title="Criar novo lançamento financeiro">
