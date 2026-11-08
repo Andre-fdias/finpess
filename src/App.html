@@ -2408,8 +2408,8 @@
             '</div>';
 
           var tipoTag = isEntrada
-            ? '<span class="badge" style="background:rgba(16,185,129,0.12); color:var(--success); font-size:0.7rem; margin-left:4px;">Receita</span>'
-            : '<span class="badge" style="background:rgba(239,68,68,0.1); color:var(--danger); font-size:0.7rem; margin-left:4px;">Despesa</span>';
+            ? '<span class="rec-tag-tipo" style="background:rgba(16,185,129,0.12); color:var(--success);">Receita</span>'
+            : '<span class="rec-tag-tipo" style="background:rgba(239,68,68,0.1); color:var(--danger);">Despesa</span>';
 
           var parcelasInfo = '';
           if (r.data_termino) {
@@ -2423,21 +2423,39 @@
 
           return (
             '<tr class="' + rowClass + '">' +
-            '<td><strong>' + UIHelpers.escapeHtml(r.nome) + '</strong>' + tipoTag + '<br><small style="color:var(--text-secondary);">' + UIHelpers.escapeHtml(r.natureza) + ' • ' + UIHelpers.escapeHtml(r.recorrencia) + parcelasInfo + '</small></td>' +
-            '<td><span class="badge badge-estimado" style="font-weight:600;">Todo dia ' + r.dia_vencimento + '</span></td>' +
+            '<td>' +
+              '<div style="display:flex; align-items:center; gap:6px; flex-wrap:nowrap;">' +
+                '<strong style="color:var(--text-primary); font-size:0.88rem; white-space:nowrap;">' + UIHelpers.escapeHtml(r.nome) + '</strong>' +
+                tipoTag +
+              '</div>' +
+              '<small style="color:var(--text-secondary); font-size:0.73rem; display:block; margin-top:3px;">' + UIHelpers.escapeHtml(r.natureza) + ' • ' + UIHelpers.escapeHtml(r.recorrencia) + parcelasInfo + '</small>' +
+            '</td>' +
+            '<td class="col-center"><span class="badge badge-estimado" style="font-weight:600;">Todo dia ' + r.dia_vencimento + '</span></td>' +
             '<td>' + UIHelpers.escapeHtml(r.categoria_nome) + '</td>' +
-            '<td>' + bankBadge + '</td>' +
+            '<td class="col-center">' + bankBadge + '</td>' +
             '<td class="col-money">' + moneyPill + '</td>' +
-            '<td>' + statusBadge + '</td>' +
-            '<td style="text-align:center;">' + dropdownHtml + '</td>' +
+            '<td class="col-center">' + statusBadge + '</td>' +
+            '<td class="col-center">' + dropdownHtml + '</td>' +
             '</tr>'
           );
         }).join('');
 
+        var tableHeader =
+          '<thead><tr>' +
+            '<th>Conta Recorrente</th>' +
+            '<th class="col-center">Vencimento <span class="info-popover-wrap" data-info-key="rec-col-vencimento"></span></th>' +
+            '<th>Categoria</th>' +
+            '<th class="col-center">Conta Padrão <span class="info-popover-wrap" data-info-key="rec-col-conta"></span></th>' +
+            '<th class="col-money">Valor Previsto</th>' +
+            '<th class="col-center">Situação no Mês <span class="info-popover-wrap" data-info-key="rec-col-situacao"></span></th>' +
+            '<th class="col-center">Ações</th>' +
+          '</tr></thead>';
+
         document.getElementById('recurring-table-container').innerHTML = rows
-          ? '<table class="data-table"><thead><tr><th>Conta Recorrente</th><th>Vencimento</th><th>Categoria</th><th>Conta Padrão</th><th class="col-money">Valor Previsto</th><th>Situação no Mês</th><th style="text-align:center;">Ações</th></tr></thead><tbody>' + rows + '</tbody></table>'
+          ? '<table class="data-table">' + tableHeader + '<tbody>' + rows + '</tbody></table>'
           : '<p style="color:var(--text-muted); padding:1rem 0;">Nenhuma conta recorrente cadastrada no grupo financeiro.</p>';
 
+        UIHelpers.initInfoPopovers(document.getElementById('sec-recurring'));
         loadSubscriptionsInsights();
       });
     }

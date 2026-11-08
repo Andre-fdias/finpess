@@ -8,19 +8,28 @@
         </svg>
       </div>
       <div>
-        <h1 id="title-recurring" class="card-title" style="font-size:1.3rem; margin:0; font-weight:700;">Contas Mensais Recorrentes</h1>
-        <small style="color:var(--text-secondary); font-size:0.82rem;">Gerencie receitas e despesas periódicas (Água, Luz, Assinaturas, Salários) com automação de previsões.</small>
+        <h1 id="title-recurring" class="card-title" style="font-size:1.3rem; margin:0; font-weight:700; display:inline-flex; align-items:center; gap:0.4rem;">
+          <span>Contas Mensais Recorrentes</span>
+          <span class="info-popover-wrap" data-info-key="rec-modulo"></span>
+        </h1>
+        <small style="color:var(--text-secondary); font-size:0.82rem; display:block; margin-top:2px;">Gerencie receitas e despesas periódicas (Água, Luz, Assinaturas, Salários) com automação de previsões.</small>
       </div>
     </div>
     <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
       <div style="display:flex; align-items:center; gap:0.35rem;">
-        <span style="font-size:0.8rem; color:var(--text-secondary); font-weight:500;">Competência:</span>
+        <span style="font-size:0.8rem; color:var(--text-secondary); font-weight:500; display:inline-flex; align-items:center; gap:0.25rem;">
+          <span>Competência:</span>
+          <span class="info-popover-wrap" data-info-key="rec-competencia"></span>
+        </span>
         <input type="month" id="rec-competencia-input" class="form-control" style="width:160px;" onchange="App.loadRecurringAccounts()" />
       </div>
-      <button type="button" class="btn btn-primary btn-sm" id="btn-toggle-new-recurring" onclick="App.toggleNewRecurringCard()" style="display:flex; align-items:center; gap:0.4rem;">
-        <span id="icon-toggle-new-recurring" style="font-weight:bold; font-size:1rem;">+</span>
-        <span>Nova Conta Recorrente</span>
-      </button>
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-primary btn-sm" id="btn-toggle-new-recurring" onclick="App.toggleNewRecurringCard()" style="display:flex; align-items:center; gap:0.4rem;">
+          <span id="icon-toggle-new-recurring" style="font-weight:bold; font-size:1rem;">+</span>
+          <span>Nova Conta Recorrente</span>
+        </button>
+        <span class="info-popover-wrap" data-info-key="rec-nova-regra" data-align="right"></span>
+      </div>
     </div>
   </div>
 
@@ -31,8 +40,11 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
       </div>
       <div style="font-size:0.84rem; color:var(--text-primary); line-height:1.4;">
-        <strong>Fluxo Integrado sem retrabalho:</strong>
-        <span style="color:var(--text-secondary);"> As contas recorrentes ativas geram previsões automáticas na tela de <strong>Lançamentos</strong> como <em>Previstos</em>. Você pode confirmar o pagamento diretamente na tabela de lançamentos alterando a situação com 1 clique!</span>
+        <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+          <strong>Fluxo Integrado sem retrabalho:</strong>
+          <span class="info-popover-wrap" data-info-key="rec-banner-fluxo"></span>
+        </div>
+        <span style="color:var(--text-secondary); display:block; margin-top:2px;"> As contas recorrentes ativas geram previsões automáticas na tela de <strong>Lançamentos</strong> como <em>Previstos</em>. Você pode confirmar o pagamento diretamente na tabela de lançamentos alterando a situação com 1 clique!</span>
       </div>
     </div>
     <button type="button" class="btn btn-secondary btn-sm" onclick="App.generateRecurringForecasts()" title="Forçar reprocessamento de previsões para o mês selecionado">
@@ -74,7 +86,7 @@
           <input type="number" id="rec-dia" class="form-control" min="1" max="31" value="10" required />
         </div>
         <div class="form-group">
-          <label for="rec-natureza">Natureza *</label>
+          <label for="rec-natureza">Natureza * <span class="info-popover-wrap" data-info-key="rec-form-natureza"></span></label>
           <select id="rec-natureza" class="form-control" required>
             <option value="FIXA">Fixa (Valor idêntico todo mês)</option>
             <option value="VARIAVEL">Variável (Valor oscila por consumo)</option>
@@ -110,7 +122,7 @@
           <input type="date" id="rec-inicio" class="form-control" onchange="App.onRecurringInstallmentsInput('new')" required />
         </div>
         <div class="form-group">
-          <label for="rec-parcelas">Qtd. de Parcelas (Opcional)</label>
+          <label for="rec-parcelas">Qtd. de Parcelas (Opcional) <span class="info-popover-wrap" data-info-key="rec-form-parcelas"></span></label>
           <input type="number" id="rec-parcelas" class="form-control" min="1" max="360" placeholder="Ex: 10, 12..." oninput="App.onRecurringInstallmentsInput('new')" onchange="App.onRecurringInstallmentsInput('new')" />
           <small style="font-size:0.7rem; color:var(--text-secondary); display:block; margin-top:2px;">Calcula a data de término automaticamente.</small>
         </div>
@@ -141,7 +153,10 @@
   <div class="filter-summary-cards" id="rec-kpi-container" style="margin-bottom:1.15rem;">
     <div class="filter-summary-card">
       <div style="display:flex; justify-content:space-between; align-items:center;">
-        <span class="summary-label">Regras Ativas</span>
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.25rem;">
+          <span>Regras Ativas</span>
+          <span class="info-popover-wrap" data-info-key="rec-kpi-ativas"></span>
+        </span>
         <span class="badge badge-confirmado" style="font-size:0.65rem; padding:1px 5px;">Ativas</span>
       </div>
       <strong id="rec-kpi-total-regras" class="summary-value" style="font-size:1.25rem;">0</strong>
@@ -149,7 +164,10 @@
     </div>
     <div class="filter-summary-card">
       <div style="display:flex; justify-content:space-between; align-items:center;">
-        <span class="summary-label">Despesas Previstas</span>
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.25rem;">
+          <span>Despesas Previstas</span>
+          <span class="info-popover-wrap" data-info-key="rec-kpi-despesas"></span>
+        </span>
         <span class="badge badge-cancelado" style="font-size:0.65rem; padding:1px 5px;">Saídas</span>
       </div>
       <strong id="rec-kpi-despesas" class="summary-value summary-val-saida" style="font-size:1.25rem;">-R$ 0,00</strong>
@@ -157,7 +175,10 @@
     </div>
     <div class="filter-summary-card">
       <div style="display:flex; justify-content:space-between; align-items:center;">
-        <span class="summary-label">Receitas Previstas</span>
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.25rem;">
+          <span>Receitas Previstas</span>
+          <span class="info-popover-wrap" data-info-key="rec-kpi-receitas"></span>
+        </span>
         <span class="badge badge-confirmado" style="font-size:0.65rem; padding:1px 5px;">Entradas</span>
       </div>
       <strong id="rec-kpi-receitas" class="summary-value summary-val-entrada" style="font-size:1.25rem;">+R$ 0,00</strong>
@@ -165,7 +186,10 @@
     </div>
     <div class="filter-summary-card" style="border:1px dashed #7c3aed; background:rgba(124,58,237,0.035);">
       <div style="display:flex; justify-content:space-between; align-items:center;">
-        <span class="summary-label" style="color:#7c3aed; font-weight:700;">Situação no Mês</span>
+        <span class="summary-label" style="color:#7c3aed; font-weight:700; display:inline-flex; align-items:center; gap:0.25rem;">
+          <span>Situação no Mês</span>
+          <span class="info-popover-wrap" data-info-key="rec-kpi-status-mes" data-align="right"></span>
+        </span>
         <span class="badge badge-previsto" style="font-size:0.65rem; padding:1px 5px;">Competência</span>
       </div>
       <strong id="rec-kpi-status-mes" class="summary-value" style="font-size:1.15rem; color:#7c3aed;">0 pagas / 0 prev.</strong>
@@ -181,8 +205,11 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
         </div>
         <div>
-          <h2 class="card-title" style="margin:0; font-size:1.05rem;">Impacto Anual de Assinaturas & Serviços Recorrentes</h2>
-          <small style="color:var(--text-secondary); font-size:0.78rem;">Visualize o custo anualizado invisível das suas mensalidades (Streaming, Software, Clubes, Internet, Seguros).</small>
+          <h2 class="card-title" style="margin:0; font-size:1.05rem; display:inline-flex; align-items:center; gap:0.4rem;">
+            <span>Impacto Anual de Assinaturas & Serviços Recorrentes</span>
+            <span class="info-popover-wrap" data-info-key="rec-subs-anual"></span>
+          </h2>
+          <small style="color:var(--text-secondary); font-size:0.78rem; display:block; margin-top:2px;">Visualize o custo anualizado invisível das suas mensalidades (Streaming, Software, Clubes, Internet, Seguros).</small>
         </div>
       </div>
       <span class="badge badge-confirmado">Visão Anualizada</span>
@@ -213,8 +240,11 @@
   <div class="card">
     <div class="card-header" style="margin-bottom:0.75rem;">
       <div>
-        <h2 class="card-title" style="font-size:1.08rem; margin:0;">Regras Recorrentes Cadastradas</h2>
-        <small style="color:var(--text-secondary); font-size:0.78rem;">Acompanhe o status de cada despesa/receita no mês de competência selecionado.</small>
+        <h2 class="card-title" style="font-size:1.08rem; margin:0; display:inline-flex; align-items:center; gap:0.4rem;">
+          <span>Regras Recorrentes Cadastradas</span>
+          <span class="info-popover-wrap" data-info-key="rec-tabela-regras"></span>
+        </h2>
+        <small style="color:var(--text-secondary); font-size:0.78rem; display:block; margin-top:2px;">Acompanhe o status de cada despesa/receita no mês de competência selecionado.</small>
       </div>
     </div>
     <div id="recurring-table-container" class="table-responsive"></div>
@@ -249,7 +279,7 @@
             <input type="number" id="rec-edit-dia" class="form-control" min="1" max="31" required />
           </div>
           <div class="form-group">
-            <label for="rec-edit-natureza">Natureza *</label>
+            <label for="rec-edit-natureza">Natureza * <span class="info-popover-wrap" data-info-key="rec-form-natureza"></span></label>
             <select id="rec-edit-natureza" class="form-control" required>
               <option value="FIXA">Fixa</option>
               <option value="VARIAVEL">Variável</option>
@@ -285,7 +315,7 @@
             <input type="date" id="rec-edit-inicio" class="form-control" onchange="App.onRecurringInstallmentsInput('edit')" />
           </div>
           <div class="form-group">
-            <label for="rec-edit-parcelas">Qtd. de Parcelas (Opcional)</label>
+            <label for="rec-edit-parcelas">Qtd. de Parcelas (Opcional) <span class="info-popover-wrap" data-info-key="rec-form-parcelas"></span></label>
             <input type="number" id="rec-edit-parcelas" class="form-control" min="1" max="360" placeholder="Ex: 10, 12..." oninput="App.onRecurringInstallmentsInput('edit')" onchange="App.onRecurringInstallmentsInput('edit')" />
             <small style="font-size:0.7rem; color:var(--text-secondary); display:block; margin-top:2px;">Calcula a data de término automaticamente.</small>
           </div>

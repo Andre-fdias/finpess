@@ -2730,6 +2730,76 @@
     text-decoration: line-through;
   }
 
+  /* ==========================================================================
+     TABELA DE CONTAS RECORRENTES - PADRONIZAÇÃO VISUAL ZEN
+     ========================================================================== */
+  #recurring-table-container .data-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+  }
+
+  #recurring-table-container .data-table th,
+  #recurring-table-container .data-table td {
+    vertical-align: middle !important;
+    padding: 0.65rem 0.85rem;
+  }
+
+  #recurring-table-container .data-table th.col-center,
+  #recurring-table-container .data-table td.col-center {
+    text-align: center !important;
+  }
+
+  #recurring-table-container .badge,
+  #recurring-table-container .bank-pill-badge,
+  #recurring-table-container .money-pill-entrada,
+  #recurring-table-container .money-pill-saida {
+    height: 24px;
+    min-height: 24px;
+    max-height: 24px;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-size: 0.73rem;
+    padding: 0 8px;
+    border-radius: 6px;
+  }
+
+  #recurring-table-container .bank-pill-badge {
+    max-width: 130px;
+    font-weight: 600;
+  }
+
+  #recurring-table-container .bank-pill-badge span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #recurring-table-container .badge-nao-gerada {
+    background: rgba(100, 116, 139, 0.12);
+    color: #64748b;
+    border: 1px solid rgba(100, 116, 139, 0.22);
+    font-weight: 600;
+  }
+
+  #recurring-table-container .rec-tag-tipo {
+    height: 18px;
+    min-height: 18px;
+    max-height: 18px;
+    padding: 0 6px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
   /* Menu de Ações Dropdown (3 Pontinhos) */
   .table-actions-dropdown {
     position: relative;
