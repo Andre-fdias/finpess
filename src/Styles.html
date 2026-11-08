@@ -1698,6 +1698,87 @@
     margin-top: 0.3rem;
   }
 
+  /* Célula de Conta Bancária em 2 Linhas Estritamente Alinhadas */
+  .bank-table-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.15rem 0;
+    min-width: 0;
+  }
+
+  .bank-badge-wrapper {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-width: 82px;
+  }
+
+  .bank-badge-wrapper .bank-pill-badge {
+    min-width: 82px;
+    justify-content: center;
+    padding: 0.22rem 0.55rem;
+    font-size: 0.72rem;
+  }
+
+  .bank-info-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .bank-row-primary {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    line-height: 1.25;
+  }
+
+  .bank-account-title {
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .bank-row-secondary {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    font-size: 0.74rem;
+    color: var(--text-secondary);
+    line-height: 1.2;
+  }
+
+  .bank-sub-sep {
+    color: var(--text-muted);
+    opacity: 0.5;
+    font-size: 0.7rem;
+    padding: 0 1px;
+  }
+
+  .bank-titular-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    background: rgba(99, 102, 241, 0.12);
+    color: #818cf8;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    font-weight: 600;
+  }
+
+  [data-theme="light"] .bank-titular-pill {
+    background: rgba(99, 102, 241, 0.09);
+    color: #4f46e5;
+  }
+
   /* ==========================================================================
      BENTO GRID: BARRAS DE LIMITE DE ORÇAMENTO (ESTILO ZEN)
      ========================================================================== */

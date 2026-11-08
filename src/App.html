@@ -2778,19 +2778,37 @@
           var saldoConfHtml = '<strong style="color:' + (sConfirmado >= 0 ? 'var(--success)' : 'var(--danger)') + ';">' + UIHelpers.formatBrl(sConfirmado) + '</strong>';
           var saldoProjHtml = '<span style="font-weight:600; color:' + (sProjetado >= 0 ? 'var(--text-primary)' : 'var(--danger)') + ';">' + UIHelpers.formatBrl(sProjetado) + '</span>';
 
-          var titularBadge = b.proprietario_nome
-            ? '<div style="margin-top:3px;"><span class="badge" style="background:rgba(99,102,241,0.12); color:#6366f1; font-size:0.68rem; padding:1px 6px;">👤 Titular: ' + UIHelpers.escapeHtml(b.proprietario_nome) + '</span></div>'
-            : '';
+          var cleanObs = (b.observacoes || '')
+            .replace(/\|\s*Bandeira:\s*[^\n;|]+/i, '')
+            .replace(/Bandeira:\s*[^\n;|]+/i, '')
+            .replace(/^[\s•\-|]+|[\s•\-|]+$/g, '')
+            .trim();
+
+          var subParts = [];
+          if (b.instituicao) {
+            subParts.push('<span>' + UIHelpers.escapeHtml(b.instituicao) + '</span>');
+          }
+          if (cleanObs) {
+            subParts.push('<span>' + UIHelpers.escapeHtml(cleanObs) + '</span>');
+          }
+          if (b.proprietario_nome) {
+            subParts.push('<span class="bank-titular-pill" title="Titular da Conta">👤 ' + UIHelpers.escapeHtml(b.proprietario_nome) + '</span>');
+          }
+          var subTextHtml = subParts.length > 0 ? subParts.join('<span class="bank-sub-sep">&bull;</span>') : '<span style="color:var(--text-muted);">-</span>';
 
           return (
             '<tr style="border-left: 3.5px solid ' + rowBorderColor + ';">' +
               '<td>' +
-                '<div style="display:flex;align-items:center;gap:10px;">' +
-                  bankBadge + brandBadge +
-                  '<div>' +
-                    '<div style="font-weight:600; color:var(--text-primary);">' + UIHelpers.escapeHtml(b.nome_identificacao) + '</div>' +
-                    '<small style="color:var(--text-secondary);">' + UIHelpers.escapeHtml(b.instituicao) + (b.observacoes ? ' &bull; ' + UIHelpers.escapeHtml(b.observacoes) : '') + '</small>' +
-                    titularBadge +
+                '<div class="bank-table-cell">' +
+                  '<div class="bank-badge-wrapper">' + bankBadge + '</div>' +
+                  '<div class="bank-info-wrapper">' +
+                    '<div class="bank-row-primary">' +
+                      '<strong class="bank-account-title">' + UIHelpers.escapeHtml(b.nome_identificacao) + '</strong>' +
+                      brandBadge +
+                    '</div>' +
+                    '<div class="bank-row-secondary">' +
+                      subTextHtml +
+                    '</div>' +
                   '</div>' +
                 '</div>' +
               '</td>' +
