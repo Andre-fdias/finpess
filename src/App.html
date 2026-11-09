@@ -3593,22 +3593,16 @@
                   '<small style="opacity:0.85; font-size:0.7rem;">Fecha dia ' + c.dia_fechamento + ' • Vence dia ' + c.dia_vencimento + '</small>' +
                 '</div>' +
                 '<div style="text-align:right;">' +
-                  '<small style="opacity:0.75; font-size:0.68rem; display:inline-flex; align-items:center; gap:3px;">' +
-                    '<span>FATURA ATUAL</span>' +
-                    '<span class="info-popover-wrap" data-info-key="crd-card-fatura-atual" data-align="right"></span>' +
-                  '</small>' +
+                  '<small style="opacity:0.75; font-size:0.68rem; display:block;">FATURA ATUAL</small>' +
                   '<strong style="font-size:0.95rem; letter-spacing:0.3px; display:block;">' + UIHelpers.formatBrl(c.fatura_atual_centavos) + '</strong>' +
                 '</div>' +
               '</div>' +
             '</div>' +
 
             '<div class="credit-card-body">' +
-              '<div class="best-day-pill" style="display:flex; align-items:center; justify-content:space-between;">' +
-                '<div style="display:inline-flex; align-items:center; gap:4px;">' +
-                  '<span>⭐</span>' +
-                  '<span><strong>Melhor dia: dia ' + c.melhor_dia_compra + '</strong> (até ' + c.prazo_estimado_dias + ' dias de prazo)</span>' +
-                '</div>' +
-                '<span class="info-popover-wrap" data-info-key="crd-melhor-dia" data-align="right"></span>' +
+              '<div class="best-day-pill">' +
+                '<span>⭐</span>' +
+                '<span><strong>Melhor dia: dia ' + c.melhor_dia_compra + '</strong> (até ' + c.prazo_estimado_dias + ' dias de prazo)</span>' +
               '</div>' +
 
               '<div class="limit-bar-wrapper">' +

@@ -1160,7 +1160,7 @@
       if (!item) {
         return (
           '<span class="info-popover-wrap" data-info-key="' + keyEsc + '"' + alignAttr + '>' +
-            '<button type="button" class="info-help-btn" onclick="UIHelpers.toggleInfoPopover(event, this)" aria-label="Informações" title="Clique para detalhes">' +
+            '<button type="button" class="info-help-btn" onclick="UIHelpers.toggleInfoPopover(event, this)" aria-label="Informações">' +
               '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">' +
                 '<circle cx="12" cy="12" r="10"></circle>' +
                 '<line x1="12" y1="16" x2="12" y2="12"></line>' +
@@ -1176,7 +1176,7 @@
 
       return (
         '<span class="info-popover-wrap" data-info-key="' + keyEsc + '"' + alignAttr + '>' +
-          '<button type="button" class="info-help-btn" onclick="UIHelpers.toggleInfoPopover(event, this)" aria-label="Informações sobre ' + escapeHtml(item.title) + '" title="Clique para ver explicação">' +
+          '<button type="button" class="info-help-btn" onclick="UIHelpers.toggleInfoPopover(event, this)" aria-label="Informações sobre ' + escapeHtml(item.title) + '">' +
             '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">' +
               '<circle cx="12" cy="12" r="10"></circle>' +
               '<line x1="12" y1="16" x2="12" y2="12"></line>' +
@@ -1219,7 +1219,6 @@
           btn.type = 'button';
           btn.className = 'info-help-btn';
           btn.setAttribute('aria-label', 'Informações sobre ' + item.title);
-          btn.title = 'Clique para ver explicação';
           btn.onclick = function (e) { toggleInfoPopover(e, this); };
           btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
           wrap.appendChild(btn);
@@ -1258,19 +1257,6 @@
 
           wrap.appendChild(card);
         }
-
-        wrap.onmouseenter = function () {
-          var c = this.querySelector('.info-popover-card');
-          if (c && typeof window !== 'undefined') {
-            var r = this.getBoundingClientRect();
-            var docWidth = Math.min(window.innerWidth || 10000, (document.documentElement && document.documentElement.clientWidth) || 10000);
-            if (this.getAttribute('data-align') === 'right' || this.closest('.page-header-actions, .bank-card-bento-top-actions') || r.left + 310 > docWidth - 16) {
-              c.classList.add('align-right');
-            } else {
-              c.classList.remove('align-right');
-            }
-          }
-        };
       }
     }
 
