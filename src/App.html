@@ -4294,19 +4294,35 @@
                 '<strong>' + UIHelpers.escapeHtml(d.credor) + '</strong><br>' +
                 '<small style="color:var(--text-secondary);">' + UIHelpers.escapeHtml(d.descricao) + (d.observacoes ? ' &bull; ' + UIHelpers.escapeHtml(d.observacoes) : '') + '</small>' +
               '</td>' +
-              '<td>' + UIHelpers.formatDateBr(d.data_origem) + '</td>' +
+              '<td class="col-center">' + UIHelpers.formatDateBr(d.data_origem) + '</td>' +
               '<td class="col-money" style="color:var(--text-secondary);">' + UIHelpers.formatBrl(d.valor_original_centavos) + '</td>' +
               '<td class="col-money"><strong style="color:var(--danger);">' + UIHelpers.formatBrl(d.valor_atualizado_centavos) + '</strong></td>' +
-              '<td>' + UIHelpers.renderBadge(d.situacao) + '</td>' +
-              '<td>' + acordoInfo + '</td>' +
+              '<td class="col-center">' + UIHelpers.renderBadge(d.situacao) + '</td>' +
+              '<td class="col-center">' + acordoInfo + '</td>' +
               '<td style="text-align:right;">' + dropdownHtml + '</td>' +
             '</tr>'
           );
         }).join('');
 
-        document.getElementById('debts-table-container').innerHTML = rows
-          ? '<table class="data-table"><thead><tr><th>Credor / Descrição</th><th>Data Origem</th><th class="col-money">Valor Original</th><th class="col-money">Valor Atualizado</th><th>Situação</th><th>Acordo / Fluxo</th><th style="text-align:right;">Ações</th></tr></thead><tbody>' + rows + '</tbody></table>'
-          : '<p style="color:var(--text-muted); padding:1.5rem; text-align:center;">Nenhuma dívida cadastrada. Use o botão acima para adicionar uma nova pendência financeira.</p>';
+        var debtsHeader =
+          '<thead><tr>' +
+            '<th>Credor / Descrição <span class="info-popover-wrap" data-info-key="debt-col-credor"></span></th>' +
+            '<th class="col-center">Data Origem <span class="info-popover-wrap" data-info-key="debt-col-data"></span></th>' +
+            '<th class="col-money">Valor Original <span class="info-popover-wrap" data-info-key="debt-col-valor-orig"></span></th>' +
+            '<th class="col-money">Valor Atualizado <span class="info-popover-wrap" data-info-key="debt-col-valor-atual"></span></th>' +
+            '<th class="col-center">Situação <span class="info-popover-wrap" data-info-key="debt-col-situacao"></span></th>' +
+            '<th class="col-center">Acordo / Fluxo <span class="info-popover-wrap" data-info-key="debt-col-acordo"></span></th>' +
+            '<th style="text-align:right;">Ações</th>' +
+          '</tr></thead>';
+
+        var debtsTableContainer = document.getElementById('debts-table-container');
+        if (debtsTableContainer) {
+          debtsTableContainer.innerHTML = rows
+            ? '<table class="data-table">' + debtsHeader + '<tbody>' + rows + '</tbody></table>'
+            : '<p style="color:var(--text-muted); padding:1.5rem; text-align:center;">Nenhuma dívida cadastrada. Use o botão acima para adicionar uma nova pendência financeira.</p>';
+        }
+
+        UIHelpers.initInfoPopovers(document.getElementById('sec-debts'));
       });
     }
 
@@ -4424,10 +4440,10 @@
 
         return (
           '<tr>' +
-            '<td><strong>' + p.numero_parcela + '/' + p.total_parcelas + '</strong></td>' +
-            '<td>' + UIHelpers.formatDateBr(p.data_vencimento) + '</td>' +
+            '<td class="col-center"><strong>' + p.numero_parcela + '/' + p.total_parcelas + '</strong></td>' +
+            '<td class="col-center">' + UIHelpers.formatDateBr(p.data_vencimento) + '</td>' +
             '<td class="col-money"><strong>' + UIHelpers.formatBrl(p.valor_centavos) + '</strong></td>' +
-            '<td>' + UIHelpers.renderBadge(p.situacao) + '</td>' +
+            '<td class="col-center">' + UIHelpers.renderBadge(p.situacao) + '</td>' +
             '<td style="text-align:right;">' + actionBtn + '</td>' +
           '</tr>'
         );
@@ -4436,12 +4452,15 @@
       var container = document.getElementById('debt-installments-list-container');
       if (container) {
         container.innerHTML = rows
-          ? '<table class="data-table"><thead><tr><th>Parcela</th><th>Vencimento</th><th class="col-money">Valor</th><th>Situação</th><th style="text-align:right;">Ação</th></tr></thead><tbody>' + rows + '</tbody></table>'
+          ? '<table class="data-table"><thead><tr><th class="col-center">Parcela</th><th class="col-center">Vencimento</th><th class="col-money">Valor</th><th class="col-center">Situação</th><th style="text-align:right;">Ação</th></tr></thead><tbody>' + rows + '</tbody></table>'
           : '<p style="color:var(--text-muted); padding:1rem; text-align:center;">Nenhuma parcela gerada para esta dívida.</p>';
       }
 
       var modal = document.getElementById('modal-debt-installments-backdrop');
-      if (modal) modal.classList.add('open');
+      if (modal) {
+        modal.classList.add('open');
+        UIHelpers.initInfoPopovers(modal);
+      }
     }
 
     function closeDebtInstallmentsModal() {

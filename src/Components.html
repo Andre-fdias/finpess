@@ -1145,6 +1145,90 @@
         title: 'Resultado da Simulação Orçamentária',
         desc: 'Demonstra a viabilidade da compra no limite disponível e projeta o cronograma completo de parcelas nas faturas dos próximos meses.',
         tip: 'Evite comprometer mais de 50% da sua renda mensal líquida somando todas as parcelas de cartões.'
+      },
+      'debt-modulo': {
+        title: 'Módulo de Gestão de Dívidas & Acordos',
+        desc: 'Controle de passivos financeiros, dívidas protestadas e renegociações com credores. Possui isolamento estrito: dívidas antigas não afetam o saldo bancário até que um acordo seja formalizado e aprovado.',
+        tip: 'Use para acompanhar negociações de plataformas como Serasa Limpa Nome, Desenrola Brasil ou direto com credores.'
+      },
+      'debt-nova-divida': {
+        title: 'Cadastrar Nova Dívida / Passivo',
+        desc: 'Registra uma pendência financeira com valor original, valor atualizado com juros informados pelo credor e situação de cobrança.',
+        tip: 'Mantenha os valores atualizados conforme propostas recebidas dos credores.'
+      },
+      'debt-banner-protegido': {
+        title: 'Controle Financeiro Protegido (Isolamento)',
+        desc: 'Regra contábil de segurança: dívidas antigas ou protestadas NÃO reduzem seu saldo bancário ou causam débitos fantasmas. Somente quando você formaliza um acordo parcelado e marca "Repercutir no Fluxo", as parcelas passam a gerar despesas futuras.',
+        tip: 'Garante que seu orçamento mensal e fluxo de caixa reflitam apenas compromissos reais assumidos.'
+      },
+      'debt-kpi-total': {
+        title: 'Total de Dívidas Cadastradas',
+        desc: 'Quantidade de pendências financeiras e passivos registrados no sistema sob acompanhamento.',
+        formula: 'Total de Dívidas = Contagem de registros ativos no módulo',
+        tip: 'Permite centralizar cobranças de diferentes bancos e empresas em um único painel auditável.'
+      },
+      'debt-kpi-devedor': {
+        title: 'Saldo Devedor Atual Consolidado',
+        desc: 'Montante total da dívida atualizado com encargos, juros de mora e correções informadas pelos credores (excluindo dívidas já quitadas ou canceladas).',
+        formula: 'Saldo Devedor = Σ(Valor Atualizado de dívidas não quitadas)',
+        tip: 'Utilize esse valor como referência para negociar descontos à vista (descontos de 50% a 90% são comuns em feirões).'
+      },
+      'debt-kpi-negociacao': {
+        title: 'Dívidas em Negociação ou Protestadas',
+        desc: 'Passivos que ainda estão em aberto, sob cobrança ou em tratativas preliminares com os credores, aguardando um plano de acordo definitivo.',
+        tip: 'Priorize negociar dívidas com maiores taxas de juros ou que gerem restrições cadastrais (SPC/Serasa).'
+      },
+      'debt-kpi-resolvidas': {
+        title: 'Acordos Ativos e Dívidas Quitadas',
+        desc: 'Dívidas que já foram convertidas em acordos parcelados ou que foram quitadas integralmente, com o total já renegociado.',
+        formula: 'Total Negociado = Σ(Valor acordado nas renegociações formalizadas)',
+        tip: 'Acompanhe o cronograma de parcelas para garantir a baixa definitiva do protesto ou negativação.'
+      },
+      'debt-posicao': {
+        title: 'Dívidas Cadastradas e Acordos Formalizados',
+        desc: 'Painel central de passivos onde você pode simular propostas, aprovar acordos, emitir cronogramas de parcelas e auditar o histórico de quitação.',
+        tip: 'Clique no menu de ações (3 pontos) de qualquer dívida para formalizar acordo ou dar baixa em parcelas.'
+      },
+      'debt-col-credor': {
+        title: 'Credor e Descrição da Pendência',
+        desc: 'Instituição financeira, empresa ou pessoa a quem o valor é devido, acompanhado dos detalhes do contrato ou origem.',
+        tip: 'Identifica com precisão para qual empresa o pagamento deve ser direcionado.'
+      },
+      'debt-col-data': {
+        title: 'Data de Origem da Dívida',
+        desc: 'Data em que o débito original foi contraído ou em que a fatura/parcela original venceu.',
+        tip: 'Relevante para avaliar prescrição de dívidas (dívidas de consumo prescrevem para cobrança judicial em 5 anos).'
+      },
+      'debt-col-valor-orig': {
+        title: 'Valor Original da Dívida',
+        desc: 'Valor principal da transação ou compra original antes da incidência de juros de mora, multas ou correções de cobrança.',
+        tip: 'Serve como balizador para comparar o desconto ofertado pelo credor.'
+      },
+      'debt-col-valor-atual': {
+        title: 'Valor Atualizado Informado',
+        desc: 'Valor total cobrado atualmente pelo credor ou escritório de cobrança, acumulado com juros e encargos contratuais.',
+        tip: 'Nunca pague o valor atualizado integralmente sem tentar negociar descontos substanciais na plataforma do credor.'
+      },
+      'debt-col-situacao': {
+        title: 'Situação da Dívida',
+        desc: 'Classificação contábil do passivo: ANTIGA (fora do fluxo), PROTESTADA (cobrança/cartório), EM NEGOCIAÇÃO (em tratativas), ACORDO ATIVO (parcelamento em curso) ou QUITADA.',
+        tip: 'Ao ativar um acordo, a situação passa automaticamente para ACORDO ATIVO.'
+      },
+      'debt-col-acordo': {
+        title: 'Acordo e Repercussão no Fluxo',
+        desc: 'Indica a quantidade de parcelas quitadas do acordo e se as parcelas futuras estão gerando previsões automáticas de despesa no fluxo de caixa.',
+        tip: 'Se o acordo for cancelado, as parcelas pendentes são removidas do fluxo de caixa com integridade garantida.'
+      },
+      'debt-modal-acordo': {
+        title: 'Formalização e Aprovação de Acordo',
+        desc: 'Permite registrar o valor total renegociado, número de parcelas e vencimentos, calculando o desconto obtido em relação ao valor cobrado.',
+        formula: 'Economia Obtida = Valor Atualizado - Valor Negociado',
+        tip: 'Marque "Repercutir no Fluxo de Caixa" para que o sistema crie as previsões de despesa automaticamente no Lançamentos.'
+      },
+      'debt-modal-parcelas': {
+        title: 'Cronograma de Parcelas do Acordo',
+        desc: 'Extrato com todas as parcelas do acordo formalizado, permitindo registrar a baixa de cada parcela quitada gerando a despesa real correspondente.',
+        tip: 'Ao quitar a última parcela, a dívida é automaticamente promovida para situação QUITADA.'
       }
     };
 
