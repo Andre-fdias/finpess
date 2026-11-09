@@ -1273,6 +1273,12 @@
         desc: 'Define como a parcela é liquidada todo mês: Consignado (salário cai líquido, sem débito bancário) ou Pago pelo Usuário (debita da conta bancária de débito escolhida).',
         tip: 'Para empréstimos via boleto, débito em conta corrente ou carnê, selecione "Pago pelo Usuário".'
       },
+      'loan-form-parcelas-pagas': {
+        title: 'Parcelas Já Quitadas / Pagas',
+        desc: 'Quantidade de parcelas que já foram pagas até o momento. Quando a data de início informada for no passado, o Finpess calcula automaticamente as parcelas decorridas até hoje.',
+        formula: 'Parcelas Decorridas = Parcelas mensais cuja data de vencimento é anterior ou igual à data de hoje',
+        tip: 'Você pode ajustar livremente se houve período de carência ou se antecipou amortizações.'
+      },
       'loan-posicao': {
         title: 'Contratos Cadastrados e Evolução de Parcelas',
         desc: 'Visão unificada de todos os contratos vigentes, exibindo modalidade de débito, valor da parcela, percentual de quitação e saldo restante.',
@@ -1640,8 +1646,12 @@
         wrap.appendChild(card);
       }
 
-      // Garante elevação z-index máxima do wrapper do popover ativo
+      // Garante elevação z-index máxima do wrapper do popover ativo e de seu contêiner pai
       wrap.classList.add('is-open');
+      var parentWithRel = wrap.closest('.inv-tabs-navigation > div, .inv-tabs-navigation, .card-header, .page-header');
+      if (parentWithRel) {
+        parentWithRel.classList.add('popover-parent-elevated');
+      }
 
       // Posicionamento inteligente bidirecional (evita sair da tela pela direita ou por baixo)
       if (typeof window !== 'undefined') {
@@ -1681,6 +1691,10 @@
       var openWraps = document.querySelectorAll('.info-popover-wrap.is-open');
       for (var j = 0; j < openWraps.length; j++) {
         openWraps[j].classList.remove('is-open');
+      }
+      var elevated = document.querySelectorAll('.popover-parent-elevated');
+      for (var k = 0; k < elevated.length; k++) {
+        elevated[k].classList.remove('popover-parent-elevated');
       }
     }
 

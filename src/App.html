@@ -4578,15 +4578,47 @@
       }
     }
 
+    function calculatePastDueInstallments(dataInicialIso, totalParcelas) {
+      if (!dataInicialIso || !totalParcelas) return 0;
+      var now = new Date();
+      var todayIso = toIsoDate(now);
+      var parts = String(dataInicialIso).substring(0, 10).split('-');
+      var startYear = parseInt(parts[0], 10);
+      var startMonth = parseInt(parts[1], 10);
+      var targetDia = parseInt(parts[2] || '1', 10);
+      var count = 0;
+
+      for (var i = 1; i <= totalParcelas; i++) {
+        var d = new Date(Date.UTC(startYear, startMonth - 1 + (i - 1), 1));
+        var ty = d.getUTCFullYear();
+        var tm = d.getUTCMonth() + 1;
+        var lastDay = new Date(Date.UTC(ty, tm, 0)).getUTCDate();
+        var td = Math.min(targetDia, lastDay);
+        var dueIso = ty + '-' + String(tm).padStart(2, '0') + '-' + String(td).padStart(2, '0');
+
+        if (dueIso <= todayIso) {
+          count++;
+        } else {
+          break;
+        }
+      }
+      return count;
+    }
+
     function updateLoanPreview() {
       var vContratadoRaw = (document.getElementById('emp-valor-contratado').value || '').trim();
       var vParcelaRaw = (document.getElementById('emp-valor-parcela').value || '').trim();
       var parcelas = parseInt(document.getElementById('emp-parcelas').value, 10) || 0;
+      var elPagas = document.getElementById('emp-parcelas-pagas');
+      var pagas = elPagas ? (parseInt(elPagas.value, 10) || 0) : 0;
+      if (pagas > parcelas) pagas = parcelas;
 
       var contratadoCentavos = UIHelpers.parseInputToCentavos(vContratadoRaw);
       var parcelaCentavos = UIHelpers.parseInputToCentavos(vParcelaRaw);
 
       var totalPagarCentavos = parcelas * parcelaCentavos;
+      var pendentes = Math.max(0, parcelas - pagas);
+      var saldoDevedorCentavos = pendentes * parcelaCentavos;
       var jurosCentavos = totalPagarCentavos - contratadoCentavos;
 
       var totalEl = document.getElementById('loan-preview-total');
@@ -4594,16 +4626,42 @@
       if (!totalEl || !jurosEl) return;
 
       if (parcelas > 0 && parcelaCentavos > 0) {
-        totalEl.textContent = parcelas + 'x de ' + UIHelpers.formatBrl(parcelaCentavos) + ' = ' + UIHelpers.formatBrl(totalPagarCentavos);
+        var pct = parcelas > 0 ? Math.round((pagas / parcelas) * 100) : 0;
+        totalEl.innerHTML = parcelas + 'x de ' + UIHelpers.formatBrl(parcelaCentavos) + ' = <strong>' + UIHelpers.formatBrl(totalPagarCentavos) + '</strong>';
+        var txt = '<strong>Progresso:</strong> ' + pagas + '/' + parcelas + ' pagas (' + pct + '%) &bull; <strong>Saldo Devedor Restante:</strong> ' + UIHelpers.formatBrl(saldoDevedorCentavos);
         if (contratadoCentavos > 0 && jurosCentavos > 0) {
-          jurosEl.textContent = 'Juros / Custo Efetivo Total estimado: +' + UIHelpers.formatBrl(jurosCentavos) + ' sobre o valor liberado.';
-        } else {
-          jurosEl.textContent = '';
+          txt += '<br><span style="color:var(--text-muted); font-size:0.75rem;">Juros / Custo Efetivo Total estimado: +' + UIHelpers.formatBrl(jurosCentavos) + ' sobre o valor liberado.</span>';
         }
+        jurosEl.innerHTML = txt;
       } else {
         totalEl.textContent = '-';
         jurosEl.textContent = '';
       }
+    }
+
+    function onNewLoanDataInicialChange() {
+      var elData = document.getElementById('emp-data-inicial');
+      var elParcelas = document.getElementById('emp-parcelas');
+      var elPagas = document.getElementById('emp-parcelas-pagas');
+      if (!elData || !elParcelas || !elPagas) return;
+      var numParcelas = parseInt(elParcelas.value, 10) || 0;
+      var pastCount = calculatePastDueInstallments(elData.value, numParcelas);
+      elPagas.value = pastCount;
+      elPagas.max = numParcelas;
+      updateLoanPreview();
+    }
+
+    function onNewLoanParcelasChange() {
+      var elParcelas = document.getElementById('emp-parcelas');
+      var elPagas = document.getElementById('emp-parcelas-pagas');
+      if (elParcelas && elPagas) {
+        var numParcelas = parseInt(elParcelas.value, 10) || 0;
+        elPagas.max = numParcelas;
+        if (parseInt(elPagas.value, 10) > numParcelas) {
+          elPagas.value = numParcelas;
+        }
+      }
+      updateLoanPreview();
     }
 
     function submitLoan(ev) {
@@ -4622,12 +4680,17 @@
         if (elData) elData.value = dataInicialVal;
       }
 
+      var elPagas = document.getElementById('emp-parcelas-pagas');
+      var pagasVal = elPagas ? parseInt(elPagas.value, 10) : 0;
+      if (isNaN(pagasVal) || pagasVal < 0) pagasVal = 0;
+
       var payload = {
         instituicao: document.getElementById('emp-instituicao').value,
         descricao: document.getElementById('emp-descricao').value,
         tipo_emprestimo: isConsignado ? 'CONSIGNADO' : 'PESSOAL',
         valor_contratado_centavos: UIHelpers.parseInputToCentavos(document.getElementById('emp-valor-contratado').value),
         numero_parcelas: parseInt(document.getElementById('emp-parcelas').value, 10),
+        parcelas_pagas: pagasVal,
         valor_parcela_centavos: UIHelpers.parseInputToCentavos(document.getElementById('emp-valor-parcela').value),
         data_inicial: dataInicialVal,
         taxa_juros_mensal_bps: Math.round(taxaFloat * 100),
@@ -4643,6 +4706,7 @@
         document.getElementById('emp-descricao').value = '';
         document.getElementById('emp-valor-contratado').value = '';
         document.getElementById('emp-valor-parcela').value = '';
+        if (elPagas) elPagas.value = '0';
         if (document.getElementById('emp-obs')) document.getElementById('emp-obs').value = '';
 
         // Reseta campo de data para a próxima data padrão (30 dias à frente)
@@ -4887,11 +4951,16 @@
       var vContratadoRaw = (document.getElementById('edit-loan-valor-contratado').value || '').trim();
       var vParcelaRaw = (document.getElementById('edit-loan-valor-parcela').value || '').trim();
       var parcelas = parseInt(document.getElementById('edit-loan-parcelas').value, 10) || 0;
+      var elPagas = document.getElementById('edit-loan-parcelas-pagas');
+      var pagas = elPagas ? (parseInt(elPagas.value, 10) || 0) : 0;
+      if (pagas > parcelas) pagas = parcelas;
 
       var contratadoCentavos = UIHelpers.parseInputToCentavos(vContratadoRaw);
       var parcelaCentavos = UIHelpers.parseInputToCentavos(vParcelaRaw);
 
       var totalPagarCentavos = parcelas * parcelaCentavos;
+      var pendentes = Math.max(0, parcelas - pagas);
+      var saldoDevedorCentavos = pendentes * parcelaCentavos;
       var jurosCentavos = totalPagarCentavos - contratadoCentavos;
 
       var totalEl = document.getElementById('edit-loan-preview-total');
@@ -4899,16 +4968,42 @@
       if (!totalEl || !jurosEl) return;
 
       if (parcelas > 0 && parcelaCentavos > 0) {
-        totalEl.textContent = parcelas + 'x de ' + UIHelpers.formatBrl(parcelaCentavos) + ' = ' + UIHelpers.formatBrl(totalPagarCentavos);
+        var pct = parcelas > 0 ? Math.round((pagas / parcelas) * 100) : 0;
+        totalEl.innerHTML = parcelas + 'x de ' + UIHelpers.formatBrl(parcelaCentavos) + ' = <strong>' + UIHelpers.formatBrl(totalPagarCentavos) + '</strong>';
+        var txt = '<strong>Progresso:</strong> ' + pagas + '/' + parcelas + ' pagas (' + pct + '%) &bull; <strong>Saldo Devedor Restante:</strong> ' + UIHelpers.formatBrl(saldoDevedorCentavos);
         if (contratadoCentavos > 0 && jurosCentavos > 0) {
-          jurosEl.textContent = 'Juros / Custo Efetivo Total estimado: +' + UIHelpers.formatBrl(jurosCentavos) + ' sobre o valor liberado.';
-        } else {
-          jurosEl.textContent = '';
+          txt += '<br><span style="color:var(--text-muted); font-size:0.75rem;">Juros / Custo Efetivo Total estimado: +' + UIHelpers.formatBrl(jurosCentavos) + ' sobre o valor liberado.</span>';
         }
+        jurosEl.innerHTML = txt;
       } else {
         totalEl.textContent = '-';
         jurosEl.textContent = '';
       }
+    }
+
+    function onEditLoanDataInicialChange() {
+      var elData = document.getElementById('edit-loan-data-inicial');
+      var elParcelas = document.getElementById('edit-loan-parcelas');
+      var elPagas = document.getElementById('edit-loan-parcelas-pagas');
+      if (!elData || !elParcelas || !elPagas) return;
+      var numParcelas = parseInt(elParcelas.value, 10) || 0;
+      var pastCount = calculatePastDueInstallments(elData.value, numParcelas);
+      elPagas.value = pastCount;
+      elPagas.max = numParcelas;
+      updateEditLoanPreview();
+    }
+
+    function onEditLoanParcelasChange() {
+      var elParcelas = document.getElementById('edit-loan-parcelas');
+      var elPagas = document.getElementById('edit-loan-parcelas-pagas');
+      if (elParcelas && elPagas) {
+        var numParcelas = parseInt(elParcelas.value, 10) || 0;
+        elPagas.max = numParcelas;
+        if (parseInt(elPagas.value, 10) > numParcelas) {
+          elPagas.value = numParcelas;
+        }
+      }
+      updateEditLoanPreview();
     }
 
     function openEditLoanModal(loanId) {
@@ -4943,6 +5038,16 @@
       document.getElementById('edit-loan-data-inicial').value = l.data_inicial ? l.data_inicial.substring(0, 10) : '';
       document.getElementById('edit-loan-taxa').value = taxaStr;
 
+      var pastCount = calculatePastDueInstallments(l.data_inicial, numParcelas);
+      var currentPagas = (l.parcelas_pagas !== undefined && l.parcelas_pagas !== null && l.parcelas_pagas > 0)
+        ? l.parcelas_pagas
+        : pastCount;
+      var elPagas = document.getElementById('edit-loan-parcelas-pagas');
+      if (elPagas) {
+        elPagas.value = currentPagas;
+        elPagas.max = numParcelas;
+      }
+
       if (document.getElementById('edit-loan-conta')) {
         document.getElementById('edit-loan-conta').value = l.conta_bancaria_id || '';
       }
@@ -4975,6 +5080,10 @@
       var elData = document.getElementById('edit-loan-data-inicial');
       var dataInicialVal = (elData && elData.value ? elData.value : '').trim();
 
+      var elPagas = document.getElementById('edit-loan-parcelas-pagas');
+      var pagasVal = elPagas ? parseInt(elPagas.value, 10) : 0;
+      if (isNaN(pagasVal) || pagasVal < 0) pagasVal = 0;
+
       var payload = {
         id: id,
         instituicao: document.getElementById('edit-loan-instituicao').value,
@@ -4984,6 +5093,7 @@
         desconto_em_folha: isConsignado,
         valor_contratado_centavos: UIHelpers.parseInputToCentavos(document.getElementById('edit-loan-valor-contratado').value),
         numero_parcelas: parseInt(document.getElementById('edit-loan-parcelas').value, 10),
+        parcelas_pagas: pagasVal,
         valor_parcela_centavos: UIHelpers.parseInputToCentavos(document.getElementById('edit-loan-valor-parcela').value),
         data_inicial: dataInicialVal,
         taxa_juros_mensal_bps: Math.round(taxaFloat * 100),
@@ -10711,6 +10821,8 @@
       toggleNewLoanCard: toggleNewLoanCard,
       onLoanModalidadeChange: onLoanModalidadeChange,
       updateLoanPreview: updateLoanPreview,
+      onNewLoanDataInicialChange: onNewLoanDataInicialChange,
+      onNewLoanParcelasChange: onNewLoanParcelasChange,
       viewLoanInstallments: viewLoanInstallments,
       closeLoanInstallmentsModal: closeLoanInstallmentsModal,
       payLoanInstallment: payLoanInstallment,
@@ -10718,6 +10830,8 @@
       closeEditLoanModal: closeEditLoanModal,
       submitEditLoan: submitEditLoan,
       onEditLoanModalidadeChange: onEditLoanModalidadeChange,
+      onEditLoanDataInicialChange: onEditLoanDataInicialChange,
+      onEditLoanParcelasChange: onEditLoanParcelasChange,
       updateEditLoanPreview: updateEditLoanPreview,
       switchInvestmentsSection: switchInvestmentsSection,
       prevRadarSlide: prevRadarSlide,

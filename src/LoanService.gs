@@ -15,6 +15,93 @@ var LoanService = (function () {
     }
   }
 
+  /**
+   * Calcula quantas parcelas mensais já venceram até a data de hoje.
+   * Utilizado para inicializar e atualizar contratos que iniciaram no passado.
+   */
+  function calculatePastInstallmentsCount(dataInicialIso, diaVencimento, totalParcelas) {
+    if (!dataInicialIso || !totalParcelas) return 0;
+    var todayIso = SpreadsheetRepository.todayIso();
+    var parts = dataInicialIso.split('-');
+    var startYear = parseInt(parts[0], 10);
+    var startMonth = parseInt(parts[1], 10);
+    var targetDia = diaVencimento || parseInt(parts[2] || '1', 10);
+    var count = 0;
+
+    for (var i = 1; i <= totalParcelas; i++) {
+      var d = new Date(Date.UTC(startYear, startMonth - 1 + (i - 1), 1));
+      var ty = d.getUTCFullYear();
+      var tm = d.getUTCMonth() + 1;
+      var lastDay = new Date(Date.UTC(ty, tm, 0)).getUTCDate();
+      var td = Math.min(targetDia, lastDay);
+      var dueIso = ty + '-' + String(tm).padStart(2, '0') + '-' + String(td).padStart(2, '0');
+
+      if (dueIso <= todayIso) {
+        count++;
+      } else {
+        break;
+      }
+    }
+    return count;
+  }
+
+  /**
+   * Sincroniza parcelas passadas de contratos consignados (desconto em folha).
+   * Como o valor é retido no contracheque pela folha de pagamento, parcelas cuja data de
+   * vencimento já passou são amortizadas automaticamente sem duplicar saídas bancárias.
+   */
+  function syncConsignadoLoansPastInstallments(user) {
+    if (!user || !user.grupo_id) return;
+    var todayIso = SpreadsheetRepository.todayIso();
+    var consignados = SpreadsheetRepository.findByGrupo('EMPRESTIMOS', user.grupo_id, function (l) {
+      return (l.tipo_emprestimo === 'CONSIGNADO' || Boolean(l.desconto_em_folha)) && l.situacao === 'ATIVO';
+    });
+    if (consignados.length === 0) return;
+
+    var cMap = {};
+    for (var i = 0; i < consignados.length; i++) {
+      cMap[consignados[i].id] = consignados[i];
+    }
+
+    var pendingPastParcelas = SpreadsheetRepository.findByGrupo('PARCELAS', user.grupo_id, function (p) {
+      return p.origem_tipo === 'EMPRESTIMO' &&
+        Boolean(cMap[p.origem_id]) &&
+        p.situacao === 'PREVISTA' &&
+        p.data_vencimento &&
+        p.data_vencimento <= todayIso;
+    });
+
+    if (pendingPastParcelas.length === 0) return;
+
+    var affectedLoanIds = {};
+    for (var j = 0; j < pendingPastParcelas.length; j++) {
+      var par = pendingPastParcelas[j];
+      affectedLoanIds[par.origem_id] = true;
+      SpreadsheetRepository.updateById('PARCELAS', par.id, {
+        situacao: 'PAGA',
+        data_pagamento: par.data_vencimento
+      }, user.grupo_id);
+    }
+
+    for (var lid in affectedLoanIds) {
+      var allPars = SpreadsheetRepository.findByGrupo('PARCELAS', user.grupo_id, function (p) {
+        return p.origem_tipo === 'EMPRESTIMO' && p.origem_id === lid && p.situacao !== 'CANCELADA';
+      });
+      var devedor = 0;
+      var hasPending = false;
+      for (var k = 0; k < allPars.length; k++) {
+        if (allPars[k].situacao !== 'PAGA') {
+          hasPending = true;
+          devedor += Number(allPars[k].valor_centavos || 0);
+        }
+      }
+      SpreadsheetRepository.updateById('EMPRESTIMOS', lid, {
+        saldo_devedor_centavos: devedor,
+        situacao: hasPending ? 'ATIVO' : 'QUITADO'
+      }, user.grupo_id);
+    }
+  }
+
   function createLoan(user, payload, channel) {
     assertWebChannelOnly(channel);
     AuthService.assertGroupAccess(user, user.grupo_id);
@@ -52,9 +139,16 @@ var LoanService = (function () {
         : true
     );
 
+    var autoPastPagas = calculatePastInstallmentsCount(dataInicial, diaVencimento, numeroParcelas);
+    var parcelasPagas = (payload.parcelas_pagas !== undefined && String(payload.parcelas_pagas).trim() !== '')
+      ? Math.max(0, Math.min(numeroParcelas, parseInt(payload.parcelas_pagas, 10)))
+      : ((tipoEmprestimo === 'CONSIGNADO' || descontoEmFolha) ? autoPastPagas : 0);
+
     var saldoDevedor = payload.saldo_devedor_centavos !== undefined
       ? ValidationService.validateCentavos(payload.saldo_devedor_centavos, 'saldo_devedor_centavos', true)
-      : (valorParcela * numeroParcelas);
+      : (valorParcela * Math.max(0, numeroParcelas - parcelasPagas));
+
+    var initialSituacao = parcelasPagas >= numeroParcelas ? 'QUITADO' : 'ATIVO';
 
     var createdLoan = SpreadsheetRepository.insert('EMPRESTIMOS', {
       id: SpreadsheetRepository.generateId('emp'),
@@ -72,7 +166,7 @@ var LoanService = (function () {
       desconto_em_folha: descontoEmFolha,
       desconto_em_folha_ja_deduzido_salario: descontoJaDeduzidoSalario,
       conta_bancaria_id: payload.conta_bancaria_id ? ValidationService.sanitizeText(payload.conta_bancaria_id, 64) : '',
-      situacao: 'ATIVO',
+      situacao: initialSituacao,
       observacoes: ValidationService.sanitizeText(payload.observacoes || '', 400),
       criado_por: user.id
     });
@@ -91,6 +185,8 @@ var LoanService = (function () {
       var td = Math.min(diaVencimento, lastDay);
       var dueIso = ty + '-' + String(tm).padStart(2, '0') + '-' + String(td).padStart(2, '0');
 
+      var isPaga = i <= parcelasPagas;
+
       parcelasBatch.push({
         id: SpreadsheetRepository.generateId('par'),
         grupo_id: user.grupo_id,
@@ -100,8 +196,8 @@ var LoanService = (function () {
         total_parcelas: numeroParcelas,
         valor_centavos: valorParcela,
         data_vencimento: dueIso,
-        data_pagamento: '',
-        situacao: 'PREVISTA',
+        data_pagamento: isPaga ? dueIso : '',
+        situacao: isPaga ? 'PAGA' : 'PREVISTA',
         lancamento_id: '',
         observacoes: descricao + ' (' + i + '/' + numeroParcelas + ')'
       });
@@ -350,6 +446,7 @@ var LoanService = (function () {
 
   function listLoans(user) {
     AuthService.assertGroupAccess(user, user.grupo_id);
+    syncConsignadoLoansPastInstallments(user);
     syncUserPaidLoanLaunches(user);
     var loans = SpreadsheetRepository.findByGrupo('EMPRESTIMOS', user.grupo_id);
     var allParcelas = SpreadsheetRepository.findByGrupo('PARCELAS', user.grupo_id, function (p) {
@@ -452,9 +549,10 @@ var LoanService = (function () {
     existingParcelas.sort(function (a, b) { return a.numero_parcela - b.numero_parcela; });
 
     var pagasCount = existingParcelas.filter(function (p) { return p.situacao === 'PAGA'; }).length;
-    if (newNumeroParcelas < pagasCount) {
-      throw new Error('Não é possível reduzir para ' + newNumeroParcelas + ' parcelas, pois já existem ' + pagasCount + ' parcelas pagas.');
-    }
+    var autoPastPagas = calculatePastInstallmentsCount(newDataInicial, diaVencimento, newNumeroParcelas);
+    var targetPagas = (patch.parcelas_pagas !== undefined && String(patch.parcelas_pagas).trim() !== '')
+      ? Math.max(0, Math.min(newNumeroParcelas, parseInt(patch.parcelas_pagas, 10)))
+      : ((tipoEmprestimo === 'CONSIGNADO' || descontoEmFolha) ? Math.max(pagasCount, autoPastPagas) : pagasCount);
 
     var parts = (newDataInicial || loan.data_inicial || SpreadsheetRepository.todayIso()).split('-');
     var startYear = parseInt(parts[0], 10);
@@ -474,31 +572,39 @@ var LoanService = (function () {
           }
         }
       } else {
+        var d = new Date(Date.UTC(startYear, startMonth - 1 + (par.numero_parcela - 1), 1));
+        var ty = d.getUTCFullYear();
+        var tm = d.getUTCMonth() + 1;
+        var lastDay = new Date(Date.UTC(ty, tm, 0)).getUTCDate();
+        var td = Math.min(diaVencimento, lastDay);
+        var dueIso = ty + '-' + String(tm).padStart(2, '0') + '-' + String(td).padStart(2, '0');
+
+        var isPaga = par.numero_parcela <= targetPagas;
         var parPatch = {
           total_parcelas: newNumeroParcelas,
+          data_vencimento: dueIso,
+          valor_centavos: newValorParcela,
           observacoes: finalDescricao + ' (' + par.numero_parcela + '/' + newNumeroParcelas + ')'
         };
-        if (par.situacao !== 'PAGA') {
-          parPatch.situacao = (updateData.situacao === 'CANCELADO' ? 'CANCELADA' : 'PREVISTA');
-          parPatch.valor_centavos = newValorParcela;
-          var d = new Date(Date.UTC(startYear, startMonth - 1 + (par.numero_parcela - 1), 1));
-          var ty = d.getUTCFullYear();
-          var tm = d.getUTCMonth() + 1;
-          var lastDay = new Date(Date.UTC(ty, tm, 0)).getUTCDate();
-          var td = Math.min(diaVencimento, lastDay);
-          var dueIso = ty + '-' + String(tm).padStart(2, '0') + '-' + String(td).padStart(2, '0');
-          parPatch.data_vencimento = dueIso;
 
-          if (par.lancamento_id) {
-            SpreadsheetRepository.updateById('LANCAMENTOS', par.lancamento_id, {
-              valor_centavos: newValorParcela,
-              data_lancamento: dueIso,
-              data_competencia: dueIso,
-              descricao: 'Parcela Empréstimo ' + finalInstituicao + ' (' + par.numero_parcela + '/' + newNumeroParcelas + ')',
-              conta_bancaria_id: updateData.conta_bancaria_id !== undefined ? updateData.conta_bancaria_id : loan.conta_bancaria_id,
-              situacao: updateData.situacao === 'CANCELADO' ? 'CANCELADO' : 'PREVISTO'
-            }, user.grupo_id);
-          }
+        if (isPaga) {
+          parPatch.situacao = 'PAGA';
+          parPatch.data_pagamento = par.data_pagamento || dueIso;
+        } else {
+          parPatch.situacao = (updateData.situacao === 'CANCELADO' ? 'CANCELADA' : 'PREVISTA');
+          parPatch.data_pagamento = '';
+        }
+
+        if (par.lancamento_id) {
+          SpreadsheetRepository.updateById('LANCAMENTOS', par.lancamento_id, {
+            valor_centavos: newValorParcela,
+            data_lancamento: dueIso,
+            data_competencia: dueIso,
+            descricao: 'Parcela Empréstimo ' + finalInstituicao + ' (' + par.numero_parcela + '/' + newNumeroParcelas + ')',
+            conta_bancaria_id: updateData.conta_bancaria_id !== undefined ? updateData.conta_bancaria_id : loan.conta_bancaria_id,
+            situacao: updateData.situacao === 'CANCELADO' ? 'CANCELADO' : (isPaga ? 'CONFIRMADO' : 'PREVISTO'),
+            data_pagamento: isPaga ? (parPatch.data_pagamento || dueIso) : ''
+          }, user.grupo_id);
         }
         SpreadsheetRepository.updateById('PARCELAS', par.id, parPatch, user.grupo_id);
       }
@@ -518,6 +624,7 @@ var LoanService = (function () {
       var tdNew = Math.min(diaVencimento, lastDayNew);
       var dueIsoNew = tyNew + '-' + String(tmNew).padStart(2, '0') + '-' + String(tdNew).padStart(2, '0');
 
+      var isNewPaga = np <= targetPagas;
       newBatch.push({
         id: SpreadsheetRepository.generateId('par'),
         grupo_id: user.grupo_id,
@@ -527,8 +634,8 @@ var LoanService = (function () {
         total_parcelas: newNumeroParcelas,
         valor_centavos: newValorParcela,
         data_vencimento: dueIsoNew,
-        data_pagamento: '',
-        situacao: 'PREVISTA',
+        data_pagamento: isNewPaga ? dueIsoNew : '',
+        situacao: isNewPaga ? 'PAGA' : 'PREVISTA',
         lancamento_id: '',
         observacoes: finalDescricao + ' (' + np + '/' + newNumeroParcelas + ')'
       });
@@ -538,18 +645,16 @@ var LoanService = (function () {
     }
 
     // Recalcula saldo devedor
-    var currentAllParcelas = SpreadsheetRepository.findByGrupo('PARCELAS', user.grupo_id, function (p) {
-      return p.origem_tipo === 'EMPRESTIMO' && p.origem_id === loanId && p.situacao !== 'CANCELADA';
-    });
-    var remainingDevedor = 0;
-    for (var cp = 0; cp < currentAllParcelas.length; cp++) {
-      if (currentAllParcelas[cp].situacao !== 'PAGA') {
-        remainingDevedor += (currentAllParcelas[cp].valor_centavos || 0);
-      }
-    }
-    if (updateData.situacao === 'QUITADO' || updateData.situacao === 'CANCELADO') {
+    var remainingDevedor = Math.max(0, newNumeroParcelas - targetPagas) * newValorParcela;
+    if (updateData.situacao === 'CANCELADO') {
+      updateData.saldo_devedor_centavos = 0;
+    } else if (targetPagas >= newNumeroParcelas) {
+      updateData.situacao = 'QUITADO';
       updateData.saldo_devedor_centavos = 0;
     } else {
+      if (updateData.situacao === 'QUITADO') {
+        updateData.situacao = 'ATIVO';
+      }
       updateData.saldo_devedor_centavos = remainingDevedor;
     }
 
