@@ -1319,6 +1319,162 @@
         title: 'Editar Dados do Contrato',
         desc: 'Permite atualizar informações cadastrais do empréstimo, alterar situação para QUITADO ou redefinir a conta bancária vinculada.',
         tip: 'Alterações cadastrais não afetam o histórico de parcelas já devidamente pagas.'
+      },
+      'inv-modulo': {
+        title: 'Central de Investimentos & Mercado',
+        desc: 'Painel integrado para gestão patrimonial, acompanhamento de carteira multiaivos, cotações online da B3, rankings fundamentalistas (Top 10), Oráculo IA e projeções de renda passiva.',
+        tip: 'Mantenha os valores de mercado atualizados para acompanhar o seu patrimônio líquido consolidado.'
+      },
+      'inv-btn-cotacoes': {
+        title: 'Atualização de Cotações Online',
+        desc: 'Consulta em tempo real indicadores de mercado (Selic, IPCA, Dólar, Ibovespa) e cotações de ações e fundos imobiliários via APIs integradas sem custo operacional.',
+        tip: 'Atualiza o carrossel de destaques e as cotações de ativos sincronizáveis.'
+      },
+      'inv-btn-movimentacao': {
+        title: 'Registrar Movimentação no Ativo',
+        desc: 'Permite registrar Aportes (novas compras), Resgates (vendas), Rendimentos (dividendos/JCP) e Atualização de Cotação de Mercado.',
+        tip: 'Você pode optar por debitar ou creditar o valor diretamente na sua conta bancária para manter seu fluxo de caixa perfeitamente conciliado.'
+      },
+      'inv-btn-novo-ativo': {
+        title: 'Cadastrar Novo Ativo na Carteira',
+        desc: 'Adiciona um novo investimento informando nome/ticker, classe (Ações, FIIs, Renda Fixa, Tesouro, etc.), instituição custodiante e valor aplicado inicial.',
+        tip: 'Selecione "Debitar da Conta Bancária" caso o aporte tenha saído do seu saldo corrente no mesmo dia.'
+      },
+      'inv-btn-manual': {
+        title: 'Manual de Funcionamento do Módulo',
+        desc: 'Abre o guia completo de instruções práticas, regras contábeis, cálculo de rentabilidade e estratégias de dividendos.',
+        tip: 'Consulte sempre que tiver dúvidas sobre como lançar ativos ou interpretar os múltiplos da IA.'
+      },
+      'inv-radar-titulo': {
+        title: 'Radar de Oportunidades & Destaques',
+        desc: 'Painel rotativo que monitora ativos de alta liquidez e múltiplos atraentes selecionados conforme critérios fundamentalistas consagrados (Bazin, Graham e DY).',
+        tip: 'Use os botões de controle para navegar entre os slides ou pausar a rotação automática.'
+      },
+      'inv-tab-carteira': {
+        title: 'Aba: Minha Carteira & Posição',
+        desc: 'Exibe o resumo consolidado do seu patrimônio aplicado, valor atual de mercado, rentabilidade acumulada, gráfico de alocação e tabela detalhada por ativo.',
+        tip: 'Filtre os ativos pela barra de busca para localizar posições rapidamente.'
+      },
+      'inv-tab-radar': {
+        title: 'Aba: Radar do Mercado & Top 10',
+        desc: 'Rankings transparentes categorizados por Dividendos, FIIs, Crescimento, Renda Fixa e Internacional, com filtros por múltiplos e critérios auditáveis.',
+        tip: 'Clique nos botões de categoria para alternar a tese de investimento dos rankings.'
+      },
+      'inv-tab-ia': {
+        title: 'Aba: Oráculo IA & Perfil de Risco',
+        desc: 'Mecanismo de consultoria financeira inteligente assistida por IA: calibração de Suitability, parecer executivo, diagnóstico de concentração e sugestões de rebalanceamento.',
+        tip: 'Atualize seu teste de perfil de suitability para refinar as recomendações da IA.'
+      },
+      'inv-tab-panorama': {
+        title: 'Aba: Panorama & Calendário Macroeconômico',
+        desc: 'Termômetro com taxas oficiais (Selic, IPCA, CDI, Câmbio), notícias financeiras de fontes credenciadas e calendário com datas de reuniões do Copom e Fed.',
+        tip: 'Monitore as decisões de política monetária para antecipar movimentos na Renda Fixa.'
+      },
+      'inv-tab-comparador': {
+        title: 'Aba: Comparador de Ativos & Dividendos',
+        desc: 'Ferramenta comparativa direta entre dois ativos lado a lado, mapa de proventos projetados para os próximos 12 meses e visão de commodities/ouro.',
+        tip: 'Digite o ticker de duas ações ou FIIs para ver quem tem menor P/VP e maior Dividend Yield.'
+      },
+      'inv-kpi-aplicado': {
+        title: 'Total Aplicado (Preço de Custo)',
+        desc: 'Soma total de todo o capital próprio aportado nos ativos que compõem sua carteira atualmente.',
+        formula: 'Total Aplicado = Σ(Valor Aplicado de cada ativo ativo)',
+        tip: 'Representa o dinheiro que você efetivamente desembolsou do seu bolso.'
+      },
+      'inv-kpi-mercado': {
+        title: 'Valor de Mercado (Posição Atual)',
+        desc: 'Patrimônio bruto estimado da sua carteira na data de hoje com base nas cotações mais recentes informadas ou consultadas.',
+        formula: 'Valor de Mercado = Σ(Valor de Mercado Atual de cada ativo)',
+        tip: 'Quando o Valor de Mercado é maior que o Total Aplicado, sua carteira está com lucro patrimonial.'
+      },
+      'inv-kpi-rentabilidade': {
+        title: 'Rentabilidade Acumulada da Carteira',
+        desc: 'Lucro ou variação líquida patrimonial gerada pelos investimentos em relação ao montante aportado.',
+        formula: 'Rentabilidade (%) = ((Valor de Mercado - Total Aplicado) ÷ Total Aplicado) × 100',
+        tip: 'Ganhos de capital somados à valorização dos papéis.'
+      },
+      'inv-kpi-proventos': {
+        title: 'Proventos Recebidos (Renda Passiva)',
+        desc: 'Montante total acumulado em dividendos, Juros sobre Capital Próprio (JCP), rendimentos de FIIs e cupons de renda fixa creditados.',
+        formula: 'Proventos = Σ(Rendimentos registrados em todos os ativos)',
+        tip: 'Reinvestir os dividendos na própria carteira acelera o efeito dos juros compostos exponencialmente.'
+      },
+      'inv-alocacao-classes': {
+        title: 'Distribuição por Classe de Ativos',
+        desc: 'Demonstra visualmente a proporção do seu patrimônio alocada em Renda Fixa, Ações, Fundos Imobiliários, Tesouro Direto e Criptoativos.',
+        tip: 'Uma boa diversificação reduz a volatilidade total da carteira perante solavancos do mercado.'
+      },
+      'inv-tabela-ativos': {
+        title: 'Ativos Cadastrados e Posição Detalhada',
+        desc: 'Tabela completa de posições com nome, classe, instituição custodiante, valores de custo e mercado, rentabilidade calculada e ações rápidas.',
+        tip: 'Clique nos 3 pontos de qualquer ativo para realizar novo aporte, resgate ou registrar dividendos.'
+      },
+      'inv-col-ativo': {
+        title: 'Ativo e Instituição Custodiante',
+        desc: 'Código (ticker) ou nome do papel e a corretora/banco onde os recursos estão sob custódia.',
+        tip: 'Permite acompanhar onde seu patrimônio está custodiado (XP, Itaú, Nubank, etc.).'
+      },
+      'inv-col-classe': {
+        title: 'Classe do Ativo',
+        desc: 'Categoria do investimento: Renda Fixa, Ações, FIIs, Tesouro Direto, Fundos ou Outros.',
+        tip: 'A classificação correta garante a precisão do gráfico de diversificação da carteira.'
+      },
+      'inv-col-aplicado': {
+        title: 'Total Aplicado no Ativo',
+        desc: 'Montante financeiro histórico aportado neste ativo específico (preço médio de aquisição ponderado).',
+        tip: 'Custo de aquisição utilizado para apurar ganho ou perda de capital.'
+      },
+      'inv-col-mercado': {
+        title: 'Valor de Mercado do Ativo',
+        desc: 'Posição atual calculada pela quantidade de cotas multiplicada pela cotação mais recente.',
+        tip: 'Atualize sempre que houver variação expressiva ou após fechar o mês.'
+      },
+      'inv-col-rentabilidade': {
+        title: 'Rentabilidade Nominal e Percentual',
+        desc: 'Diferença entre o valor de mercado atual e o total aplicado no papel.',
+        formula: 'Variação = Valor de Mercado - Total Aplicado',
+        tip: 'Fica verde para valorização e vermelho para desvalorização temporária.'
+      },
+      'inv-col-proventos': {
+        title: 'Proventos Acumulados no Ativo',
+        desc: 'Total de renda passiva (dividendos/rendimentos) gerado por este investimento desde a compra.',
+        tip: 'Ativos pagadores de dividendos reduzem o seu preço médio com o passar do tempo.'
+      },
+      'inv-col-data-ref': {
+        title: 'Data de Referência da Cotação',
+        desc: 'Data da última atualização de preço ou conferência de extrato registrada para este ativo.',
+        tip: 'Mantenha atualizada para garantir que os indicadores reflitam a realidade.'
+      },
+      'inv-top10-rankings': {
+        title: 'Rankings Transparentes Top 10',
+        desc: 'Listas ordenadas de oportunidades em Ações, Fundos Imobiliários e Renda Fixa baseadas em indicadores objetivos de mercado.',
+        tip: 'Não são promessas de ganho, mas filtros fundamentalistas para guiar seu estudo.'
+      },
+      'inv-suitability-painel': {
+        title: 'Perfil de Investidor (Suitability)',
+        desc: 'Mapeamento regulatório de adequação de perfil (Conservador, Moderado ou Arrojado), tolerância a volatilidade e horizonte de investimento.',
+        tip: 'A IA utiliza seu perfil para verificar se você não está correndo riscos além do desejado.'
+      },
+      'inv-parecer-ia': {
+        title: 'Parecer Executivo do Oráculo IA',
+        desc: 'Diagnóstico holístico que analisa sua carteira frente ao cenário macroeconômico atual (juros, inflação) e aponta desvios de alocação.',
+        tip: 'Use o botão "Recalcular Diagnóstico" para gerar uma nova leitura dos seus ativos.'
+      },
+      'inv-termometro-macro': {
+        title: 'Termômetro Macroeconômico Oficial',
+        desc: 'Painel com indicadores macro do Brasil: Taxa Selic Meta, IPCA acumulado, Cotação do Dólar e PTAX divulgados pelo Banco Central.',
+        tip: 'Quando a Selic sobe, a Renda Fixa pós-fixada paga mais; quando cai, Ações e FIIs tendem a se valorizar.'
+      },
+      'inv-comparador-ferramenta': {
+        title: 'Comparador Inteligente de Ativos',
+        desc: 'Ferramenta analítica que cruza dois ativos simultaneamente para avaliar quem entrega maior retorno com menor risco.',
+        tip: 'Digite os códigos de dois ativos para comparar múltiplos fundamentalistas.'
+      },
+      'inv-projecao-dividendos': {
+        title: 'Projeção de Renda Passiva (12 Meses)',
+        desc: 'Estimativa baseada no Dividend Yield médio da sua carteira para prever o fluxo de caixa passivo mensal do próximo ano.',
+        formula: 'Projeção Anual = Valor de Mercado da Carteira × Dividend Yield Médio',
+        tip: 'Permite planejar quando a sua renda passiva cobrirá despesas recorrentes essenciais.'
       }
     };
 

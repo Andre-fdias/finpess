@@ -5115,6 +5115,19 @@
     }
 
     // SUITABILITY & ORÁCULO IA
+    function toggleInvestmentsGuideModal(force) {
+      var modal = document.getElementById('modal-investments-guide-backdrop');
+      if (!modal) return;
+      var shouldOpen = typeof force === 'boolean' ? force : !modal.classList.contains('open');
+      if (shouldOpen) {
+        modal.classList.add('open');
+        modal.style.display = 'flex';
+      } else {
+        modal.classList.remove('open');
+        modal.style.display = 'none';
+      }
+    }
+
     function toggleSuitabilityModal() {
       var modal = document.getElementById('modal-suitability-backdrop');
       if (!modal) return;
@@ -5663,7 +5676,7 @@
                 '</div>' +
               '</div>' +
             '</td>' +
-            '<td>' +
+            '<td class="col-center">' +
               '<span class="badge" style="background:' + clsMeta.bg + '; color:' + clsMeta.color + '; font-size:0.73rem; font-weight:600;">' + UIHelpers.escapeHtml(clsMeta.label) + '</span>' +
             '</td>' +
             '<td class="col-money">' + UIHelpers.formatBrl(a.valor_aplicado_centavos) + '</td>' +
@@ -5674,7 +5687,7 @@
               '</span>' +
             '</td>' +
             '<td class="col-money" style="color:#7c3aed; font-weight:600;">' + UIHelpers.formatBrl(a.rendimentos_acumulados_centavos) + '</td>' +
-            '<td style="font-size:0.8rem; color:var(--text-secondary);">' + UIHelpers.formatDateBr(a.data_referencia) + '</td>' +
+            '<td class="col-center" style="font-size:0.8rem; color:var(--text-secondary);">' + UIHelpers.formatDateBr(a.data_referencia) + '</td>' +
             '<td style="text-align:right;">' + dropdownHtml + '</td>' +
           '</tr>'
         );
@@ -5684,18 +5697,20 @@
         '<table class="data-table">' +
           '<thead>' +
             '<tr>' +
-              '<th>Ativo & Instituição</th>' +
-              '<th>Classe</th>' +
-              '<th class="col-money">Total Aplicado</th>' +
-              '<th class="col-money">Valor de Mercado</th>' +
-              '<th class="col-money">Rentabilidade</th>' +
-              '<th class="col-money">Proventos</th>' +
-              '<th>Data Ref.</th>' +
+              '<th>Ativo & Instituição <span class="info-popover-wrap" data-info-key="inv-col-ativo"></span></th>' +
+              '<th class="col-center">Classe <span class="info-popover-wrap" data-info-key="inv-col-classe"></span></th>' +
+              '<th class="col-money">Total Aplicado <span class="info-popover-wrap" data-info-key="inv-col-aplicado"></span></th>' +
+              '<th class="col-money">Valor de Mercado <span class="info-popover-wrap" data-info-key="inv-col-mercado"></span></th>' +
+              '<th class="col-money">Rentabilidade <span class="info-popover-wrap" data-info-key="inv-col-rentabilidade"></span></th>' +
+              '<th class="col-money">Proventos <span class="info-popover-wrap" data-info-key="inv-col-proventos"></span></th>' +
+              '<th class="col-center">Data Ref. <span class="info-popover-wrap" data-info-key="inv-col-data-ref"></span></th>' +
               '<th style="text-align:right;">Ações</th>' +
             '</tr>' +
           '</thead>' +
           '<tbody>' + rows + '</tbody>' +
         '</table>';
+
+      UIHelpers.initInfoPopovers(document.getElementById('sec-investments'));
     }
 
     function loadInvestments(forceRefresh) {
@@ -10586,6 +10601,7 @@
       loadTop10Category: loadTop10Category,
       openAssetComparisonPrefilled: openAssetComparisonPrefilled,
       runAssetComparison: runAssetComparison,
+      toggleInvestmentsGuideModal: toggleInvestmentsGuideModal,
       toggleSuitabilityModal: toggleSuitabilityModal,
       submitSuitability: submitSuitability,
       loadDividendProjections: loadDividendProjections,
