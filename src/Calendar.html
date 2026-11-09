@@ -11,42 +11,85 @@
         </svg>
       </div>
       <div>
-        <h1 id="title-calendar" class="page-title">Calendário Financeiro</h1>
-        <p class="page-subtitle">Acompanhe vencimentos, receitas previstas e pagamentos realizados nas visões Mês, Dia e Ano.</p>
+        <h1 id="title-calendar" class="page-title" style="display:inline-flex; align-items:center; gap:0.4rem;">
+          <span>Calendário Financeiro</span>
+          <span class="info-popover-wrap" data-info-key="cal-modulo"></span>
+        </h1>
+        <p class="page-subtitle">Acompanhe vencimentos, receitas previstas e pagamentos realizados nas visões Mês, Dia, Ano e Lista.</p>
       </div>
     </div>
     <div class="page-header-actions">
+      <!-- Botão de Manual de Uso do Módulo -->
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleCalendarGuideModal(true)" id="btn-manual-calendar" style="display:inline-flex; align-items:center; gap:0.4rem; height:32px; font-size:0.78rem; font-weight:600; color:#7c3aed; border-color:rgba(124,58,237,0.3);" title="Abrir Manual de Uso do Calendário Financeiro">
+          <span>📖 Manual de Uso</span>
+        </button>
+        <span class="info-popover-wrap" data-info-key="cal-btn-manual" data-align="right"></span>
+      </div>
+
       <!-- Botão de Sincronização com Agenda Própria Google Calendar -->
-      <button type="button" class="btn btn-secondary btn-sm" onclick="App.syncGoogleCalendar()" id="btn-sync-google-calendar" style="display:inline-flex; align-items:center; gap:0.4rem; height:32px; font-size:0.78rem;" title="Conectar / Sincronizar com Agenda Própria no Google Calendar">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
-        <span>Google Agenda</span>
-      </button>
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.syncGoogleCalendar()" id="btn-sync-google-calendar" style="display:inline-flex; align-items:center; gap:0.4rem; height:32px; font-size:0.78rem;" title="Conectar / Sincronizar com Agenda Própria no Google Calendar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+          <span>Google Agenda</span>
+        </button>
+        <span class="info-popover-wrap" data-info-key="cal-btn-google-sync" data-align="right"></span>
+      </div>
 
       <!-- Filtros com suporte às novas regras do sistema -->
-      <select id="cal-filtro-tipo" class="form-control" style="width:130px; height:32px; font-size:0.78rem;" onchange="App.loadCalendar()" title="Filtrar por tipo financeiro">
-        <option value="">Todos Tipos</option>
-        <option value="ENTRADA">↑ Receitas</option>
-        <option value="SAIDA">↓ Despesas</option>
-        <option value="CONSIGNADO_FOLHA">🏢 Consignados</option>
-        <option value="INFORMATIVO">📊 Agenda Mercado</option>
-      </select>
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <select id="cal-filtro-tipo" class="form-control" style="width:130px; height:32px; font-size:0.78rem;" onchange="App.loadCalendar()" title="Filtrar por tipo financeiro">
+          <option value="">Todos Tipos</option>
+          <option value="ENTRADA">↑ Receitas</option>
+          <option value="SAIDA">↓ Despesas</option>
+          <option value="CONSIGNADO_FOLHA">🏢 Consignados</option>
+          <option value="INFORMATIVO">📊 Agenda Mercado</option>
+        </select>
+        <span class="info-popover-wrap" data-info-key="cal-filtro-tipo" data-align="right"></span>
+      </div>
 
-      <select id="cal-filtro-origem" class="form-control" style="width:145px; height:32px; font-size:0.78rem;" onchange="App.loadCalendar()" title="Filtrar por módulo / origem">
-        <option value="">Todas Origens</option>
-        <option value="LANCAMENTOS">Lançamentos Manuais</option>
-        <option value="EMPRESTIMO">Empréstimos & Financiamentos</option>
-        <option value="INVESTIMENTO">Investimentos</option>
-        <option value="DIVIDA">Dívidas & Acordos</option>
-        <option value="RECORRENTE">Contas Recorrentes</option>
-        <option value="MERCADO">Agenda Econômica B3/Copom</option>
-      </select>
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <select id="cal-filtro-origem" class="form-control" style="width:145px; height:32px; font-size:0.78rem;" onchange="App.loadCalendar()" title="Filtrar por módulo / origem">
+          <option value="">Todas Origens</option>
+          <option value="LANCAMENTOS">Lançamentos Manuais</option>
+          <option value="EMPRESTIMO">Empréstimos & Financiamentos</option>
+          <option value="INVESTIMENTO">Investimentos</option>
+          <option value="DIVIDA">Dívidas & Acordos</option>
+          <option value="RECORRENTE">Contas Recorrentes</option>
+          <option value="MERCADO">Agenda Econômica B3/Copom</option>
+        </select>
+        <span class="info-popover-wrap" data-info-key="cal-filtro-origem" data-align="right"></span>
+      </div>
 
-      <label style="display:inline-flex; align-items:center; gap:0.35rem; font-size:0.78rem; font-weight:600; color:var(--text-secondary); cursor:pointer; margin:0;" title="Exibir datas de reuniões do Copom, IPCA, Fed e proventos no calendário">
-        <input type="checkbox" id="cal-check-mercado" checked onchange="App.loadCalendar()" style="accent-color:var(--primary); cursor:pointer;" />
-        <span>Agenda Mercado</span>
-      </label>
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <label style="display:inline-flex; align-items:center; gap:0.35rem; font-size:0.78rem; font-weight:600; color:var(--text-secondary); cursor:pointer; margin:0;" title="Exibir datas de reuniões do Copom, IPCA, Fed e proventos no calendário">
+          <input type="checkbox" id="cal-check-mercado" checked onchange="App.loadCalendar()" style="accent-color:var(--primary); cursor:pointer;" />
+          <span>Agenda Mercado</span>
+        </label>
+        <span class="info-popover-wrap" data-info-key="cal-check-mercado" data-align="right"></span>
+      </div>
       <input type="hidden" id="cal-visao" value="MENSAL" />
       <input type="hidden" id="cal-data-ref" />
+    </div>
+  </div>
+
+  <!-- Banner Didático: Regras de Exibição e Isolamento do Calendário -->
+  <div class="calendar-rules-banner" style="background:rgba(124, 58, 237, 0.05); border:1px solid rgba(124, 58, 237, 0.22); border-radius:var(--radius-md); padding:0.85rem 1.15rem; margin-bottom:1.15rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
+    <div style="display:flex; align-items:flex-start; gap:0.75rem; max-width:980px;">
+      <div style="width:34px; height:34px; border-radius:50%; background:rgba(124, 58, 237, 0.14); color:#7c3aed; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+      </div>
+      <div style="font-size:0.84rem; color:var(--text-primary); line-height:1.45;">
+        <strong style="display:inline-flex; align-items:center; gap:0.35rem;">
+          <span>Regras de Agendamento e Isolamento do Finpess:</span>
+          <span class="info-popover-wrap" data-info-key="cal-banner-regras"></span>
+        </strong>
+        <div style="margin-top:4px; display:flex; flex-direction:column; gap:4px; color:var(--text-secondary);">
+          <span>• <strong>🏢 Empréstimos Consignados:</strong> Aparecem destacados com o rótulo <em>"Folha (Não debita conta)"</em>, permitindo acompanhar o vencimento contratual sem duplicar despesas no saldo bancário.</span>
+          <span>• <strong>⚖️ Dívidas & Acordos:</strong> Dívidas antigas pendentes não poluem o calendário diário; apenas parcelas de acordos renegociados e agendados aparecem com data de vencimento.</span>
+          <span>• <strong>📊 Agenda Econômica B3:</strong> Datas oficiais das reuniões do Copom, IPCA e indicadores são sincronizados automaticamente em modo informativo.</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -54,7 +97,7 @@
   <div class="card" style="padding:1.15rem;">
     <!-- Toolbar FullCalendar -->
     <div class="fc-toolbar">
-      <div class="fc-nav-buttons">
+      <div class="fc-nav-buttons" style="display:inline-flex; align-items:center; gap:0.35rem;">
         <button type="button" class="btn btn-secondary btn-sm" onclick="App.calendarPrev()" aria-label="Período anterior" title="Anterior">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </button>
@@ -62,19 +105,21 @@
         <button type="button" class="btn btn-secondary btn-sm" onclick="App.calendarNext()" aria-label="Próximo período" title="Próximo">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
+        <span class="info-popover-wrap" data-info-key="cal-nav-buttons"></span>
       </div>
 
       <div class="fc-title-container">
         <h2 id="fc-current-title" class="fc-title">Carregando Calendário...</h2>
       </div>
 
-      <div class="fc-view-buttons">
+      <div class="fc-view-buttons" style="display:inline-flex; align-items:center; gap:0.35rem;">
         <div class="fc-btn-group">
           <button type="button" class="fc-btn active" id="btn-fc-view-month" onclick="App.calendarSetView('MENSAL')">Mês</button>
           <button type="button" class="fc-btn" id="btn-fc-view-day" onclick="App.calendarSetView('DIARIA')">Dia</button>
           <button type="button" class="fc-btn" id="btn-fc-view-year" onclick="App.calendarSetView('ANUAL')">Ano</button>
           <button type="button" class="fc-btn" id="btn-fc-view-list" onclick="App.calendarSetView('LISTA')">Lista</button>
         </div>
+        <span class="info-popover-wrap" data-info-key="cal-views" data-align="right"></span>
       </div>
     </div>
 
@@ -86,6 +131,126 @@
     <!-- Contêiner do Calendário Visual (Grade Mensal, Diária, Anual ou Lista) -->
     <div id="calendar-events-container">
       <!-- Grade FullCalendar renderizada aqui -->
+    </div>
+  </div>
+
+  <!-- MODAL: MANUAL DE USO COMPLETO DO CALENDÁRIO FINANCEIRO -->
+  <div id="modal-calendar-guide" class="modal-backdrop" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.65); align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:1rem;">
+    <div class="card" style="max-width:880px; width:100%; max-height:90vh; display:flex; flex-direction:column; padding:0; border-radius:14px; box-shadow:0 20px 40px rgba(0,0,0,0.45); overflow:hidden;">
+      <div class="modal-header" style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+        <div style="display:flex; align-items:center; gap:0.65rem;">
+          <div style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg, #7c3aed, #4f46e5); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.15rem;">
+            📅
+          </div>
+          <div>
+            <h2 style="font-size:1.15rem; font-weight:700; margin:0; color:var(--text-primary);">Manual de Operação: Calendário Financeiro</h2>
+            <small style="color:var(--text-muted); font-size:0.78rem;">Guia passo a passo de visões, filtros, agenda econômica e conciliação.</small>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleCalendarGuideModal(false)" style="border-radius:50%; width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1rem;">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding:1.5rem; overflow-y:auto; display:flex; flex-direction:column; gap:1.25rem; line-height:1.55;">
+        <!-- Bloco 1: Visão Geral -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            🎯 1. Visão Geral e Objetivo do Calendário
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            O <strong>Calendário Financeiro</strong> do Finpess consolida em uma linha do tempo unificada todos os seus compromissos financeiros: receitas salariais previstas, contas fixas, faturas de cartão, parcelas de empréstimos, acordos de dívidas e eventos macroeconômicos do mercado.
+          </p>
+          <p style="margin:0; font-size:0.84rem; color:var(--text-secondary);">
+            Ele substitui o controle em planilhas dispersas e impede que você seja surpreendido por vencimentos em feriados ou finais de semana, calculando automaticamente o saldo diário projetado.
+          </p>
+        </div>
+
+        <!-- Bloco 2: As 4 Visões do Calendário -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            📅 2. As 4 Visões Disponíveis (Mês, Dia, Ano e Lista)
+          </h3>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; margin-top:0.5rem;">
+            <div style="padding:0.75rem; border-radius:8px; background:rgba(124, 58, 237, 0.06); border:1px solid rgba(124, 58, 237, 0.2);">
+              <strong style="color:#7c3aed; font-size:0.84rem; display:block; margin-bottom:2px;">📆 Visão Mensal (Padrão)</strong>
+              <small style="color:var(--text-secondary); font-size:0.78rem;">Grade clássica de 35 a 42 dias com resumo diário de entradas, saídas e badges de eventos para rápido diagnóstico do fluxo.</small>
+            </div>
+            <div style="padding:0.75rem; border-radius:8px; background:rgba(37, 99, 235, 0.06); border:1px solid rgba(37, 99, 235, 0.2);">
+              <strong style="color:#2563eb; font-size:0.84rem; display:block; margin-bottom:2px;">⏱️ Visão Diária</strong>
+              <small style="color:var(--text-secondary); font-size:0.78rem;">Foco cirúrgico no dia selecionado com todos os detalhes de conta bancária, categoria, status de quitação e horário.</small>
+            </div>
+            <div style="padding:0.75rem; border-radius:8px; background:rgba(16, 185, 129, 0.06); border:1px solid rgba(16, 185, 129, 0.2);">
+              <strong style="color:#059669; font-size:0.84rem; display:block; margin-bottom:2px;">📊 Visão Anual</strong>
+              <small style="color:var(--text-secondary); font-size:0.78rem;">Matriz de 12 meses lado a lado para identificar meses com maior concentração de saídas (IPTU, IPVA, seguros, etc.).</small>
+            </div>
+            <div style="padding:0.75rem; border-radius:8px; background:rgba(245, 158, 11, 0.06); border:1px solid rgba(245, 158, 11, 0.2);">
+              <strong style="color:#d97706; font-size:0.84rem; display:block; margin-bottom:2px;">📋 Visão em Lista</strong>
+              <small style="color:var(--text-secondary); font-size:0.78rem;">Listagem cronológica tabular ideal para conferência rápida e conciliação em telas menores ou dispositivos móveis.</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloco 3: Filtros por Tipo e Origem -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            🔍 3. Filtros Inteligentes por Tipo e Origem
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            Use os seletores no cabeçalho para isolar exatamente o que você deseja inspecionar:
+          </p>
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.83rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:4px;">
+            <li><strong>Filtro de Tipo:</strong> Alterne entre <em>Todas</em>, <em>↑ Receitas</em>, <em>↓ Despesas</em>, <em>🏢 Consignados</em> ou <em>📊 Agenda Mercado</em>.</li>
+            <li><strong>Filtro de Origem:</strong> Isole registros vindos de <em>Lançamentos Manuais</em>, <em>Empréstimos & Financiamentos</em>, <em>Investimentos</em>, <em>Dívidas & Acordos</em> ou <em>Contas Recorrentes</em>.</li>
+            <li><strong>Checkbox Agenda Mercado:</strong> Desmarque se preferir ocultar datas econômicas e focar exclusivamente nas suas finanças operacionais pessoais.</li>
+          </ul>
+        </div>
+
+        <!-- Bloco 4: Agenda B3 & Copom -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            📈 4. Agenda Macroeconômica B3 & Decisões do Copom
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            O Finpess inclui na grade datas de eventos financeiros estratégicos: reuniões do <strong>Copom (Taxa Selic)</strong>, divulgação do <strong>IPCA</strong> pelo IBGE e decisões do <strong>Federal Reserve (EUA)</strong>. Ao clicar em qualquer um desses eventos na grade, um popover detalhado apresenta o impacto esperado em renda fixa e variável.
+          </p>
+        </div>
+
+        <!-- Bloco 5: Google Agenda -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            📲 5. Sincronização Automática com o Google Calendar
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            Ao clicar no botão <strong>"Google Agenda"</strong>, o sistema cria ou sincroniza automaticamente uma agenda secundária dedicada chamada <em>"Finanças Inteligentes"</em> na sua conta Google. Seus vencimentos passam a emitir lembretes no seu celular sem poluir sua agenda pessoal principal.
+          </p>
+        </div>
+
+        <!-- Bloco 6: Regras de Isolamento -->
+        <div style="background:rgba(245, 158, 11, 0.05); border:1px solid rgba(245, 158, 11, 0.25); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#d97706; display:flex; align-items:center; gap:0.4rem;">
+            🛡️ 6. Regras de Isolamento (Consignado e Dívidas Antigas)
+          </h3>
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.83rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:4px;">
+            <li><strong>Empréstimos Consignados:</strong> A parcela é retida diretamente no seu contracheque. No calendário ela aparece com badge lilás informativo e <em>não debita da conta bancária</em> para não distorcer o saldo líquido.</li>
+            <li><strong>Dívidas Antigas Negativadas:</strong> Não geram avisos de vencimento diário aleatórios, prevenindo pânico visual no fluxo. Quando você firma um acordo parcelado, as parcelas do acordo entram organizadas no calendário.</li>
+          </ul>
+        </div>
+
+        <!-- Bloco 7: Dicas de Conciliação -->
+        <div style="background:rgba(16, 185, 129, 0.05); border:1px solid rgba(16, 185, 129, 0.25); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#059669; display:flex; align-items:center; gap:0.4rem;">
+            💡 7. Dicas de Conciliação Diária
+          </h3>
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.83rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:4px;">
+            <li>Clique no botão <strong>"Hoje"</strong> a qualquer momento para centralizar a visão na data atual.</li>
+            <li>Na visualização Mensal, clique no número do dia para pular instantaneamente para a <strong>Visão Diária</strong> daquela data.</li>
+            <li>Ao pagar uma despesa na vida real, marque-a como Paga no Finpess para que o badge no calendário passe de pendente para verde (concluído).</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="padding:1rem 1.5rem; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; flex-shrink:0;">
+        <button type="button" class="btn btn-primary" onclick="App.toggleCalendarGuideModal(false)" style="font-weight:600;">Entendido! Fechar Manual</button>
+      </div>
     </div>
   </div>
 </section>

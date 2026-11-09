@@ -1481,6 +1481,89 @@
         desc: 'Estimativa baseada no Dividend Yield médio da sua carteira para prever o fluxo de caixa passivo mensal do próximo ano.',
         formula: 'Projeção Anual = Valor de Mercado da Carteira × Dividend Yield Médio',
         tip: 'Permite planejar quando a sua renda passiva cobrirá despesas recorrentes essenciais.'
+      },
+
+      // ==========================================
+      // MÓDULO CALENDÁRIO FINANCEIRO
+      // ==========================================
+      'cal-modulo': {
+        title: 'Módulo de Calendário Financeiro',
+        desc: 'Visão cronológica consolidada de todos os seus compromissos financeiros: receitas previstas, contas a pagar, parcelas de empréstimos, faturas de cartão e eventos da agenda econômica.',
+        tip: 'Alterne entre as visões Mês, Dia, Ano e Lista para obter o melhor detalhamento temporal do seu fluxo de caixa.'
+      },
+      'cal-btn-manual': {
+        title: 'Manual de Funcionamento do Calendário',
+        desc: 'Abre o manual completo de instruções práticas, explicando como navegar nas visões, usar filtros de tipo e origem, sincronizar com o Google Calendar e entender o isolamento de consignados.',
+        tip: 'Consulte o manual para tirar dúvidas sobre a interpretação do saldo diário e regras contábeis.'
+      },
+      'cal-btn-google-sync': {
+        title: 'Integração com Google Agenda',
+        desc: 'Sincroniza os vencimentos e receitas do seu Finpess diretamente com a sua agenda própria no Google Calendar, permitindo alertas no celular e desktop.',
+        tip: 'A sincronização é segura, idempotente e nunca duplica compromissos na sua conta Google.'
+      },
+      'cal-filtro-tipo': {
+        title: 'Filtro por Tipo Financeiro',
+        desc: 'Filtra os eventos exibidos na grade por natureza: ↑ Receitas, ↓ Despesas, 🏢 Consignados em Folha ou 📊 Agenda Econômica de Mercado.',
+        tip: 'Selecione "↓ Despesas" para auditar exclusivamente os dias com contas e boletos a vencer.'
+      },
+      'cal-filtro-origem': {
+        title: 'Filtro por Origem do Evento',
+        desc: 'Permite isolar compromissos vindos de Lançamentos Manuais, Empréstimos & Financiamentos, Investimentos, Dívidas & Acordos, Contas Recorrentes ou Agenda Econômica.',
+        tip: 'Ideal para auditar especificamente as parcelas de empréstimos ou os vencimentos de contas mensais fixas.'
+      },
+      'cal-check-mercado': {
+        title: 'Exibir Agenda Macroeconômica',
+        desc: 'Ativa ou oculta eventos informativos do mercado financeiro brasileiro e internacional, como reuniões do Copom (Taxa Selic), divulgação do IPCA (Inflação) e reuniões do Fed.',
+        tip: 'Esses eventos têm finalidade informativa e não alteram o seu saldo de caixa.'
+      },
+      'cal-banner-regras': {
+        title: 'Regras de Proteção Contábil no Calendário',
+        desc: 'Garante que contratos consignados e dívidas antigas sem acordo apareçam nas datas devidas para controle, mas sem deduzir dinheiro da sua conta bancária.',
+        tip: 'Evita a duplicidade de gastos com salários que já são recebidos com desconto em folha.'
+      },
+      'cal-nav-buttons': {
+        title: 'Navegação Temporal',
+        desc: 'Botões para avançar ou retroceder períodos (mês anterior/próximo ou ano anterior/próximo) e botão "Hoje" para retornar instantaneamente à data atual.',
+        tip: 'Você também pode clicar no número de qualquer dia na grade mensal para abrir a visão diária detalhada.'
+      },
+      'cal-views': {
+        title: 'Modos de Visualização do Calendário',
+        desc: 'Quatro perspectivas do seu fluxo financeiro: Mês (grade tradicional 7x5 com totais diários), Dia (extrato detalhado hora a hora), Ano (mapa de calor anual) e Lista (tabela corrida ordenada por data).',
+        tip: 'A visão Lista é excelente para exportação mental e acompanhamento cronológico rápido.'
+      },
+      'cal-resumo-entradas': {
+        title: 'Entradas no Período',
+        desc: 'Soma total de todas as receitas (salários, rendimentos, entradas) previstas ou realizadas que afetam o saldo no período selecionado.',
+        formula: 'Total Entradas = Σ(Receitas com afeta_saldo = true)',
+        tip: 'Inclui pagamentos confirmados e recebimentos previstos para os próximos dias.'
+      },
+      'cal-resumo-saidas': {
+        title: 'Saídas no Período',
+        desc: 'Soma total de todas as despesas a pagar e pagamentos efetuados que reduzem seu saldo bancário no período.',
+        formula: 'Total Saídas = Σ(Despesas com afeta_saldo = true)',
+        tip: 'Despesas já pagas aparecem com fundo verde; compromissos previstos aparecem em amarelo/azul.'
+      },
+      'cal-resumo-saldo': {
+        title: 'Saldo Líquido de Caixa no Período',
+        desc: 'Resultado financeiro líquido projetado para o período selecionado, confrontando receitas e despesas com impacto real de caixa.',
+        formula: 'Saldo Líquido = Total de Entradas - Total de Saídas',
+        tip: 'Se o saldo estiver positivo (verde), suas receitas cobrem todos os vencimentos com sobra.'
+      },
+      'cal-resumo-consignado': {
+        title: 'Consignados em Folha (Isolados)',
+        desc: 'Montante total de parcelas de empréstimos consignados no mês que são descontadas diretamente no contracheque pelo empregador.',
+        formula: 'Consignado = Σ(Parcelas de empréstimo com desconto em folha)',
+        tip: 'Esse total é meramente informativo no calendário e NÃO é subtraído do seu Saldo Líquido de Caixa.'
+      },
+      'cal-resumo-mercado': {
+        title: 'Eventos da Agenda Econômica',
+        desc: 'Quantidade de eventos macroeconômicos e datas-chave (Copom, IPCA, Fed, etc.) agendados para o período visível.',
+        tip: 'Monitore as datas das reuniões do Copom para acompanhar tendências da taxa básica de juros.'
+      },
+      'cal-resumo-total': {
+        title: 'Total de Compromissos Agendados',
+        desc: 'Contador absoluto de todas as entradas, saídas, compromissos e eventos de mercado mapeados no período.',
+        tip: 'Permite mensurar a densidade e a complexidade dos seus compromissos no mês.'
       }
     };
 

@@ -6791,48 +6791,69 @@
         var saldo = totalEntradas - totalSaidas;
 
         var consignadoBadge = totalConsignado > 0
-          ? '<div class="fc-summary-item"><span class="fc-summary-label">Consignado (Folha)</span><span class="fc-summary-value money-estimated">🏢 ' + UIHelpers.formatBrl(totalConsignado) + '</span></div>'
+          ? '<div class="fc-summary-item">' +
+              '<span class="fc-summary-label" style="display:inline-flex; align-items:center; gap:0.25rem;"><span>Consignado (Folha)</span><span class="info-popover-wrap" data-info-key="cal-resumo-consignado"></span></span>' +
+              '<span class="fc-summary-value money-estimated">🏢 ' + UIHelpers.formatBrl(totalConsignado) + '</span>' +
+            '</div>'
           : '';
         var mercadoBadge = totalEventosMercado > 0
-          ? '<div class="fc-summary-item"><span class="fc-summary-label">Agenda de Mercado</span><span class="fc-summary-value" style="color:var(--predicted);">📊 ' + totalEventosMercado + ' evento(s)</span></div>'
+          ? '<div class="fc-summary-item">' +
+              '<span class="fc-summary-label" style="display:inline-flex; align-items:center; gap:0.25rem;"><span>Agenda de Mercado</span><span class="info-popover-wrap" data-info-key="cal-resumo-mercado"></span></span>' +
+              '<span class="fc-summary-value" style="color:var(--predicted);">📊 ' + totalEventosMercado + ' evento(s)</span>' +
+            '</div>'
           : '';
 
         var elSummary = document.getElementById('calendar-summary-header');
         if (elSummary) {
           elSummary.innerHTML =
             '<div class="fc-summary-item">' +
-              '<span class="fc-summary-label">Entradas no Período</span>' +
+              '<span class="fc-summary-label" style="display:inline-flex; align-items:center; gap:0.25rem;"><span>Entradas no Período</span><span class="info-popover-wrap" data-info-key="cal-resumo-entradas"></span></span>' +
               '<span class="fc-summary-value money-positive">+' + UIHelpers.formatBrl(totalEntradas) + '</span>' +
             '</div>' +
             '<div class="fc-summary-item">' +
-              '<span class="fc-summary-label">Saídas no Período</span>' +
+              '<span class="fc-summary-label" style="display:inline-flex; align-items:center; gap:0.25rem;"><span>Saídas no Período</span><span class="info-popover-wrap" data-info-key="cal-resumo-saidas"></span></span>' +
               '<span class="fc-summary-value money-negative">-' + UIHelpers.formatBrl(totalSaidas) + '</span>' +
             '</div>' +
             '<div class="fc-summary-item">' +
-              '<span class="fc-summary-label">Saldo Líquido Caixa</span>' +
+              '<span class="fc-summary-label" style="display:inline-flex; align-items:center; gap:0.25rem;"><span>Saldo Líquido Caixa</span><span class="info-popover-wrap" data-info-key="cal-resumo-saldo"></span></span>' +
               '<span class="fc-summary-value ' + (saldo >= 0 ? 'money-positive' : 'money-negative') + '">' + UIHelpers.formatBrl(saldo) + '</span>' +
             '</div>' +
             consignadoBadge +
             mercadoBadge +
             '<div class="fc-summary-item" style="margin-left:auto;">' +
-              '<span class="fc-summary-label">Total de Compromissos</span>' +
+              '<span class="fc-summary-label" style="display:inline-flex; align-items:center; gap:0.25rem;"><span>Total de Compromissos</span><span class="info-popover-wrap" data-info-key="cal-resumo-total"></span></span>' +
               '<span class="fc-summary-value">' + (cal.total_eventos || state.calendarEvents.length) + ' evento(s)</span>' +
             '</div>';
         }
 
         var container = document.getElementById('calendar-events-container');
-        if (!container) return;
+        if (container) {
+          if (state.calendarView === 'DIARIA') {
+            renderDayCalendar(cal, container);
+          } else if (state.calendarView === 'ANUAL') {
+            renderYearCalendar(cal, container);
+          } else if (state.calendarView === 'LISTA') {
+            renderListCalendar(cal, container);
+          } else {
+            renderMonthCalendar(cal, container);
+          }
+        }
 
-        if (state.calendarView === 'DIARIA') {
-          renderDayCalendar(cal, container);
-        } else if (state.calendarView === 'ANUAL') {
-          renderYearCalendar(cal, container);
-        } else if (state.calendarView === 'LISTA') {
-          renderListCalendar(cal, container);
-        } else {
-          renderMonthCalendar(cal, container);
+        var secCalendar = document.getElementById('sec-calendar');
+        if (secCalendar && window.UIHelpers && typeof window.UIHelpers.initInfoPopovers === 'function') {
+          window.UIHelpers.initInfoPopovers(secCalendar);
         }
       });
+    }
+
+    function toggleCalendarGuideModal(forceOpen) {
+      var modal = document.getElementById('modal-calendar-guide');
+      if (!modal) return;
+      var isCurrentlyOpen = modal.classList.contains('open') || modal.style.display === 'flex';
+      var shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !isCurrentlyOpen;
+      modal.style.display = shouldOpen ? 'flex' : 'none';
+      if (shouldOpen) modal.classList.add('open');
+      else modal.classList.remove('open');
     }
 
     function loadProjections(saveSnapshot) {
@@ -11120,6 +11141,7 @@
       loadInvestments: loadInvestments,
       refreshMarketDataOnline: refreshMarketDataOnline,
       loadCalendar: loadCalendar,
+      toggleCalendarGuideModal: toggleCalendarGuideModal,
       calendarPrev: calendarPrev,
       calendarNext: calendarNext,
       calendarToday: calendarToday,
