@@ -8,16 +8,31 @@
         </div>
         <div>
           <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-            <h1 id="title-oraculo" class="card-title" style="font-size:1.35rem; margin:0;">Oráculo IA 2.0 — Analista Financeiro Autônomo</h1>
+            <h1 id="title-oraculo" class="card-title" style="font-size:1.35rem; margin:0; display:inline-flex; align-items:center; gap:0.4rem;">
+              <span>Oráculo IA 2.0 — Analista Financeiro Autônomo</span>
+              <span class="info-popover-wrap" data-info-key="oracle-modulo"></span>
+            </h1>
             <span class="badge badge-confirmado" style="font-size:0.75rem;">Monitoramento Proativo & Preditivo</span>
           </div>
           <small style="color:var(--text-secondary);">Análise de saúde financeira, detecção contínua de riscos, simulação determinística de cenários e consultoria estratégica com IA.</small>
         </div>
       </div>
-      <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-        <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadOraculo(true)" title="Executa nova varredura completa das finanças">
-          🔄 Reanalisar Agora
-        </button>
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+        <!-- Botão Manual de Uso -->
+        <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleOracleGuideModal(true)" id="btn-manual-oracle" style="display:inline-flex; align-items:center; gap:0.4rem; height:34px; font-size:0.8rem; font-weight:600; color:#8b5cf6; border-color:rgba(139,92,246,0.3);" title="Abrir Manual de Uso do Oráculo IA">
+            <span>📖 Manual de Uso</span>
+          </button>
+          <span class="info-popover-wrap" data-info-key="oracle-btn-manual" data-align="right"></span>
+        </div>
+
+        <!-- Botão Reanalisar -->
+        <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadOraculo(true)" style="height:34px; display:inline-flex; align-items:center; gap:0.35rem;" title="Executa nova varredura completa das finanças">
+            <span>🔄 Reanalisar Agora</span>
+          </button>
+          <span class="info-popover-wrap" data-info-key="oracle-btn-reanalisar" data-align="right"></span>
+        </div>
       </div>
     </div>
   </div>
@@ -27,7 +42,8 @@
     <div class="card-header" style="padding-bottom:0.5rem;">
       <div>
         <h2 class="card-title" style="font-size:1.15rem; display:flex; align-items:center; gap:0.5rem;">
-          🩺 Índice de Saúde Financeira
+          <span>🩺 Índice de Saúde Financeira</span>
+          <span class="info-popover-wrap" data-info-key="oracle-health-painel"></span>
           <span id="oracle-health-badge" class="badge badge-confirmado">Calculando...</span>
         </h2>
         <small style="color:var(--text-secondary);">Diagnóstico auditável baseado em 6 dimensões contábeis determinísticas calculadas no servidor.</small>
@@ -40,8 +56,11 @@
 
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem; align-items:center; padding:0.5rem 0;">
       <!-- Score Principal -->
-      <div style="background:var(--bg-secondary); padding:1.25rem; border-radius:12px; text-align:center;">
-        <span style="font-size:0.85rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Pontuação Geral</span>
+      <div style="background:var(--bg-secondary); padding:1.25rem; border-radius:12px; text-align:center; position:relative;">
+        <div style="display:flex; justify-content:center; align-items:center; gap:0.35rem;">
+          <span style="font-size:0.85rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Pontuação Geral</span>
+          <span class="info-popover-wrap" data-info-key="oracle-health-score"></span>
+        </div>
         <div style="display:flex; align-items:baseline; justify-content:center; gap:0.35rem; margin:0.35rem 0;">
           <span id="oracle-health-score" style="font-size:2.8rem; font-weight:800; color:var(--primary); line-height:1;">--</span>
           <span style="font-size:1.2rem; color:var(--text-muted); font-weight:600;">/ 100</span>
@@ -53,25 +72,38 @@
       </div>
 
       <!-- 6 Dimensões de Avaliação -->
-      <div id="oracle-dimensions-container" style="display:flex; flex-direction:column; gap:0.6rem;">
-        <div style="font-size:0.85rem; color:var(--text-muted);">Carregando dimensões financeiras...</div>
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+          <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">6 Dimensões Auditadas</span>
+          <span class="info-popover-wrap" data-info-key="oracle-health-dimensoes" data-align="right"></span>
+        </div>
+        <div id="oracle-dimensions-container" style="display:flex; flex-direction:column; gap:0.6rem;">
+          <div style="font-size:0.85rem; color:var(--text-muted);">Carregando dimensões financeiras...</div>
+        </div>
       </div>
     </div>
 
     <!-- Pontos Fortes e Pontos de Atenção -->
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border-color);">
-      <div style="background:rgba(16, 185, 129, 0.08); border:1px solid rgba(16, 185, 129, 0.2); border-radius:8px; padding:0.85rem;">
-        <strong style="color:#059669; font-size:0.85rem; display:flex; align-items:center; gap:0.35rem; margin-bottom:0.4rem;">
-          ✅ Pontos Fortes Identificados
-        </strong>
+      <div style="background:rgba(16, 185, 129, 0.08); border:1px solid rgba(16, 185, 129, 0.2); border-radius:8px; padding:0.85rem; position:relative;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+          <strong style="color:#059669; font-size:0.85rem; display:flex; align-items:center; gap:0.35rem;">
+            ✅ Pontos Fortes Identificados
+          </strong>
+          <span class="info-popover-wrap" data-info-key="oracle-strengths" data-align="right"></span>
+        </div>
         <ul id="oracle-strengths-list" style="margin:0; padding-left:1.15rem; font-size:0.85rem; color:var(--text-secondary); line-height:1.5;">
           <li>Nenhum ponto carregado.</li>
         </ul>
       </div>
-      <div style="background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.2); border-radius:8px; padding:0.85rem;">
-        <strong style="color:#dc2626; font-size:0.85rem; display:flex; align-items:center; gap:0.35rem; margin-bottom:0.4rem;">
-          ⚠️ Pontos de Atenção & Riscos
-        </strong>
+
+      <div style="background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.2); border-radius:8px; padding:0.85rem; position:relative;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+          <strong style="color:#dc2626; font-size:0.85rem; display:flex; align-items:center; gap:0.35rem;">
+            ⚠️ Pontos de Atenção & Riscos
+          </strong>
+          <span class="info-popover-wrap" data-info-key="oracle-warnings" data-align="right"></span>
+        </div>
         <ul id="oracle-warnings-list" style="margin:0; padding-left:1.15rem; font-size:0.85rem; color:var(--text-secondary); line-height:1.5;">
           <li>Nenhum alerta carregado.</li>
         </ul>
@@ -81,26 +113,45 @@
 
   <!-- Navegação por Sub-abas do Oráculo -->
   <div class="tabs-nav-container" style="margin-bottom:1.25rem;">
-    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
-      <button type="button" class="btn btn-sm btn-primary oracle-tab-btn" data-tab="consultor" onclick="App.switchOracleTab('consultor')">
-        💬 Consultor & Perguntas Livres
-      </button>
-      <button type="button" class="btn btn-sm btn-secondary oracle-tab-btn" data-tab="alertas" onclick="App.switchOracleTab('alertas')">
-        🚨 Central de Alertas <span id="oracle-alerts-badge" class="badge badge-pendente" style="margin-left:0.35rem; font-size:0.7rem;">0</span>
-      </button>
-      <button type="button" class="btn btn-sm btn-secondary oracle-tab-btn" data-tab="gargalos" onclick="App.switchOracleTab('gargalos')">
-        🔍 Detector de Gargalos
-      </button>
-      <button type="button" class="btn btn-sm btn-secondary oracle-tab-btn" data-tab="simulador" onclick="App.switchOracleTab('simulador')">
-        🧮 Simulador de Cenários
-      </button>
-      <button type="button" class="btn btn-sm btn-secondary oracle-tab-btn" data-tab="plano" onclick="App.switchOracleTab('plano')">
-        📋 Plano de Ação Estratégico
-      </button>
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem; align-items:center;">
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-sm btn-primary oracle-tab-btn" data-tab="consultor" onclick="App.switchOracleTab('consultor')">
+          💬 Consultor & Perguntas Livres
+        </button>
+        <span class="info-popover-wrap" data-info-key="oracle-tab-consultor"></span>
+      </div>
+
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-sm btn-secondary oracle-tab-btn" data-tab="alertas" onclick="App.switchOracleTab('alertas')">
+          🚨 Central de Alertas <span id="oracle-alerts-badge" class="badge badge-pendente" style="margin-left:0.35rem; font-size:0.7rem;">0</span>
+        </button>
+        <span class="info-popover-wrap" data-info-key="oracle-tab-alertas"></span>
+      </div>
+
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-sm btn-secondary oracle-tab-btn" data-tab="gargalos" onclick="App.switchOracleTab('gargalos')">
+          🔍 Detector de Gargalos
+        </button>
+        <span class="info-popover-wrap" data-info-key="oracle-tab-gargalos"></span>
+      </div>
+
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-sm btn-secondary oracle-tab-btn" data-tab="simulador" onclick="App.switchOracleTab('simulador')">
+          🧮 Simulador de Cenários
+        </button>
+        <span class="info-popover-wrap" data-info-key="oracle-tab-simulador"></span>
+      </div>
+
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-sm btn-secondary oracle-tab-btn" data-tab="plano" onclick="App.switchOracleTab('plano')">
+          📋 Plano de Ação Estratégico
+        </button>
+        <span class="info-popover-wrap" data-info-key="oracle-tab-plano"></span>
+      </div>
     </div>
   </div>
 
-  <!-- SUB-ABA 1: CONSULTOR INTERATIVO & RAG EM LINGUAGEM NATURAL (ESTILO GEMINI) -->
+  <!-- SUB-ABA 1: CONSULTOR INTERATIVO & RAG EM LINGUAGEM NATURAL -->
   <div id="oracle-subtab-consultor" class="oracle-subtab-content">
     <div class="card" style="margin-bottom:1.25rem; border:1px solid var(--border-color); box-shadow:var(--shadow-sm); border-radius:14px; overflow:hidden;">
       
@@ -308,6 +359,136 @@
       </div>
       <div id="oracle-action-plan-container" style="display:flex; flex-direction:column; gap:1rem;">
         <p style="color:var(--text-muted);">Carregando plano de ação...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: MANUAL DE USO COMPLETO DO ORÁCULO IA 2.0 -->
+  <div id="modal-oracle-guide" class="modal-backdrop" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.65); align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:1rem;">
+    <div class="card" style="max-width:880px; width:100%; max-height:90vh; display:flex; flex-direction:column; padding:0; border-radius:14px; box-shadow:0 20px 40px rgba(0,0,0,0.45); overflow:hidden;">
+      <div class="modal-header" style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+        <div style="display:flex; align-items:center; gap:0.65rem;">
+          <div style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg, #8b5cf6, #6366f1); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.15rem;">
+            🔮
+          </div>
+          <div>
+            <h2 style="font-size:1.15rem; font-weight:700; margin:0; color:var(--text-primary);">Manual de Operação: Oráculo IA 2.0</h2>
+            <small style="color:var(--text-muted); font-size:0.78rem;">Guia completo do Analista Financeiro Autônomo, score de saúde e simulador.</small>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleOracleGuideModal(false)" style="border-radius:50%; width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1rem;">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding:1.5rem; overflow-y:auto; display:flex; flex-direction:column; gap:1.25rem; line-height:1.55;">
+        <!-- Bloco 1: Visão Geral -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            🔮 1. Visão Geral do Oráculo IA 2.0
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            O <strong>Oráculo IA 2.0</strong> atua como seu Diretor Financeiro (CFO) pessoal e autônomo. Ele monitora continuamente as 28 abas da sua planilha, audita padrões de consumo, identifica riscos antes que se tornem crises e sugere melhorias práticas para aumentar seu patrimônio líquido.
+          </p>
+          <p style="margin:0; font-size:0.84rem; color:var(--text-secondary);">
+            Todas as métricas são calculadas por algoritmos matemáticos determinísticos (sem alucinações de IA) e alimentam o modelo de linguagem natural apenas para a geração de pareceres estratégicos e explicações didáticas.
+          </p>
+        </div>
+
+        <!-- Bloco 2: Score de Saúde -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            🩺 2. Como é Calculado o Score de Saúde Financeira (0 a 100)
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            O Score Geral varia de 0 a 100 e reflete a resiliência global do seu patrimônio:
+          </p>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.55rem; margin-top:0.5rem;">
+            <div style="padding:0.6rem; border-radius:8px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25);">
+              <strong style="color:#059669; font-size:0.82rem; display:block;">🟢 Excelente (85 a 100)</strong>
+              <small style="color:var(--text-secondary); font-size:0.75rem;">Superávit robusto, dívidas sob controle e reserva montada.</small>
+            </div>
+            <div style="padding:0.6rem; border-radius:8px; background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.25);">
+              <strong style="color:#2563eb; font-size:0.82rem; display:block;">🔵 Bom (70 a 84)</strong>
+              <small style="color:var(--text-secondary); font-size:0.75rem;">Vida financeira saudável com pequenas oportunidades de economia.</small>
+            </div>
+            <div style="padding:0.6rem; border-radius:8px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25);">
+              <strong style="color:#d97706; font-size:0.82rem; display:block;">🟡 Atenção (50 a 69)</strong>
+              <small style="color:var(--text-secondary); font-size:0.75rem;">Orçamento apertado ou comprometimento relevante com cartões.</small>
+            </div>
+            <div style="padding:0.6rem; border-radius:8px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25);">
+              <strong style="color:#dc2626; font-size:0.82rem; display:block;">🔴 Crítico (&lt; 50)</strong>
+              <small style="color:var(--text-secondary); font-size:0.75rem;">Déficit operacional ou risco imediato de endividamento.</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloco 3: 6 Dimensões -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            📊 3. As 6 Dimensões Contábeis Auditadas
+          </h3>
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.83rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:4px;">
+            <li><strong>1. Liquidez Imediata:</strong> Capacidade de honrar despesas do mês corrente com o saldo em conta.</li>
+            <li><strong>2. Solvência & Endividamento:</strong> Proporção das parcelas de empréstimos e cartões em relação à renda mensal.</li>
+            <li><strong>3. Taxa de Poupança:</strong> Percentual de receita retida e convertida em patrimônio líquido.</li>
+            <li><strong>4. Cumprimento de Orçamento:</strong> Aderência aos limites definidos por categoria no planejamento.</li>
+            <li><strong>5. Rigor e Recorrência:</strong> Proporção de custos fixos vs discricionários no orçamento.</li>
+            <li><strong>6. Cobertura da Reserva:</strong> Quantos meses de despesas básicas estão garantidos na reserva de emergência.</li>
+          </ul>
+        </div>
+
+        <!-- Bloco 4: Consultor RAG -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            💬 4. Como Usar o Consultor em Linguagem Natural (RAG)
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            Na aba <strong>"Consultor & Perguntas Livres"</strong>, converse como se estivesse com um consultor humano. O Oráculo consulta os saldos reais, faturas, categorias e datas de vencimento no banco de dados para responder:
+          </p>
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.83rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:4px;">
+            <li><em>"Quanto gastei com delivery e supermercado este mês?"</em></li>
+            <li><em>"Qual fatura de cartão vence primeiro e qual o valor total?"</em></li>
+            <li><em>"Posso comprar uma viagem de R$ 4.000 parcelada em 10x sem estourar o caixa?"</em></li>
+          </ul>
+        </div>
+
+        <!-- Bloco 5: Central de Alertas -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            🚨 5. Central de Alertas & Notificações Preventivas
+          </h3>
+          <p style="margin:0; font-size:0.84rem; color:var(--text-secondary);">
+            Na subaba <strong>"Central de Alertas"</strong>, o sistema lista proativamente riscos detectados: contas com vencimento nos próximos 3 dias, categorias que atingiram 90% do teto, compras duplicadas e faturas próximas do limite de crédito.
+          </p>
+        </div>
+
+        <!-- Bloco 6: Detector de Gargalos -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            🔍 6. Detector de Gargalos e Custos Ocultos
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            O detector separa suas despesas em <strong>Custos Fixos</strong> (essenciais) e <strong>Custos Variáveis</strong> (ajustáveis), calculando o <em>Potencial de Economia Mensal e Anual</em> caso você aplique uma redução moderada de 10% a 15% apenas nas categorias com maior margem de manobra.
+          </p>
+        </div>
+
+        <!-- Bloco 7: Simulador de Cenários -->
+        <div style="background:rgba(139,92,246,0.05); border:1px solid rgba(139,92,246,0.25); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#7c3aed; display:flex; align-items:center; gap:0.4rem;">
+            🧮 7. Simulador de Cenários Hipotéticos ("E se...?")
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            O simulador permite testar hipóteses <strong>sem alterar nenhum dado real</strong> na sua planilha:
+          </p>
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.83rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:4px;">
+            <li><strong>E se eu cortar 20% em Lazer e Restaurantes?</strong> → Veja o impacto no saldo mensal e anual.</li>
+            <li><strong>E se eu amortizar R$ 500 por mês em uma dívida?</strong> → Veja a evolução do score de saúde financeira.</li>
+            <li><strong>E se eu receber um aumento ou renda extra de R$ 1.200?</strong> → Descubra em quanto tempo sua reserva ideal será concluída.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="padding:1rem 1.5rem; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; flex-shrink:0;">
+        <button type="button" class="btn btn-primary" onclick="App.toggleOracleGuideModal(false)" style="font-weight:600;">Entendido! Fechar Manual</button>
       </div>
     </div>
   </div>

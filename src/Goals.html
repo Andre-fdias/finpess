@@ -1,5 +1,5 @@
 <section id="sec-goals" class="module-section" aria-labelledby="title-goals">
-  <!-- Header Principal com Ícone e Botão Nova Meta -->
+  <!-- Header Principal com Ícone, Manual de Uso e Ações -->
   <div class="page-header-card" style="margin-bottom:1.15rem; border-radius:var(--radius-md);">
     <div class="page-header-content">
       <div class="page-icon-badge" style="background:rgba(16, 185, 129, 0.14); color:#10b981;">
@@ -10,19 +10,39 @@
         </svg>
       </div>
       <div>
-        <h1 id="title-goals" class="card-title" style="font-size:1.3rem; margin:0; font-weight:700;">Metas Financeiras & Reserva de Emergência</h1>
-        <small style="color:var(--text-secondary); font-size:0.82rem;">Defina objetivos claros, calcule o esforço mensal para conquistá-los e blinde seu futuro com a reserva ideal.</small>
+        <h1 id="title-goals" class="card-title" style="font-size:1.3rem; margin:0; font-weight:700; display:inline-flex; align-items:center; gap:0.4rem;">
+          <span>Metas Financeiras & Reserva de Emergência</span>
+          <span class="info-popover-wrap" data-info-key="goal-modulo"></span>
+        </h1>
+        <small style="color:var(--text-secondary); font-size:0.82rem; display:block; margin-top:2px;">Defina objetivos claros, calcule o esforço mensal para conquistá-los e blinde seu futuro com a reserva ideal.</small>
       </div>
     </div>
     <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
-      <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadGoals()" style="height:34px; display:inline-flex; align-items:center; gap:0.35rem;" title="Atualizar metas">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
-        <span>Atualizar</span>
-      </button>
-      <button type="button" class="btn btn-primary btn-sm" onclick="App.openNewGoalModal()" style="height:34px; display:inline-flex; align-items:center; gap:0.35rem; background:linear-gradient(135deg,#10b981,#059669);">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        <span>Nova Meta</span>
-      </button>
+      <!-- Botão Manual de Uso -->
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleGoalsGuideModal(true)" id="btn-manual-goals" style="display:inline-flex; align-items:center; gap:0.4rem; height:34px; font-size:0.8rem; font-weight:600; color:#10b981; border-color:rgba(16,185,129,0.3);" title="Abrir Manual de Uso de Metas & Reserva">
+          <span>📖 Manual de Uso</span>
+        </button>
+        <span class="info-popover-wrap" data-info-key="goal-btn-manual" data-align="right"></span>
+      </div>
+
+      <!-- Botão Atualizar -->
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadGoals()" style="height:34px; display:inline-flex; align-items:center; gap:0.35rem;" title="Atualizar metas e recalcular reserva">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+          <span>Atualizar</span>
+        </button>
+        <span class="info-popover-wrap" data-info-key="goal-btn-atualizar" data-align="right"></span>
+      </div>
+
+      <!-- Botão Nova Meta -->
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-primary btn-sm" onclick="App.openNewGoalModal()" style="height:34px; display:inline-flex; align-items:center; gap:0.35rem; background:linear-gradient(135deg,#10b981,#059669);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span>Nova Meta</span>
+        </button>
+        <span class="info-popover-wrap" data-info-key="goal-btn-nova-meta" data-align="right"></span>
+      </div>
     </div>
   </div>
 
@@ -30,7 +50,10 @@
   <div class="filter-summary-cards" style="margin-bottom:1.25rem;">
     <div class="filter-summary-card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span class="summary-label">Total Alvo (Metas Ativas)</span>
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>Total Alvo (Metas Ativas)</span>
+          <span class="info-popover-wrap" data-info-key="goal-kpi-total-alvo"></span>
+        </span>
         <span class="badge" style="background:rgba(99,102,241,0.12); color:#6366f1; font-size:0.65rem;">Objetivos</span>
       </div>
       <strong class="summary-value" id="goals-kpi-total-alvo">R$ 0,00</strong>
@@ -39,7 +62,10 @@
 
     <div class="filter-summary-card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span class="summary-label">Total Já Acumulado</span>
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>Total Já Acumulado</span>
+          <span class="info-popover-wrap" data-info-key="goal-kpi-total-acumulado"></span>
+        </span>
         <span class="badge badge-confirmado" style="font-size:0.65rem;">Guardado</span>
       </div>
       <strong class="summary-value summary-val-entrada" id="goals-kpi-total-acumulado">R$ 0,00</strong>
@@ -48,7 +74,10 @@
 
     <div class="filter-summary-card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span class="summary-label">Progresso Geral</span>
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>Progresso Geral</span>
+          <span class="info-popover-wrap" data-info-key="goal-kpi-progresso-geral"></span>
+        </span>
         <span class="badge" id="goals-kpi-pct-badge" style="background:rgba(16,185,129,0.12); color:var(--success); font-size:0.65rem;">0%</span>
       </div>
       <strong class="summary-value" id="goals-kpi-pct-geral">0%</strong>
@@ -57,7 +86,10 @@
 
     <div class="filter-summary-card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span class="summary-label">Reserva Recomendada</span>
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>Reserva Recomendada</span>
+          <span class="info-popover-wrap" data-info-key="goal-kpi-reserva-ideal"></span>
+        </span>
         <span class="badge badge-info" style="font-size:0.65rem;">6 Meses</span>
       </div>
       <strong class="summary-value" id="goals-kpi-reserva-ideal">R$ 0,00</strong>
@@ -73,34 +105,49 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
         </div>
         <div>
-          <h2 class="card-title" style="margin:0; font-size:1.05rem;">Calculadora Inteligente de Reserva de Emergência</h2>
-          <small style="color:var(--text-secondary); font-size:0.78rem;">Calculada automaticamente com base na média dos seus gastos reais essenciais.</small>
+          <h2 class="card-title" style="margin:0; font-size:1.05rem; display:inline-flex; align-items:center; gap:0.4rem;">
+            <span>Calculadora Inteligente de Reserva de Emergência</span>
+            <span class="info-popover-wrap" data-info-key="goal-card-calculadora-reserva"></span>
+          </h2>
+          <small style="color:var(--text-secondary); font-size:0.78rem; display:block; margin-top:2px;">Calculada automaticamente com base na média dos seus gastos reais essenciais.</small>
         </div>
       </div>
       <span class="badge badge-confirmado">Proteção Financeira</span>
     </div>
 
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1rem;">
-      <div style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:8px; padding:12px;">
-        <div style="font-size:0.75rem; color:var(--text-secondary); text-transform:uppercase; font-weight:600;">Custo Mensal Médio</div>
+      <div style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:8px; padding:12px; position:relative;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:0.75rem; color:var(--text-secondary); text-transform:uppercase; font-weight:600;">Custo Mensal Médio</span>
+          <span class="info-popover-wrap" data-info-key="goal-reserva-custo-medio"></span>
+        </div>
         <div style="font-size:1.2rem; font-weight:700; color:var(--text-primary); margin:4px 0;" id="goals-emergency-custo-medio">R$ 0,00</div>
         <small style="font-size:0.72rem; color:var(--text-secondary);">Média de despesas essenciais recentes</small>
       </div>
 
-      <div style="background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.25); border-radius:8px; padding:12px;">
-        <div style="font-size:0.75rem; color:#2563eb; text-transform:uppercase; font-weight:600;">🛡️ Mínima (3 Meses)</div>
+      <div style="background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.25); border-radius:8px; padding:12px; position:relative;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:0.75rem; color:#2563eb; text-transform:uppercase; font-weight:600;">🛡️ Mínima (3 Meses)</span>
+          <span class="info-popover-wrap" data-info-key="goal-reserva-faixa-3m"></span>
+        </div>
         <div style="font-size:1.2rem; font-weight:700; color:#1d4ed8; margin:4px 0;" id="goals-emergency-3m">R$ 0,00</div>
         <small style="font-size:0.72rem; color:var(--text-secondary);">Para solteiros com estabilidade</small>
       </div>
 
-      <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); border-radius:8px; padding:12px;">
-        <div style="font-size:0.75rem; color:#059669; text-transform:uppercase; font-weight:600;">⭐ Ideal (6 Meses)</div>
+      <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); border-radius:8px; padding:12px; position:relative;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:0.75rem; color:#059669; text-transform:uppercase; font-weight:600;">⭐ Ideal (6 Meses)</span>
+          <span class="info-popover-wrap" data-info-key="goal-reserva-faixa-6m"></span>
+        </div>
         <div style="font-size:1.2rem; font-weight:700; color:#047857; margin:4px 0;" id="goals-emergency-6m">R$ 0,00</div>
         <small style="font-size:0.72rem; color:var(--text-secondary);">Recomendada para famílias e CLT</small>
       </div>
 
-      <div style="background:rgba(139,92,246,0.06); border:1px solid rgba(139,92,246,0.25); border-radius:8px; padding:12px;">
-        <div style="font-size:0.75rem; color:#7c3aed; text-transform:uppercase; font-weight:600;">🏰 Conforto (12 Meses)</div>
+      <div style="background:rgba(139,92,246,0.06); border:1px solid rgba(139,92,246,0.25); border-radius:8px; padding:12px; position:relative;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:0.75rem; color:#7c3aed; text-transform:uppercase; font-weight:600;">🏰 Conforto (12 Meses)</span>
+          <span class="info-popover-wrap" data-info-key="goal-reserva-faixa-12m"></span>
+        </div>
         <div style="font-size:1.2rem; font-weight:700; color:#6d28d9; margin:4px 0;" id="goals-emergency-12m">R$ 0,00</div>
         <small style="font-size:0.72rem; color:var(--text-secondary);">Para autônomos e empresários</small>
       </div>
@@ -122,8 +169,11 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
         </div>
         <div>
-          <h2 class="card-title" style="margin:0; font-size:1.05rem;">Seus Objetivos & Prazos</h2>
-          <small style="color:var(--text-secondary); font-size:0.78rem;">Acompanhe o percentual atingido e a recomendação de esforço mensal para cada conquista.</small>
+          <h2 class="card-title" style="margin:0; font-size:1.05rem; display:inline-flex; align-items:center; gap:0.4rem;">
+            <span>Seus Objetivos & Prazos</span>
+            <span class="info-popover-wrap" data-info-key="goal-grid-objetivos"></span>
+          </h2>
+          <small style="color:var(--text-secondary); font-size:0.78rem; display:block; margin-top:2px;">Acompanhe o percentual atingido e a recomendação de esforço mensal para cada conquista.</small>
         </div>
       </div>
       <span class="badge badge-info" id="goals-count-badge">Carregando...</span>
@@ -262,5 +312,143 @@
       </form>
     </div>
   </div>
-</section>
 
+  <!-- MODAL: MANUAL DE USO COMPLETO DE METAS & RESERVA DE EMERGÊNCIA -->
+  <div id="modal-goals-guide" class="modal-backdrop" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.65); align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:1rem;">
+    <div class="card" style="max-width:880px; width:100%; max-height:90vh; display:flex; flex-direction:column; padding:0; border-radius:14px; box-shadow:0 20px 40px rgba(0,0,0,0.45); overflow:hidden;">
+      <div class="modal-header" style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+        <div style="display:flex; align-items:center; gap:0.65rem;">
+          <div style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg, #10b981, #059669); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.15rem;">
+            🎯
+          </div>
+          <div>
+            <h2 style="font-size:1.15rem; font-weight:700; margin:0; color:var(--text-primary);">Manual de Operação: Metas & Reserva de Emergência</h2>
+            <small style="color:var(--text-muted); font-size:0.78rem;">Guia prático para conquistar objetivos com cálculo de esforço mensal e proteção patrimonial.</small>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleGoalsGuideModal(false)" style="border-radius:50%; width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1rem;">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding:1.5rem; overflow-y:auto; display:flex; flex-direction:column; gap:1.25rem; line-height:1.55;">
+        <!-- Bloco 1: Visão Geral -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            🎯 1. Visão Geral e a Pirâmide Financeira
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            Na metodologia do Finpess, o sucesso financeiro se apoia em uma pirâmide clara: 
+            <strong>1º Orçamento Equilibrado</strong> (gastar menos do que ganha) → 
+            <strong>2º Reserva de Emergência</strong> (blindagem contra imprevistos) → 
+            <strong>3º Metas Específicas</strong> (sonhos com prazo) → 
+            <strong>4º Liberdade Financeira</strong> (investimentos de longo prazo).
+          </p>
+          <p style="margin:0; font-size:0.84rem; color:var(--text-secondary);">
+            Este módulo automatiza os pilares 2 e 3, calculando exatamente quanto dinheiro você precisa ter guardado para dormir em paz e quanto deve poupar todo mês para atingir seus sonhos.
+          </p>
+        </div>
+
+        <!-- Bloco 2: Reserva de Emergência -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            🛡️ 2. Como Funciona a Reserva de Emergência (3, 6 e 12 Meses)
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            O Finpess calcula seu <strong>Custo Mensal Médio Essencial</strong> a partir dos lançamentos reais das suas contas bancárias. Com esse dado, ele dimensiona 3 faixas de proteção:
+          </p>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:0.65rem; margin-top:0.5rem;">
+            <div style="padding:0.75rem; border-radius:8px; background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.2);">
+              <strong style="color:#2563eb; font-size:0.84rem; display:block; margin-bottom:2px;">🛡️ Mínima (3 Meses)</strong>
+              <small style="color:var(--text-secondary); font-size:0.78rem;">Recomendada para concursados públicos ou pessoas com estabilidade contratual elevada e rede de apoio familiar.</small>
+            </div>
+            <div style="padding:0.75rem; border-radius:8px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25);">
+              <strong style="color:#059669; font-size:0.84rem; display:block; margin-bottom:2px;">⭐ Ideal (6 Meses)</strong>
+              <small style="color:var(--text-secondary); font-size:0.78rem;">Recomendação padrão para profissionais CLT e famílias. Cobre despesas fundamentais durante eventuais transições de emprego.</small>
+            </div>
+            <div style="padding:0.75rem; border-radius:8px; background:rgba(124,58,237,0.06); border:1px solid rgba(124,58,237,0.2);">
+              <strong style="color:#7c3aed; font-size:0.84rem; display:block; margin-bottom:2px;">🏰 Conforto (12 Meses)</strong>
+              <small style="color:var(--text-secondary); font-size:0.78rem;">Recomendada para autônomos, empresários, freelancers e profissionais com remuneração variável ou comissões.</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloco 3: Onde Guardar -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            ⚖️ 3. Onde Guardar a Reserva de Emergência
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            A finalidade da reserva de emergência é <strong>segurança e liquidez imediata</strong>, e não rentabilidade arriscada. Mantenha esse valor alocado exclusivamente em:
+          </p>
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.83rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:4px;">
+            <li><strong>Tesouro Selic:</strong> Título público federal com garantia soberana e liquidez D+1.</li>
+            <li><strong>CDB de Liquidez Diária:</strong> Pagando pelo menos 100% do CDI com garantia do FGC até R$ 250 mil por instituição.</li>
+            <li><strong>Contas Remuneradas:</strong> Contas digitais com rendimento automático diário sobre 100% do CDI.</li>
+          </ul>
+        </div>
+
+        <!-- Bloco 4: Cadastro de Metas -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            ➕ 4. Como Cadastrar e Planejar uma Meta com Prazo
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            Clique no botão <strong>"+ Nova Meta"</strong> no cabeçalho e informe:
+          </p>
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.83rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:4px;">
+            <li><strong>Nome do Objetivo:</strong> Ex: <em>"Viagem Disney 2027"</em> ou <em>"Entrada do Apartamento"</em>.</li>
+            <li><strong>Categoria:</strong> Ajuda a agrupar e priorizar seus planos.</li>
+            <li><strong>Valor Total Alvo:</strong> Quanto custa o objetivo final em reais.</li>
+            <li><strong>Data Prazo / Alvo:</strong> A data limite em que você deseja alcançar o montante.</li>
+            <li><strong>Valor Já Guardado:</strong> Caso você já tenha começado a poupar antes.</li>
+          </ul>
+        </div>
+
+        <!-- Bloco 5: Esforço Mensal -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            🧮 5. Cálculo Automático do Esforço Mensal (Aporte Necessário)
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            Assim que você define o valor alvo e a data limite, o motor calcula automaticamente a fórmula de esforço:
+          </p>
+          <div style="padding:0.6rem 0.85rem; border-radius:8px; background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.2); font-family:monospace; font-size:0.85rem; color:#4f46e5; margin:0.4rem 0;">
+            Aporte Mensal Recomendado = (Valor Alvo - Valor Atual) / Meses Restantes até o Prazo
+          </div>
+          <p style="margin:0; font-size:0.84rem; color:var(--text-secondary);">
+            Dessa forma, você sabe exatamente quanto deve economizar em cada contracheque para não correr o risco de frustrar seu plano.
+          </p>
+        </div>
+
+        <!-- Bloco 6: Registrando Aportes -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            💰 6. Registrando Aportes & Integração com Saldo Bancário
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            No card da meta, clique em <strong>"Guardar Dinheiro"</strong> para registrar um novo aporte. Você pode optar por:
+          </p>
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.83rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:4px;">
+            <li><strong>Apenas Incrementar a Meta:</strong> Caso o dinheiro já tenha sido movimentado ou esteja em outra aplicação externa.</li>
+            <li><strong>Debitar da Conta Bancária:</strong> Ao marcar o checkbox de integração, o Finpess debita automaticamente o valor da conta bancária de origem e cria o lançamento correspondente no histórico.</li>
+          </ul>
+        </div>
+
+        <!-- Bloco 7: Melhores Práticas -->
+        <div style="background:rgba(16, 185, 129, 0.05); border:1px solid rgba(16, 185, 129, 0.25); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#059669; display:flex; align-items:center; gap:0.4rem;">
+            💡 7. Melhores Práticas para Conquistar seus Objetivos
+          </h3>
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.83rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:4px;">
+            <li><strong>Pague-se Primeiro:</strong> Transfira o valor da sua meta para a aplicação assim que o salário cair na conta, em vez de esperar sobrar no final do mês.</li>
+            <li><strong>Não misture reservas:</strong> Mantenha a reserva de emergência separada das metas de consumo (viagem, carro, etc.).</li>
+            <li><strong>Celebre as conquistas:</strong> Ao atingir 100% de uma meta, clique em concluir para arquivar o objetivo com sucesso no histórico.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="padding:1rem 1.5rem; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; flex-shrink:0;">
+        <button type="button" class="btn btn-primary" onclick="App.toggleGoalsGuideModal(false)" style="font-weight:600;">Entendido! Fechar Manual</button>
+      </div>
+    </div>
+  </div>
+</section>

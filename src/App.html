@@ -6999,6 +6999,36 @@
       else modal.classList.remove('open');
     }
 
+    function toggleGoalsGuideModal(forceOpen) {
+      var modal = document.getElementById('modal-goals-guide');
+      if (!modal) return;
+      var isCurrentlyOpen = modal.classList.contains('open') || modal.style.display === 'flex';
+      var shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !isCurrentlyOpen;
+      modal.style.display = shouldOpen ? 'flex' : 'none';
+      if (shouldOpen) modal.classList.add('open');
+      else modal.classList.remove('open');
+    }
+
+    function toggleReportsGuideModal(forceOpen) {
+      var modal = document.getElementById('modal-reports-guide');
+      if (!modal) return;
+      var isCurrentlyOpen = modal.classList.contains('open') || modal.style.display === 'flex';
+      var shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !isCurrentlyOpen;
+      modal.style.display = shouldOpen ? 'flex' : 'none';
+      if (shouldOpen) modal.classList.add('open');
+      else modal.classList.remove('open');
+    }
+
+    function toggleOracleGuideModal(forceOpen) {
+      var modal = document.getElementById('modal-oracle-guide');
+      if (!modal) return;
+      var isCurrentlyOpen = modal.classList.contains('open') || modal.style.display === 'flex';
+      var shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !isCurrentlyOpen;
+      modal.style.display = shouldOpen ? 'flex' : 'none';
+      if (shouldOpen) modal.classList.add('open');
+      else modal.classList.remove('open');
+    }
+
     function viewProjectionMonthDetails(competencia) {
       var p = state.currentProjections;
       if (!p || !p.cenarios_mensais) return;
@@ -7360,6 +7390,11 @@
           );
         }).join('');
       }
+
+      var secGoals = document.getElementById('sec-goals');
+      if (secGoals && window.UIHelpers && typeof window.UIHelpers.initInfoPopovers === 'function') {
+        window.UIHelpers.initInfoPopovers(secGoals);
+      }
     }
 
     function openNewGoalModal() {
@@ -7559,6 +7594,11 @@
             if (btnCreate) btnCreate.style.display = 'inline-flex';
           }
         }
+
+        var secGoals = document.getElementById('sec-goals');
+        if (secGoals && window.UIHelpers && typeof window.UIHelpers.initInfoPopovers === 'function') {
+          window.UIHelpers.initInfoPopovers(secGoals);
+        }
       });
     }
 
@@ -7605,6 +7645,11 @@
         loadDreReport();
       } else if (tabId === 'ia' && !state.reportAiLoaded) {
         loadAiNarrativeReport();
+      }
+
+      var secReports = document.getElementById('sec-reports');
+      if (secReports && window.UIHelpers && typeof window.UIHelpers.initInfoPopovers === 'function') {
+        window.UIHelpers.initInfoPopovers(secReports);
       }
     }
 
@@ -7871,6 +7916,11 @@
         }
 
         loadDreReport();
+
+        var secReports = document.getElementById('sec-reports');
+        if (secReports && window.UIHelpers && typeof window.UIHelpers.initInfoPopovers === 'function') {
+          window.UIHelpers.initInfoPopovers(secReports);
+        }
       });
     }
 
@@ -7891,6 +7941,11 @@
         state.dreReport = dre;
         renderDreTable(dre);
         renderDreConciliacao(dre);
+
+        var secReports = document.getElementById('sec-reports');
+        if (secReports && window.UIHelpers && typeof window.UIHelpers.initInfoPopovers === 'function') {
+          window.UIHelpers.initInfoPopovers(secReports);
+        }
       });
     }
 
@@ -8411,6 +8466,11 @@
           pCont.innerHTML = pHtml;
         }
         renderOracleChat();
+
+        var secOraculo = document.getElementById('sec-oraculo');
+        if (secOraculo && window.UIHelpers && typeof window.UIHelpers.initInfoPopovers === 'function') {
+          window.UIHelpers.initInfoPopovers(secOraculo);
+        }
       });
     }
 
@@ -8432,6 +8492,11 @@
       }
       var target = document.getElementById('oracle-subtab-' + tabName);
       if (target) target.style.display = 'block';
+
+      var secOraculo = document.getElementById('sec-oraculo');
+      if (secOraculo && window.UIHelpers && typeof window.UIHelpers.initInfoPopovers === 'function') {
+        window.UIHelpers.initInfoPopovers(secOraculo);
+      }
     }
 
     function onSimulationTypeChange() {
@@ -11181,6 +11246,7 @@
       saveCategoryBudget: saveCategoryBudget,
       loadSubscriptionsInsights: loadSubscriptionsInsights,
       loadGoals: loadGoals,
+      toggleGoalsGuideModal: toggleGoalsGuideModal,
       openNewGoalModal: openNewGoalModal,
       openEditGoalModal: openEditGoalModal,
       closeGoalModal: closeGoalModal,
@@ -11192,6 +11258,7 @@
       toggleContributeAccountSelect: toggleContributeAccountSelect,
       loadEmergencyFundRecommendation: loadEmergencyFundRecommendation,
       createEmergencyGoalQuick: createEmergencyGoalQuick,
+      toggleReportsGuideModal: toggleReportsGuideModal,
       loadReports: loadReports,
       loadDreReport: loadDreReport,
       switchReportTab: switchReportTab,
@@ -11203,6 +11270,7 @@
       exportCsv: exportCsv,
       showLoading: showLoading,
       hideLoading: hideLoading,
+      toggleOracleGuideModal: toggleOracleGuideModal,
       loadOraculo: loadOraculo,
       switchOracleTab: switchOracleTab,
       onSimulationTypeChange: onSimulationTypeChange,

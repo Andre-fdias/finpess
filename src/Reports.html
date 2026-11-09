@@ -1,5 +1,5 @@
 <section id="sec-reports" class="module-section" aria-labelledby="title-reports">
-  <!-- Cabeçalho Principal Granazen com Badge de Ícone e Ações Rápidas de Exportação -->
+  <!-- Cabeçalho Principal Granazen com Badge de Ícone, Manual e Ações Rápidas de Exportação -->
   <div class="page-header-card" style="margin-bottom:1.15rem; border-radius:var(--radius-md);">
     <div class="page-header-content">
       <div class="page-icon-badge" style="background:rgba(37, 99, 235, 0.14); color:#2563eb;">
@@ -10,69 +10,38 @@
         </svg>
       </div>
       <div>
-        <h1 id="title-reports" class="card-title" style="font-size:1.3rem; margin:0; font-weight:700;">Relatórios Financeiros & Inteligência de Dados (BI)</h1>
-        <small style="color:var(--text-secondary); font-size:0.82rem;">Central executiva de demonstrativos, fluxo de caixa, custos por categoria, endividamento e parecer de IA.</small>
+        <h1 id="title-reports" class="card-title" style="font-size:1.3rem; margin:0; font-weight:700; display:inline-flex; align-items:center; gap:0.4rem;">
+          <span>Relatórios Financeiros & Inteligência de Dados (BI)</span>
+          <span class="info-popover-wrap" data-info-key="rep-modulo"></span>
+        </h1>
+        <small style="color:var(--text-secondary); font-size:0.82rem; display:block; margin-top:2px;">Central executiva de demonstrativos, fluxo de caixa, custos por categoria, endividamento e parecer de IA.</small>
       </div>
     </div>
     <div class="no-print" style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
-      <button type="button" class="btn btn-secondary btn-sm" onclick="App.exportCsv()" style="display:inline-flex; align-items:center; gap:0.35rem; height:34px;" title="Exportar lançamentos filtrados em formato CSV para Excel">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-        <span>Exportar CSV</span>
-      </button>
-      <button type="button" class="btn btn-primary btn-sm" onclick="App.printComprehensiveReport()" style="display:inline-flex; align-items:center; gap:0.35rem; height:34px;" title="Visualizar e Imprimir Relatório Executivo em PDF">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-        <span>Imprimir / PDF</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- SUB-ABA DRE: DRE GERENCIAL COMPLETA -->
-  <div id="section-rep-dre" class="rep-tab-content" style="display:none;">
-    <div class="card" style="margin-bottom:1.15rem;">
-      <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; flex-wrap:wrap; gap:0.75rem;">
-        <div class="card-header-with-icon">
-          <div class="card-header-icon" style="background:rgba(37,99,235,0.14); color:#2563eb;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          </div>
-          <div>
-            <h2 class="card-title" style="margin:0; font-size:1.1rem;">Demonstração do Resultado do Exercício (DRE Gerencial)</h2>
-            <small style="color:var(--text-secondary); font-size:0.78rem;">Regime de Competência contábil, Análise Vertical (AV %), Margens Operacionais e Reconciliação com o Caixa.</small>
-          </div>
-        </div>
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <span class="badge badge-confirmado" id="dre-margem-badge">Margem Líquida: 0%</span>
-        </div>
+      <!-- Botão Manual de Uso -->
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleReportsGuideModal(true)" id="btn-manual-reports" style="display:inline-flex; align-items:center; gap:0.4rem; height:34px; font-size:0.8rem; font-weight:600; color:#2563eb; border-color:rgba(37,99,235,0.3);" title="Abrir Manual de Uso de Relatórios & BI">
+          <span>📖 Manual de Uso</span>
+        </button>
+        <span class="info-popover-wrap" data-info-key="rep-btn-manual" data-align="right"></span>
       </div>
 
-      <!-- Banner Didático de Conciliação DRE vs Caixa -->
-      <div style="background:rgba(37,99,235,0.05); border:1px solid rgba(37,99,235,0.2); border-radius:8px; padding:10px 14px; margin-bottom:1.15rem; font-size:0.83rem; line-height:1.45; color:var(--text-primary); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem;">
-        <div>
-          <strong>🔍 Entenda a DRE:</strong> A DRE mede se suas receitas superaram suas despesas gerando lucro/riqueza real no período. Compras no cartão entram pelo mês da compra (competência) e receitas financeiras entram pelos rendimentos reais auferidos.
-        </div>
-        <div id="dre-resumo-rapido" style="font-weight:700; color:var(--primary);"></div>
+      <!-- Exportar CSV -->
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.exportCsv()" style="display:inline-flex; align-items:center; gap:0.35rem; height:34px;" title="Exportar lançamentos filtrados em formato CSV para Excel">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          <span>Exportar CSV</span>
+        </button>
+        <span class="info-popover-wrap" data-info-key="rep-btn-exportar-csv" data-align="right"></span>
       </div>
 
-      <!-- Tabela em Cascata da DRE Contábil -->
-      <div id="dre-completa-table-container" class="table-responsive">
-        <!-- Preenchido via App.renderDreTable -->
-      </div>
-    </div>
-
-    <!-- Conciliação Contábil vs Fluxo de Caixa -->
-    <div class="card">
-      <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
-        <div class="card-header-with-icon">
-          <div class="card-header-icon" style="background:rgba(16,185,129,0.14); color:#10b981;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          </div>
-          <div>
-            <h2 class="card-title" style="margin:0; font-size:0.95rem;">Conciliação Contábil: Resultado da DRE vs Saldo de Caixa</h2>
-            <small style="color:var(--text-secondary); font-size:0.75rem;">Explicação matemática de qualquer divergência entre o lucro da DRE e a sobra real nas contas bancárias.</small>
-          </div>
-        </div>
-      </div>
-      <div id="dre-conciliacao-container" class="table-responsive">
-        <!-- Preenchido via App.renderDreConciliacao -->
+      <!-- Imprimir / PDF -->
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-primary btn-sm" onclick="App.printComprehensiveReport()" style="display:inline-flex; align-items:center; gap:0.35rem; height:34px;" title="Visualizar e Imprimir Relatório Executivo em PDF">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          <span>Imprimir / PDF</span>
+        </button>
+        <span class="info-popover-wrap" data-info-key="rep-btn-imprimir-pdf" data-align="right"></span>
       </div>
     </div>
   </div>
@@ -82,7 +51,10 @@
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem; flex-wrap:wrap; gap:0.5rem;">
       <div style="display:flex; align-items:center; gap:0.45rem; font-weight:700; font-size:0.88rem; color:var(--text-primary);">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
-        <span>Filtros do Relatório Financeiro</span>
+        <span style="display:inline-flex; align-items:center; gap:0.35rem;">
+          <span>Filtros do Relatório Financeiro</span>
+          <span class="info-popover-wrap" data-info-key="rep-filtros-painel"></span>
+        </span>
       </div>
       <div style="display:flex; gap:0.4rem; align-items:center;">
         <button type="button" class="btn btn-secondary btn-sm" onclick="App.resetReportFilters()" style="font-size:0.75rem; height:28px;">Limpar</button>
@@ -92,7 +64,10 @@
 
     <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:0.75rem;">
       <div class="form-group">
-        <label for="rep-filtro-periodo" style="font-size:0.78rem; font-weight:600; color:var(--text-secondary);">Período de Análise</label>
+        <label for="rep-filtro-periodo" style="font-size:0.78rem; font-weight:600; color:var(--text-secondary); display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>Período de Análise</span>
+          <span class="info-popover-wrap" data-info-key="rep-filtro-periodo"></span>
+        </label>
         <select id="rep-filtro-periodo" class="form-control" style="height:34px; font-size:0.8rem;" onchange="App.onReportPeriodChange()">
           <option value="MES_ATUAL" selected>Mês Atual</option>
           <option value="MES_ANTERIOR">Mês Anterior</option>
@@ -128,156 +103,6 @@
     </div>
   </div>
 
-  <!-- SUB-ABA DRE: DRE GERENCIAL COMPLETA -->
-  <div id="section-rep-dre" class="rep-tab-content" style="display:none;">
-    <div class="card" style="margin-bottom:1.15rem;">
-      <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; flex-wrap:wrap; gap:0.75rem;">
-        <div class="card-header-with-icon">
-          <div class="card-header-icon" style="background:rgba(37,99,235,0.14); color:#2563eb;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          </div>
-          <div>
-            <h2 class="card-title" style="margin:0; font-size:1.1rem;">Demonstração do Resultado do Exercício (DRE Gerencial)</h2>
-            <small style="color:var(--text-secondary); font-size:0.78rem;">Regime de Competência contábil, Análise Vertical (AV %), Margens Operacionais e Reconciliação com o Caixa.</small>
-          </div>
-        </div>
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <span class="badge badge-confirmado" id="dre-margem-badge">Margem Líquida: 0%</span>
-        </div>
-      </div>
-
-      <!-- Banner Didático de Conciliação DRE vs Caixa -->
-      <div style="background:rgba(37,99,235,0.05); border:1px solid rgba(37,99,235,0.2); border-radius:8px; padding:10px 14px; margin-bottom:1.15rem; font-size:0.83rem; line-height:1.45; color:var(--text-primary); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem;">
-        <div>
-          <strong>🔍 Entenda a DRE:</strong> A DRE mede se suas receitas superaram suas despesas gerando lucro/riqueza real no período. Compras no cartão entram pelo mês da compra (competência) e receitas financeiras entram pelos rendimentos reais auferidos.
-        </div>
-        <div id="dre-resumo-rapido" style="font-weight:700; color:var(--primary);"></div>
-      </div>
-
-      <!-- Tabela em Cascata da DRE Contábil -->
-      <div id="dre-completa-table-container" class="table-responsive">
-        <!-- Preenchido via App.renderDreTable -->
-      </div>
-    </div>
-
-    <!-- Conciliação Contábil vs Fluxo de Caixa -->
-    <div class="card">
-      <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
-        <div class="card-header-with-icon">
-          <div class="card-header-icon" style="background:rgba(16,185,129,0.14); color:#10b981;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          </div>
-          <div>
-            <h2 class="card-title" style="margin:0; font-size:0.95rem;">Conciliação Contábil: Resultado da DRE vs Saldo de Caixa</h2>
-            <small style="color:var(--text-secondary); font-size:0.75rem;">Explicação matemática de qualquer divergência entre o lucro da DRE e a sobra real nas contas bancárias.</small>
-          </div>
-        </div>
-      </div>
-      <div id="dre-conciliacao-container" class="table-responsive">
-        <!-- Preenchido via App.renderDreConciliacao -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Cards de Resumo Executivo / KPIs do Período -->
-  <div class="filter-summary-cards" style="margin-bottom:1.15rem;">
-    <div class="filter-summary-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span class="summary-label">Receitas Confirmadas</span>
-        <span class="badge" style="background:rgba(16,185,129,0.12); color:var(--success); font-size:0.65rem;">Entradas</span>
-      </div>
-      <strong class="summary-value summary-val-entrada" id="rep-kpi-receitas">R$ 0,00</strong>
-      <small style="color:var(--text-secondary); font-size:0.75rem;" id="rep-kpi-receitas-desc">Total creditado</small>
-    </div>
-
-    <div class="filter-summary-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span class="summary-label">Despesas Confirmadas</span>
-        <span class="badge badge-cancelado" style="font-size:0.65rem;">Saídas</span>
-      </div>
-      <strong class="summary-value summary-val-saida" id="rep-kpi-despesas">R$ 0,00</strong>
-      <small style="color:var(--text-secondary); font-size:0.75rem;" id="rep-kpi-despesas-desc">Total debitado</small>
-    </div>
-
-    <div class="filter-summary-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span class="summary-label">Resultado Líquido</span>
-        <span class="badge" id="rep-kpi-resultado-badge" style="font-size:0.65rem;">Superávit</span>
-      </div>
-      <strong class="summary-value" id="rep-kpi-resultado">R$ 0,00</strong>
-      <small style="color:var(--text-secondary); font-size:0.75rem;">Saldo operacional do período</small>
-    </div>
-
-    <div class="filter-summary-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span class="summary-label">Taxa de Poupança</span>
-        <span class="badge" style="background:rgba(124, 58, 237, 0.12); color:#7c3aed; font-size:0.65rem;">Economia</span>
-      </div>
-      <strong class="summary-value" id="rep-kpi-taxa-poupanca" style="color:#7c3aed;">0,0%</strong>
-      <small style="color:var(--text-secondary); font-size:0.75rem;" id="rep-kpi-comprometimento-desc">Comprometimento: 0%</small>
-    </div>
-
-    <div class="filter-summary-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span class="summary-label">Patrimônio Líquido</span>
-        <span class="badge" style="background:rgba(2, 132, 199, 0.12); color:#0284c7; font-size:0.65rem;">Ativos - Passivos</span>
-      </div>
-      <strong class="summary-value" id="rep-kpi-patrimonio" style="color:var(--text-primary);">R$ 0,00</strong>
-      <small style="color:var(--text-secondary); font-size:0.75rem;">Contas + Investimentos - Dívidas</small>
-    </div>
-  </div>
-
-  <!-- SUB-ABA DRE: DRE GERENCIAL COMPLETA -->
-  <div id="section-rep-dre" class="rep-tab-content" style="display:none;">
-    <div class="card" style="margin-bottom:1.15rem;">
-      <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; flex-wrap:wrap; gap:0.75rem;">
-        <div class="card-header-with-icon">
-          <div class="card-header-icon" style="background:rgba(37,99,235,0.14); color:#2563eb;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          </div>
-          <div>
-            <h2 class="card-title" style="margin:0; font-size:1.1rem;">Demonstração do Resultado do Exercício (DRE Gerencial)</h2>
-            <small style="color:var(--text-secondary); font-size:0.78rem;">Regime de Competência contábil, Análise Vertical (AV %), Margens Operacionais e Reconciliação com o Caixa.</small>
-          </div>
-        </div>
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <span class="badge badge-confirmado" id="dre-margem-badge">Margem Líquida: 0%</span>
-        </div>
-      </div>
-
-      <!-- Banner Didático de Conciliação DRE vs Caixa -->
-      <div style="background:rgba(37,99,235,0.05); border:1px solid rgba(37,99,235,0.2); border-radius:8px; padding:10px 14px; margin-bottom:1.15rem; font-size:0.83rem; line-height:1.45; color:var(--text-primary); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem;">
-        <div>
-          <strong>🔍 Entenda a DRE:</strong> A DRE mede se suas receitas superaram suas despesas gerando lucro/riqueza real no período. Compras no cartão entram pelo mês da compra (competência) e receitas financeiras entram pelos rendimentos reais auferidos.
-        </div>
-        <div id="dre-resumo-rapido" style="font-weight:700; color:var(--primary);"></div>
-      </div>
-
-      <!-- Tabela em Cascata da DRE Contábil -->
-      <div id="dre-completa-table-container" class="table-responsive">
-        <!-- Preenchido via App.renderDreTable -->
-      </div>
-    </div>
-
-    <!-- Conciliação Contábil vs Fluxo de Caixa -->
-    <div class="card">
-      <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
-        <div class="card-header-with-icon">
-          <div class="card-header-icon" style="background:rgba(16,185,129,0.14); color:#10b981;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          </div>
-          <div>
-            <h2 class="card-title" style="margin:0; font-size:0.95rem;">Conciliação Contábil: Resultado da DRE vs Saldo de Caixa</h2>
-            <small style="color:var(--text-secondary); font-size:0.75rem;">Explicação matemática de qualquer divergência entre o lucro da DRE e a sobra real nas contas bancárias.</small>
-          </div>
-        </div>
-      </div>
-      <div id="dre-conciliacao-container" class="table-responsive">
-        <!-- Preenchido via App.renderDreConciliacao -->
-      </div>
-    </div>
-  </div>
-
   <!-- Navegador de Sub-Abas dos Relatórios -->
   <div class="no-print" style="margin-bottom:1.15rem; display:flex; gap:0.4rem; overflow-x:auto; padding-bottom:4px;">
     <button type="button" class="btn btn-sm btn-primary" id="btn-rep-tab-geral" onclick="App.switchReportTab('geral')" style="font-weight:600; font-size:0.8rem; border-radius:var(--radius-sm);">📊 Visão Geral</button>
@@ -288,7 +113,9 @@
     <button type="button" class="btn btn-sm btn-secondary" id="btn-rep-tab-ia" onclick="App.switchReportTab('ia')" style="font-weight:600; font-size:0.8rem; border-radius:var(--radius-sm); color:#7c3aed;">🧠 Parecer Controller IA</button>
   </div>
 
+  <!-- ========================================================================= -->
   <!-- SUB-ABA 1: VISÃO GERAL & EXECUTIVO -->
+  <!-- ========================================================================= -->
   <div id="section-rep-geral" class="rep-tab-content">
     <div class="grid-2col" style="margin-bottom:1.15rem;">
       <!-- Demonstrativo do Período -->
@@ -331,7 +158,9 @@
     </div>
   </div>
 
-<!-- SUB-ABA DRE: DRE GERENCIAL COMPLETA -->
+  <!-- ========================================================================= -->
+  <!-- SUB-ABA 2: DRE GERENCIAL COMPLETA -->
+  <!-- ========================================================================= -->
   <div id="section-rep-dre" class="rep-tab-content" style="display:none;">
     <div class="card" style="margin-bottom:1.15rem;">
       <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; flex-wrap:wrap; gap:0.75rem;">
@@ -340,12 +169,16 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
           </div>
           <div>
-            <h2 class="card-title" style="margin:0; font-size:1.1rem;">Demonstração do Resultado do Exercício (DRE Gerencial)</h2>
-            <small style="color:var(--text-secondary); font-size:0.78rem;">Regime de Competência contábil, Análise Vertical (AV %), Margens Operacionais e Reconciliação com o Caixa.</small>
+            <h2 class="card-title" style="margin:0; font-size:1.1rem; display:inline-flex; align-items:center; gap:0.4rem;">
+              <span>Demonstração do Resultado do Exercício (DRE Gerencial)</span>
+              <span class="info-popover-wrap" data-info-key="rep-dre-card"></span>
+            </h2>
+            <small style="color:var(--text-secondary); font-size:0.78rem; display:block; margin-top:2px;">Regime de Competência contábil, Análise Vertical (AV %), Margens Operacionais e Reconciliação com o Caixa.</small>
           </div>
         </div>
         <div style="display:flex; align-items:center; gap:0.5rem;">
           <span class="badge badge-confirmado" id="dre-margem-badge">Margem Líquida: 0%</span>
+          <span class="info-popover-wrap" data-info-key="rep-dre-margem-badge" data-align="right"></span>
         </div>
       </div>
 
@@ -371,8 +204,11 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </div>
           <div>
-            <h2 class="card-title" style="margin:0; font-size:0.95rem;">Conciliação Contábil: Resultado da DRE vs Saldo de Caixa</h2>
-            <small style="color:var(--text-secondary); font-size:0.75rem;">Explicação matemática de qualquer divergência entre o lucro da DRE e a sobra real nas contas bancárias.</small>
+            <h2 class="card-title" style="margin:0; font-size:0.95rem; display:inline-flex; align-items:center; gap:0.4rem;">
+              <span>Conciliação Contábil: Resultado da DRE vs Saldo de Caixa</span>
+              <span class="info-popover-wrap" data-info-key="rep-dre-conciliacao-card"></span>
+            </h2>
+            <small style="color:var(--text-secondary); font-size:0.75rem; display:block; margin-top:2px;">Explicação matemática de qualquer divergência entre o lucro da DRE e a sobra real nas contas bancárias.</small>
           </div>
         </div>
       </div>
@@ -382,58 +218,9 @@
     </div>
   </div>
 
-  <!-- SUB-ABA DRE: DRE GERENCIAL COMPLETA -->
-  <div id="section-rep-dre" class="rep-tab-content" style="display:none;">
-    <div class="card" style="margin-bottom:1.15rem;">
-      <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; flex-wrap:wrap; gap:0.75rem;">
-        <div class="card-header-with-icon">
-          <div class="card-header-icon" style="background:rgba(37,99,235,0.14); color:#2563eb;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          </div>
-          <div>
-            <h2 class="card-title" style="margin:0; font-size:1.1rem;">Demonstração do Resultado do Exercício (DRE Gerencial)</h2>
-            <small style="color:var(--text-secondary); font-size:0.78rem;">Regime de Competência contábil, Análise Vertical (AV %), Margens Operacionais e Reconciliação com o Caixa.</small>
-          </div>
-        </div>
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <span class="badge badge-confirmado" id="dre-margem-badge">Margem Líquida: 0%</span>
-        </div>
-      </div>
-
-      <!-- Banner Didático de Conciliação DRE vs Caixa -->
-      <div style="background:rgba(37,99,235,0.05); border:1px solid rgba(37,99,235,0.2); border-radius:8px; padding:10px 14px; margin-bottom:1.15rem; font-size:0.83rem; line-height:1.45; color:var(--text-primary); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem;">
-        <div>
-          <strong>🔍 Entenda a DRE:</strong> A DRE mede se suas receitas superaram suas despesas gerando lucro/riqueza real no período. Compras no cartão entram pelo mês da compra (competência) e receitas financeiras entram pelos rendimentos reais auferidos.
-        </div>
-        <div id="dre-resumo-rapido" style="font-weight:700; color:var(--primary);"></div>
-      </div>
-
-      <!-- Tabela em Cascata da DRE Contábil -->
-      <div id="dre-completa-table-container" class="table-responsive">
-        <!-- Preenchido via App.renderDreTable -->
-      </div>
-    </div>
-
-    <!-- Conciliação Contábil vs Fluxo de Caixa -->
-    <div class="card">
-      <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
-        <div class="card-header-with-icon">
-          <div class="card-header-icon" style="background:rgba(16,185,129,0.14); color:#10b981;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          </div>
-          <div>
-            <h2 class="card-title" style="margin:0; font-size:0.95rem;">Conciliação Contábil: Resultado da DRE vs Saldo de Caixa</h2>
-            <small style="color:var(--text-secondary); font-size:0.75rem;">Explicação matemática de qualquer divergência entre o lucro da DRE e a sobra real nas contas bancárias.</small>
-          </div>
-        </div>
-      </div>
-      <div id="dre-conciliacao-container" class="table-responsive">
-        <!-- Preenchido via App.renderDreConciliacao -->
-      </div>
-    </div>
-  </div>
-
-  <!-- SUB-ABA 2: RECEITAS & DESPESAS -->
+  <!-- ========================================================================= -->
+  <!-- SUB-ABA 3: RECEITAS & DESPESAS -->
+  <!-- ========================================================================= -->
   <div id="section-rep-despesas" class="rep-tab-content" style="display:none;">
     <div class="grid-2col" style="margin-bottom:1.15rem;">
       <!-- Distribuição das Despesas por Categoria -->
@@ -476,60 +263,11 @@
     </div>
   </div>
 
-  <!-- SUB-ABA DRE: DRE GERENCIAL COMPLETA -->
-  <div id="section-rep-dre" class="rep-tab-content" style="display:none;">
-    <div class="card" style="margin-bottom:1.15rem;">
-      <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; flex-wrap:wrap; gap:0.75rem;">
-        <div class="card-header-with-icon">
-          <div class="card-header-icon" style="background:rgba(37,99,235,0.14); color:#2563eb;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          </div>
-          <div>
-            <h2 class="card-title" style="margin:0; font-size:1.1rem;">Demonstração do Resultado do Exercício (DRE Gerencial)</h2>
-            <small style="color:var(--text-secondary); font-size:0.78rem;">Regime de Competência contábil, Análise Vertical (AV %), Margens Operacionais e Reconciliação com o Caixa.</small>
-          </div>
-        </div>
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <span class="badge badge-confirmado" id="dre-margem-badge">Margem Líquida: 0%</span>
-        </div>
-      </div>
-
-      <!-- Banner Didático de Conciliação DRE vs Caixa -->
-      <div style="background:rgba(37,99,235,0.05); border:1px solid rgba(37,99,235,0.2); border-radius:8px; padding:10px 14px; margin-bottom:1.15rem; font-size:0.83rem; line-height:1.45; color:var(--text-primary); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem;">
-        <div>
-          <strong>🔍 Entenda a DRE:</strong> A DRE mede se suas receitas superaram suas despesas gerando lucro/riqueza real no período. Compras no cartão entram pelo mês da compra (competência) e receitas financeiras entram pelos rendimentos reais auferidos.
-        </div>
-        <div id="dre-resumo-rapido" style="font-weight:700; color:var(--primary);"></div>
-      </div>
-
-      <!-- Tabela em Cascata da DRE Contábil -->
-      <div id="dre-completa-table-container" class="table-responsive">
-        <!-- Preenchido via App.renderDreTable -->
-      </div>
-    </div>
-
-    <!-- Conciliação Contábil vs Fluxo de Caixa -->
-    <div class="card">
-      <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
-        <div class="card-header-with-icon">
-          <div class="card-header-icon" style="background:rgba(16,185,129,0.14); color:#10b981;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          </div>
-          <div>
-            <h2 class="card-title" style="margin:0; font-size:0.95rem;">Conciliação Contábil: Resultado da DRE vs Saldo de Caixa</h2>
-            <small style="color:var(--text-secondary); font-size:0.75rem;">Explicação matemática de qualquer divergência entre o lucro da DRE e a sobra real nas contas bancárias.</small>
-          </div>
-        </div>
-      </div>
-      <div id="dre-conciliacao-container" class="table-responsive">
-        <!-- Preenchido via App.renderDreConciliacao -->
-      </div>
-    </div>
-  </div>
-
-  <!-- SUB-ABA 3: FLUXO DE CAIXA & ORÇAMENTO -->
+  <!-- ========================================================================= -->
+  <!-- SUB-ABA 4: FLUXO DE CAIXA & ORÇAMENTO -->
+  <!-- ========================================================================= -->
   <div id="section-rep-fluxo" class="rep-tab-content" style="display:none;">
-    <!-- Comparativo Orçamento Previsto x Realizado (preserva rep-orcamento-container) -->
+    <!-- Comparativo Orçamento Previsto x Realizado -->
     <div class="card" style="margin-bottom:1.15rem;">
       <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
         <div class="card-header-with-icon">
@@ -546,7 +284,7 @@
       <div id="rep-orcamento-container" class="table-responsive"></div>
     </div>
 
-    <!-- Status de Contas e Compromissos (preserva rep-status-container) -->
+    <!-- Status de Contas e Compromissos -->
     <div class="card">
       <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
         <div class="card-header-with-icon">
@@ -564,58 +302,9 @@
     </div>
   </div>
 
-  <!-- SUB-ABA DRE: DRE GERENCIAL COMPLETA -->
-  <div id="section-rep-dre" class="rep-tab-content" style="display:none;">
-    <div class="card" style="margin-bottom:1.15rem;">
-      <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; flex-wrap:wrap; gap:0.75rem;">
-        <div class="card-header-with-icon">
-          <div class="card-header-icon" style="background:rgba(37,99,235,0.14); color:#2563eb;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          </div>
-          <div>
-            <h2 class="card-title" style="margin:0; font-size:1.1rem;">Demonstração do Resultado do Exercício (DRE Gerencial)</h2>
-            <small style="color:var(--text-secondary); font-size:0.78rem;">Regime de Competência contábil, Análise Vertical (AV %), Margens Operacionais e Reconciliação com o Caixa.</small>
-          </div>
-        </div>
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <span class="badge badge-confirmado" id="dre-margem-badge">Margem Líquida: 0%</span>
-        </div>
-      </div>
-
-      <!-- Banner Didático de Conciliação DRE vs Caixa -->
-      <div style="background:rgba(37,99,235,0.05); border:1px solid rgba(37,99,235,0.2); border-radius:8px; padding:10px 14px; margin-bottom:1.15rem; font-size:0.83rem; line-height:1.45; color:var(--text-primary); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem;">
-        <div>
-          <strong>🔍 Entenda a DRE:</strong> A DRE mede se suas receitas superaram suas despesas gerando lucro/riqueza real no período. Compras no cartão entram pelo mês da compra (competência) e receitas financeiras entram pelos rendimentos reais auferidos.
-        </div>
-        <div id="dre-resumo-rapido" style="font-weight:700; color:var(--primary);"></div>
-      </div>
-
-      <!-- Tabela em Cascata da DRE Contábil -->
-      <div id="dre-completa-table-container" class="table-responsive">
-        <!-- Preenchido via App.renderDreTable -->
-      </div>
-    </div>
-
-    <!-- Conciliação Contábil vs Fluxo de Caixa -->
-    <div class="card">
-      <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
-        <div class="card-header-with-icon">
-          <div class="card-header-icon" style="background:rgba(16,185,129,0.14); color:#10b981;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          </div>
-          <div>
-            <h2 class="card-title" style="margin:0; font-size:0.95rem;">Conciliação Contábil: Resultado da DRE vs Saldo de Caixa</h2>
-            <small style="color:var(--text-secondary); font-size:0.75rem;">Explicação matemática de qualquer divergência entre o lucro da DRE e a sobra real nas contas bancárias.</small>
-          </div>
-        </div>
-      </div>
-      <div id="dre-conciliacao-container" class="table-responsive">
-        <!-- Preenchido via App.renderDreConciliacao -->
-      </div>
-    </div>
-  </div>
-
-  <!-- SUB-ABA 4: DÍVIDAS & INVESTIMENTOS -->
+  <!-- ========================================================================= -->
+  <!-- SUB-ABA 5: DÍVIDAS & INVESTIMENTOS -->
+  <!-- ========================================================================= -->
   <div id="section-rep-dividas" class="rep-tab-content" style="display:none;">
     <div class="grid-2col">
       <!-- Radiografia de Endividamento -->
@@ -623,7 +312,7 @@
         <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
           <div class="card-header-with-icon">
             <div class="card-header-icon" style="background:rgba(239,68,68,0.14); color:#ef4444;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="10" y1="10" x2="23" y2="10"></line></svg>
             </div>
             <div>
               <h2 class="card-title" style="margin:0; font-size:1rem;">Radiografia do Endividamento (Passivos)</h2>
@@ -637,7 +326,7 @@
         </div>
       </div>
 
-      <!-- Resumo de Ativos e Patrimônio (preserva rep-patrimonio-container) -->
+      <!-- Resumo de Ativos e Patrimônio -->
       <div class="card">
         <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
           <div class="card-header-with-icon">
@@ -656,58 +345,9 @@
     </div>
   </div>
 
-  <!-- SUB-ABA DRE: DRE GERENCIAL COMPLETA -->
-  <div id="section-rep-dre" class="rep-tab-content" style="display:none;">
-    <div class="card" style="margin-bottom:1.15rem;">
-      <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; flex-wrap:wrap; gap:0.75rem;">
-        <div class="card-header-with-icon">
-          <div class="card-header-icon" style="background:rgba(37,99,235,0.14); color:#2563eb;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          </div>
-          <div>
-            <h2 class="card-title" style="margin:0; font-size:1.1rem;">Demonstração do Resultado do Exercício (DRE Gerencial)</h2>
-            <small style="color:var(--text-secondary); font-size:0.78rem;">Regime de Competência contábil, Análise Vertical (AV %), Margens Operacionais e Reconciliação com o Caixa.</small>
-          </div>
-        </div>
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <span class="badge badge-confirmado" id="dre-margem-badge">Margem Líquida: 0%</span>
-        </div>
-      </div>
-
-      <!-- Banner Didático de Conciliação DRE vs Caixa -->
-      <div style="background:rgba(37,99,235,0.05); border:1px solid rgba(37,99,235,0.2); border-radius:8px; padding:10px 14px; margin-bottom:1.15rem; font-size:0.83rem; line-height:1.45; color:var(--text-primary); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem;">
-        <div>
-          <strong>🔍 Entenda a DRE:</strong> A DRE mede se suas receitas superaram suas despesas gerando lucro/riqueza real no período. Compras no cartão entram pelo mês da compra (competência) e receitas financeiras entram pelos rendimentos reais auferidos.
-        </div>
-        <div id="dre-resumo-rapido" style="font-weight:700; color:var(--primary);"></div>
-      </div>
-
-      <!-- Tabela em Cascata da DRE Contábil -->
-      <div id="dre-completa-table-container" class="table-responsive">
-        <!-- Preenchido via App.renderDreTable -->
-      </div>
-    </div>
-
-    <!-- Conciliação Contábil vs Fluxo de Caixa -->
-    <div class="card">
-      <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
-        <div class="card-header-with-icon">
-          <div class="card-header-icon" style="background:rgba(16,185,129,0.14); color:#10b981;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          </div>
-          <div>
-            <h2 class="card-title" style="margin:0; font-size:0.95rem;">Conciliação Contábil: Resultado da DRE vs Saldo de Caixa</h2>
-            <small style="color:var(--text-secondary); font-size:0.75rem;">Explicação matemática de qualquer divergência entre o lucro da DRE e a sobra real nas contas bancárias.</small>
-          </div>
-        </div>
-      </div>
-      <div id="dre-conciliacao-container" class="table-responsive">
-        <!-- Preenchido via App.renderDreConciliacao -->
-      </div>
-    </div>
-  </div>
-
-  <!-- SUB-ABA 5: PARECER CONTROLLER IA -->
+  <!-- ========================================================================= -->
+  <!-- SUB-ABA 6: PARECER CONTROLLER IA -->
+  <!-- ========================================================================= -->
   <div id="section-rep-ia" class="rep-tab-content" style="display:none;">
     <div class="card" style="margin-bottom:1.15rem;">
       <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem; flex-wrap:wrap; gap:0.5rem;">
@@ -716,8 +356,11 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
           </div>
           <div>
-            <h2 class="card-title" style="margin:0; font-size:1.05rem;">Diagnóstico Narrativo do Controller IA</h2>
-            <small style="color:var(--text-secondary); font-size:0.75rem;">Interpretação estratégica dos dados reais do período sem alucinações.</small>
+            <h2 class="card-title" style="margin:0; font-size:1.05rem; display:inline-flex; align-items:center; gap:0.4rem;">
+              <span>Diagnóstico Narrativo do Controller IA</span>
+              <span class="info-popover-wrap" data-info-key="rep-controller-ia"></span>
+            </h2>
+            <small style="color:var(--text-secondary); font-size:0.75rem; display:block; margin-top:2px;">Interpretação estratégica dos dados reais do período sem alucinações.</small>
           </div>
         </div>
         <button type="button" class="btn btn-secondary btn-sm" id="btn-refresh-ia-report" onclick="App.loadAiNarrativeReport()" style="display:inline-flex; align-items:center; gap:0.35rem; height:30px; font-size:0.78rem;">
@@ -756,53 +399,125 @@
     </div>
   </div>
 
-  <!-- SUB-ABA DRE: DRE GERENCIAL COMPLETA -->
-  <div id="section-rep-dre" class="rep-tab-content" style="display:none;">
-    <div class="card" style="margin-bottom:1.15rem;">
-      <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; flex-wrap:wrap; gap:0.75rem;">
-        <div class="card-header-with-icon">
-          <div class="card-header-icon" style="background:rgba(37,99,235,0.14); color:#2563eb;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+  <!-- MODAL: MANUAL DE USO COMPLETO DE RELATÓRIOS FINANCEIROS & BI -->
+  <div id="modal-reports-guide" class="modal-backdrop" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.65); align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:1rem;">
+    <div class="card" style="max-width:880px; width:100%; max-height:90vh; display:flex; flex-direction:column; padding:0; border-radius:14px; box-shadow:0 20px 40px rgba(0,0,0,0.45); overflow:hidden;">
+      <div class="modal-header" style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+        <div style="display:flex; align-items:center; gap:0.65rem;">
+          <div style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg, #2563eb, #1d4ed8); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.15rem;">
+            📊
           </div>
           <div>
-            <h2 class="card-title" style="margin:0; font-size:1.1rem;">Demonstração do Resultado do Exercício (DRE Gerencial)</h2>
-            <small style="color:var(--text-secondary); font-size:0.78rem;">Regime de Competência contábil, Análise Vertical (AV %), Margens Operacionais e Reconciliação com o Caixa.</small>
+            <h2 style="font-size:1.15rem; font-weight:700; margin:0; color:var(--text-primary);">Manual de Operação: Relatórios Financeiros & BI</h2>
+            <small style="color:var(--text-muted); font-size:0.78rem;">Guia executivo de interpretação da DRE Gerencial, conciliação e inteligência de dados.</small>
           </div>
         </div>
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <span class="badge badge-confirmado" id="dre-margem-badge">Margem Líquida: 0%</span>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleReportsGuideModal(false)" style="border-radius:50%; width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1rem;">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding:1.5rem; overflow-y:auto; display:flex; flex-direction:column; gap:1.25rem; line-height:1.55;">
+        <!-- Bloco 1: Visão Geral -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            🎯 1. Visão Geral dos Relatórios e BI
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            A Central de <strong>Relatórios Financeiros & BI</strong> traduz seus lançamentos dispersos em inteligência contábil de nível executivo. Ela responde a duas perguntas cruciais que toda pessoa ou empresa precisa saber:
+          </p>
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.83rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:4px;">
+            <li><strong>1. "Eu gerei riqueza neste período?"</strong> → Respondida pela <em>Demonstração do Resultado do Exercício (DRE)</em>.</li>
+            <li><strong>2. "Para onde foi o meu dinheiro?"</strong> → Respondida pelo <em>Fluxo de Caixa</em> e pela <em>Distribuição por Categoria</em>.</li>
+          </ul>
+        </div>
+
+        <!-- Bloco 2: Regime de Competência vs Caixa -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            📊 2. Regime de Competência vs Regime de Caixa
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            Essa é a distinção mais importante da contabilidade profissional:
+          </p>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0.75rem; margin-top:0.5rem;">
+            <div style="padding:0.75rem; border-radius:8px; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.2);">
+              <strong style="color:#2563eb; font-size:0.84rem; display:block; margin-bottom:2px;">📑 Regime de Competência (DRE)</strong>
+              <small style="color:var(--text-secondary); font-size:0.78rem;">Reconhece as despesas e receitas na data em que ocorrem. Uma compra no cartão parcelada em 10x é registrada na data da compra pelo valor total consumido.</small>
+            </div>
+            <div style="padding:0.75rem; border-radius:8px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.2);">
+              <strong style="color:#059669; font-size:0.84rem; display:block; margin-bottom:2px;">💵 Regime de Caixa (Extrato/Saldo)</strong>
+              <small style="color:var(--text-secondary); font-size:0.78rem;">Reconhece o dinheiro apenas quando ele entra ou sai fisicamente da conta bancária (ex: quando você paga a fatura mensal do cartão).</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloco 3: DRE Gerencial -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            📑 3. Estrutura da DRE Gerencial & Análise Vertical (AV %)
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            A DRE é organizada em cascata contábil:
+          </p>
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.83rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:4px;">
+            <li><strong>(+) Receita Operacional Bruta:</strong> Salários, pró-labore, vendas de serviços e rendas operacionais.</li>
+            <li><strong>(-) Custos Essenciais (Moradia, Alimentação, Saúde, Transporte):</strong> Despesas vitais de manutenção de padrão.</li>
+            <li><strong>(=) Margem Operacional Básica:</strong> Eficiência primária da sua estrutura financeira.</li>
+            <li><strong>(-) Despesas Discricionárias (Lazer, Compras, Estilo de Vida):</strong> Gastos ajustáveis.</li>
+            <li><strong>(+/-) Resultado Financeiro Líquido:</strong> Rendimentos de investimentos menos juros de dívidas e empréstimos.</li>
+            <li><strong>(=) Resultado Líquido do Exercício:</strong> O lucro ou prejuízo econômico real apurado.</li>
+            <li><strong>Análise Vertical (AV %):</strong> Mostra exatamente quantos por cento da sua receita bruta cada grupo de despesa consumiu.</li>
+          </ul>
+        </div>
+
+        <!-- Bloco 4: Conciliação DRE vs Caixa -->
+        <div style="background:rgba(37,99,235,0.05); border:1px solid rgba(37,99,235,0.25); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#2563eb; display:flex; align-items:center; gap:0.4rem;">
+            ⚖️ 4. Conciliação Contábil (Por que o Lucro da DRE Difere do Saldo?)
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            É comum o usuário notar: <em>"Minha DRE deu lucro de R$ 3.000, mas meu saldo na conta só subiu R$ 1.000. Cadê o dinheiro?"</em>.
+          </p>
+          <p style="margin:0; font-size:0.84rem; color:var(--text-secondary);">
+            O Finpess faz a conciliação matemática automática: parte desse lucro pode estar comprometido em compras a prazo no cartão de crédito cuja fatura ainda não venceu, ou retido em parcelas de empréstimos consignados já descontados antes de o dinheiro cair na conta.
+          </p>
+        </div>
+
+        <!-- Bloco 5: Margem Líquida -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            📉 5. Indicadores-Chave (Margem Líquida & Taxa de Poupança)
+          </h3>
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.83rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:4px;">
+            <li><strong>Margem Líquida:</strong> Percentual da receita bruta que sobrou. Uma margem de 15% a 25% é considerada excelente para pessoas físicas.</li>
+            <li><strong>Top 10 Maiores Despesas:</strong> Lista rápida para auditoria e combate a desembolsos atípicos.</li>
+            <li><strong>Comparativo Orçado x Realizado:</strong> Revela quais categorias ultrapassaram o teto planejado no módulo de Orçamento.</li>
+          </ul>
+        </div>
+
+        <!-- Bloco 6: Controller IA -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            🤖 6. Diagnóstico do Controller IA & Consultas Prontas
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            Na subaba <strong>"Parecer Controller IA"</strong>, clique em <em>"Atualizar Parecer IA"</em> para gerar um parecer narrativo profissional com diagnósticos de custos e sugestões de otimização patrimonial. Você também pode clicar nos botões de consultas prontas para tirar dúvidas específicas em 1 clique.
+          </p>
+        </div>
+
+        <!-- Bloco 7: Exportação e Impressão -->
+        <div style="background:rgba(16, 185, 129, 0.05); border:1px solid rgba(16, 185, 129, 0.25); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#059669; display:flex; align-items:center; gap:0.4rem;">
+            🖨️ 7. Exportação para CSV e Impressão de Relatórios em PDF
+          </h3>
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.83rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:4px;">
+            <li><strong>Exportar CSV:</strong> Baixa uma planilha padronizada com cabeçalhos limpos, datas no padrão ISO e valores decimais prontos para Excel.</li>
+            <li><strong>Imprimir / PDF:</strong> Dispara o layout de impressão executivo limpo, ocultando botões de navegação e formatando tabelas para folhas A4.</li>
+          </ul>
         </div>
       </div>
 
-      <!-- Banner Didático de Conciliação DRE vs Caixa -->
-      <div style="background:rgba(37,99,235,0.05); border:1px solid rgba(37,99,235,0.2); border-radius:8px; padding:10px 14px; margin-bottom:1.15rem; font-size:0.83rem; line-height:1.45; color:var(--text-primary); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem;">
-        <div>
-          <strong>🔍 Entenda a DRE:</strong> A DRE mede se suas receitas superaram suas despesas gerando lucro/riqueza real no período. Compras no cartão entram pelo mês da compra (competência) e receitas financeiras entram pelos rendimentos reais auferidos.
-        </div>
-        <div id="dre-resumo-rapido" style="font-weight:700; color:var(--primary);"></div>
-      </div>
-
-      <!-- Tabela em Cascata da DRE Contábil -->
-      <div id="dre-completa-table-container" class="table-responsive">
-        <!-- Preenchido via App.renderDreTable -->
-      </div>
-    </div>
-
-    <!-- Conciliação Contábil vs Fluxo de Caixa -->
-    <div class="card">
-      <div class="card-header" style="margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
-        <div class="card-header-with-icon">
-          <div class="card-header-icon" style="background:rgba(16,185,129,0.14); color:#10b981;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          </div>
-          <div>
-            <h2 class="card-title" style="margin:0; font-size:0.95rem;">Conciliação Contábil: Resultado da DRE vs Saldo de Caixa</h2>
-            <small style="color:var(--text-secondary); font-size:0.75rem;">Explicação matemática de qualquer divergência entre o lucro da DRE e a sobra real nas contas bancárias.</small>
-          </div>
-        </div>
-      </div>
-      <div id="dre-conciliacao-container" class="table-responsive">
-        <!-- Preenchido via App.renderDreConciliacao -->
+      <div class="modal-footer" style="padding:1rem 1.5rem; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; flex-shrink:0;">
+        <button type="button" class="btn btn-primary" onclick="App.toggleReportsGuideModal(false)" style="font-weight:600;">Entendido! Fechar Manual</button>
       </div>
     </div>
   </div>

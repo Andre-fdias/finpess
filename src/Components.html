@@ -1678,6 +1678,211 @@
         title: 'Grid de Categorias & Limites Individuais',
         desc: 'Cartões visuais com barras de progresso para cada categoria. Mostra o valor gasto, o teto definido e o percentual consumido.',
         tip: 'Clique no botão "Definir Teto" ou "Ajustar Limite" de qualquer categoria para calibrar seu orçamento mensal.'
+      },
+
+      // ============================================================
+      // METAS FINANCEIRAS & RESERVA DE EMERGÊNCIA
+      // ============================================================
+      'goal-modulo': {
+        title: 'Módulo de Metas Financeiras & Reserva de Emergência',
+        desc: 'Painel para definição de objetivos financeiros com prazo, cálculo automático de esforço mensal de poupança e blindagem patrimonial.',
+        tip: 'Conquiste seus sonhos planejando aportes mensais consistentes e proteja sua família com uma reserva de liquidez.'
+      },
+      'goal-btn-manual': {
+        title: 'Manual de Uso de Metas & Reserva',
+        desc: 'Abre o guia passo a passo com a pirâmide de prioridades financeiras, dimensionamento da reserva e cálculo de esforço mensal.',
+        tip: 'Consulte o manual para entender as faixas recomendadas de reserva de acordo com seu perfil profissional.'
+      },
+      'goal-btn-atualizar': {
+        title: 'Atualizar Metas & Reserva',
+        desc: 'Recarrega todas as metas ativas, recalcula o custo médio mensal e atualiza o dimensionamento da reserva de emergência.',
+        tip: 'Use após registrar novos lançamentos de despesas ou aportes.'
+      },
+      'goal-btn-nova-meta': {
+        title: 'Criar Nova Meta Financeira',
+        desc: 'Abre o formulário para cadastrar um novo objetivo (viagem, reforma, veículo, imóvel, estudos, aposentadoria ou reserva).',
+        tip: 'Definir uma data-alvo realista permite que o sistema calcule automaticamente quanto você deve guardar por mês.'
+      },
+      'goal-kpi-total-alvo': {
+        title: 'Total Alvo em Metas Ativas',
+        desc: 'Soma dos valores necessários para conquistar todos os objetivos financeiros atualmente em andamento.',
+        formula: 'Total Alvo = Σ(Valor Alvo de todas as metas ativas)',
+        tip: 'Representa o montante total que você planeja acumular ao longo do tempo.'
+      },
+      'goal-kpi-total-acumulado': {
+        title: 'Total Já Acumulado',
+        desc: 'Montante que você já guardou ou poupou especificamente para as suas metas cadastradas.',
+        formula: 'Total Acumulado = Σ(Valor Atual guardado em cada meta)',
+        tip: 'Acompanhe esse valor crescendo mês a mês com seus aportes programados.'
+      },
+      'goal-kpi-progresso-geral': {
+        title: 'Progresso Consolidado',
+        desc: 'Percentual geral de conquista atingido considerando a soma de todas as suas metas ativas.',
+        formula: '% Geral = (Total Acumulado / Total Alvo) × 100',
+        tip: 'Indica visualmente em que estágio você está na jornada rumo a todos os seus objetivos.'
+      },
+      'goal-kpi-reserva-ideal': {
+        title: 'Reserva de Emergência Recomendada (6 Meses)',
+        desc: 'Montante sugerido pelo Finpess para cobrir 6 meses das suas despesas essenciais reais apuradas pelo sistema.',
+        formula: 'Reserva Ideal = Custo Médio Mensal Essencial × 6',
+        tip: 'A reserva de emergência é o primeiro pilar da sua tranquilidade e deve ser mantida em investimentos com liquidez imediata.'
+      },
+      'goal-card-calculadora-reserva': {
+        title: 'Calculadora Inteligente de Reserva de Emergência',
+        desc: 'Dimensionamento automático baseado no seu custo de vida real recente, dividindo a recomendação em 3 faixas de segurança.',
+        tip: 'Seus gastos essenciais médios alimentam o cálculo sem que você precise estimar números manualmente.'
+      },
+      'goal-reserva-custo-medio': {
+        title: 'Custo Mensal Médio Essencial',
+        desc: 'Média de gastos essenciais apurada a partir dos lançamentos reais das suas contas bancárias.',
+        formula: 'Média = Σ(Despesas Essenciais dos últimos meses) / Número de Meses',
+        tip: 'Representa o valor mínimo que você gasta por mês para manter seu padrão de vida básico.'
+      },
+      'goal-reserva-faixa-3m': {
+        title: 'Faixa Mínima (3 Meses)',
+        desc: 'Cobertura de emergência mínima recomendada para funcionários públicos concursados ou profissionais com alta estabilidade.',
+        formula: 'Mínima = Custo Mensal Médio × 3',
+        tip: 'Garante fôlego para cobrir imprevistos como conserto de carro ou despesas médicas inesperadas.'
+      },
+      'goal-reserva-faixa-6m': {
+        title: 'Faixa Padrão Ideal (6 Meses)',
+        desc: 'Cobertura padrão recomendada pela maioria dos planejadores financeiros para profissionais CLT e famílias.',
+        formula: 'Ideal = Custo Mensal Médio × 6',
+        tip: 'Oferece proteção sólida em caso de desemprego ou transição de carreira sem precisar se endividar.'
+      },
+      'goal-reserva-faixa-12m': {
+        title: 'Faixa de Conforto (12 Meses)',
+        desc: 'Cobertura estendida recomendada para profissionais autônomos, freelancers, empresários ou rendas variáveis.',
+        formula: 'Conforto = Custo Mensal Médio × 12',
+        tip: 'Blindagem máxima contra períodos de sazonalidade ou queda brusca de faturamento.'
+      },
+      'goal-grid-objetivos': {
+        title: 'Painel de Metas & Acompanhamento',
+        desc: 'Lista de cards individuais com barras de progresso, prazos, montante acumulado e recomendação de aporte mensal.',
+        tip: 'O botão "Guardar Dinheiro" em cada card permite registrar um aporte e opcionalmente debitar de uma conta bancária.'
+      },
+
+      // ============================================================
+      // RELATÓRIOS FINANCEIROS & BI (BUSINESS INTELLIGENCE)
+      // ============================================================
+      'rep-modulo': {
+        title: 'Módulo de Relatórios Financeiros & BI',
+        desc: 'Central executiva de demonstrativos contábeis (DRE), fluxo de caixa, custos por categoria e inteligência gerencial.',
+        tip: 'Entenda se suas finanças geram riqueza real no período e identifique oportunidades de economia.'
+      },
+      'rep-btn-manual': {
+        title: 'Manual de Uso de Relatórios & BI',
+        desc: 'Abre o guia passo a passo sobre interpretação da DRE Gerencial, conciliação com o saldo de caixa e análise vertical.',
+        tip: 'Consulte o manual para tirar dúvidas sobre a diferença entre regime de competência e regime de caixa.'
+      },
+      'rep-btn-exportar-csv': {
+        title: 'Exportar Lançamentos em CSV',
+        desc: 'Gera um arquivo compatível com Excel, Google Sheets e softwares de contabilidade com os dados do período filtrado.',
+        tip: 'Ideal para auditorias detalhadas, declaração de imposto de renda ou análises customizadas.'
+      },
+      'rep-btn-imprimir-pdf': {
+        title: 'Visualizar e Imprimir Relatório Executivo',
+        desc: 'Prepara uma versão limpa e formatada do demonstrativo financeiro para impressão em papel ou gravação em PDF.',
+        tip: 'Remove botões e menus do sistema gerando um documento executivo profissional.'
+      },
+      'rep-filtros-painel': {
+        title: 'Filtros Unificados do Relatório',
+        desc: 'Permite selecionar a janela temporal (Mês Atual, Anterior, Trimestre, Ano ou Customizado), conta bancária e categorias.',
+        tip: 'Todos os números da DRE, fluxo e gráficos são recalculados imediatamente ao aplicar os filtros.'
+      },
+      'rep-dre-card': {
+        title: 'Demonstração do Resultado do Exercício (DRE Gerencial)',
+        desc: 'Relatório estruturado pelo Regime de Competência que apura se suas receitas superaram suas despesas gerando lucro líquido.',
+        formula: 'Resultado Líquido = Receita Operacional Bruta - Despesas Operacionais + Resultado Financeiro',
+        tip: 'Compras no cartão entram no mês da compra e não quando a fatura é paga, refletindo o consumo real.'
+      },
+      'rep-dre-margem-badge': {
+        title: 'Margem Líquida do Período',
+        desc: 'Percentual da sua receita que sobrou como riqueza líquida acumulada após deduzir todas as despesas.',
+        formula: 'Margem Líquida = (Resultado Líquido / Receita Bruta) × 100',
+        tip: 'Uma margem líquida acima de 20% indica excelente saúde e alta capacidade de investimento.'
+      },
+      'rep-dre-conciliacao-card': {
+        title: 'Conciliação Contábil: DRE vs Saldo de Caixa',
+        desc: 'Explicação matemática transparente da diferença entre o Lucro da DRE (competência) e a sobra real nas contas (caixa).',
+        formula: 'Variação de Caixa = Lucro DRE + Despesas a Pagar - Compras no Cartão a Vencer + Variações Patrimoniais',
+        tip: 'Elimina a dúvida clássica: "Se minha DRE deu lucro, por que o dinheiro não está todo na conta bancária?".'
+      },
+      'rep-controller-ia': {
+        title: 'Diagnóstico do Controller IA',
+        desc: 'Parecer executivo gerado por inteligência artificial analisando a composição das despesas, margens e variações do período.',
+        tip: 'Oferece insights narrativos objetivos sem alucinações baseando-se estritamente nos dados reais.'
+      },
+
+      // ============================================================
+      // ORÁCULO IA 2.0 — ANALISTA FINANCEIRO AUTÔNOMO
+      // ============================================================
+      'oracle-modulo': {
+        title: 'Oráculo IA 2.0 — Analista Financeiro Autônomo',
+        desc: 'Sistema de monitoramento proativo, diagnóstico contínuo de saúde financeira, detecção de gargalos e simulação de cenários com IA.',
+        tip: 'Converse livremente sobre suas finanças ou simule o impacto de novas decisões antes de colocá-las em prática.'
+      },
+      'oracle-btn-manual': {
+        title: 'Manual de Uso do Oráculo IA',
+        desc: 'Abre o guia passo a passo sobre as 6 dimensões contábeis de saúde, funcionamento do simulador e comandos do chat.',
+        tip: 'Consulte o manual para entender detalhadamente como o algoritmo calcula o score de 0 a 100.'
+      },
+      'oracle-btn-reanalisar': {
+        title: 'Reanalisar Saúde Financeira Agora',
+        desc: 'Executa uma nova varredura completa das 28 abas do banco de dados recalculando o Score de Saúde e os pontos de atenção.',
+        tip: 'Dispare após realizar quitações de dívidas ou novos investimentos para atualizar o parecer.'
+      },
+      'oracle-health-painel': {
+        title: 'Índice de Saúde Financeira Granazen (0 a 100)',
+        desc: 'Termômetro auditável calculado deterministicamente com base em 6 dimensões vitais: Liquidez, Endividamento, Poupança, Orçamento, Consistência e Prevenção.',
+        formula: 'Score = Média ponderada das 6 dimensões auditadas (0 a 100 pontos)',
+        tip: 'Scores acima de 80 indicam excelente solidez e resiliência patrimonial.'
+      },
+      'oracle-health-score': {
+        title: 'Pontuação Geral de Saúde',
+        desc: 'Nota consolidada das suas finanças: 🟢 Excelente (85-100), 🔵 Bom (70-84), 🟡 Atenção (50-69) ou 🔴 Crítico (< 50).',
+        tip: 'Acompanhe a evolução do score para medir a eficácia da sua gestão financeira ao longo do tempo.'
+      },
+      'oracle-health-dimensoes': {
+        title: '6 Dimensões Contábeis Auditadas',
+        desc: 'Desdobramento analítico da sua nota em Liquidez Imediata, Nível de Endividamento, Taxa de Poupança, Cumprimento de Orçamento, Recorrências e Cobertura de Emergência.',
+        tip: 'Permite identificar com precisão cirúrgica em qual dimensão financeira você deve concentrar suas melhorias.'
+      },
+      'oracle-strengths': {
+        title: 'Pontos Fortes Identificados',
+        desc: 'Destaques positivos encontrados pelo algoritmo na sua vida financeira (ex: ausência de juros, reserva sólida, superávit contínuo).',
+        tip: 'Práticas financeiras que você já domina e deve continuar mantendo.'
+      },
+      'oracle-warnings': {
+        title: 'Pontos de Atenção & Riscos Iminentes',
+        desc: 'Alertas prioritários sobre faturas elevadas, concentração de despesas ou risco de saldo negativo nos próximos meses.',
+        tip: 'Ações imediatas recomendadas para evitar déficits ou pagamento desnecessário de juros.'
+      },
+      'oracle-tab-consultor': {
+        title: 'Consultor IA em Linguagem Natural (RAG)',
+        desc: 'Chat inteligente com acesso seguro aos seus dados financeiros para responder perguntas em português com precisão.',
+        tip: 'Experimente perguntar: "Qual foi meu maior gasto este mês?" ou "Posso comprar um computador de R$ 3.000 agora?".'
+      },
+      'oracle-tab-alertas': {
+        title: 'Central de Alertas Preditivos',
+        desc: 'Monitoramento contínuo com notificações categorizadas por severidade: Informativo, Atenção e Urgente.',
+        tip: 'Revise os alertas semanalmente para prevenir desvios orçamentários antes que eles ocorram.'
+      },
+      'oracle-tab-gargalos': {
+        title: 'Detector de Gargalos & Custos Ocultos',
+        desc: 'Algoritmo que varre despesas recorrentes ociosas, tarifas bancárias e aumentos graduais em categorias para propor economias.',
+        tip: 'Pequenos vazamentos mensais somam milhares de reais no final do ano.'
+      },
+      'oracle-tab-simulador': {
+        title: 'Simulador Determinístico de Cenários ("E se...?")',
+        desc: 'Ferramenta matemática que permite projetar o impacto de decisões futuras no seu saldo (ex: corte de gastos, aumento salarial, financiamento).',
+        formula: 'Impacto = Saldo Projetado Base + Variações Hipotéticas Simuladas',
+        tip: 'Teste o impacto no seu fluxo de caixa antes de assumir novos compromissos financeiros.'
+      },
+      'oracle-tab-plano': {
+        title: 'Plano de Ação Estratégico',
+        desc: 'Roteiro de passos prioritários elaborado pela inteligência artificial para otimizar sua pontuação de saúde e zerar dívidas.',
+        tip: 'Execute as recomendações em ordem de prioridade para colher resultados financeiros imediatos.'
       }
     };
 
