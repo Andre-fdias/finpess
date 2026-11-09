@@ -4865,6 +4865,52 @@
       });
     }
 
+    function onEditLoanModalidadeChange() {
+      var select = document.getElementById('edit-loan-modalidade-cobranca');
+      if (!select) return;
+      var isConsignado = select.value === 'CONSIGNADO_FOLHA';
+      var contaGroup = document.getElementById('edit-loan-conta-group');
+      if (contaGroup) {
+        contaGroup.style.display = isConsignado ? 'none' : 'block';
+      }
+      var helper = document.getElementById('edit-loan-modalidade-helper');
+      if (helper) {
+        if (isConsignado) {
+          helper.innerHTML = '✓ <strong>Proteção ativada:</strong> Como o valor já é retido no seu contracheque pelo empregador, as parcelas serão contabilizadas para quitação do contrato <strong>sem duplicar saídas na sua conta bancária</strong>.';
+        } else {
+          helper.innerHTML = '💳 <strong>Débito em conta / Boleto:</strong> Você recebe seu salário integral e a cada parcela paga será gerado um <strong>lançamento de despesa confirmado</strong> na conta bancária selecionada.';
+        }
+      }
+    }
+
+    function updateEditLoanPreview() {
+      var vContratadoRaw = (document.getElementById('edit-loan-valor-contratado').value || '').trim();
+      var vParcelaRaw = (document.getElementById('edit-loan-valor-parcela').value || '').trim();
+      var parcelas = parseInt(document.getElementById('edit-loan-parcelas').value, 10) || 0;
+
+      var contratadoCentavos = UIHelpers.parseInputToCentavos(vContratadoRaw);
+      var parcelaCentavos = UIHelpers.parseInputToCentavos(vParcelaRaw);
+
+      var totalPagarCentavos = parcelas * parcelaCentavos;
+      var jurosCentavos = totalPagarCentavos - contratadoCentavos;
+
+      var totalEl = document.getElementById('edit-loan-preview-total');
+      var jurosEl = document.getElementById('edit-loan-preview-juros');
+      if (!totalEl || !jurosEl) return;
+
+      if (parcelas > 0 && parcelaCentavos > 0) {
+        totalEl.textContent = parcelas + 'x de ' + UIHelpers.formatBrl(parcelaCentavos) + ' = ' + UIHelpers.formatBrl(totalPagarCentavos);
+        if (contratadoCentavos > 0 && jurosCentavos > 0) {
+          jurosEl.textContent = 'Juros / Custo Efetivo Total estimado: +' + UIHelpers.formatBrl(jurosCentavos) + ' sobre o valor liberado.';
+        } else {
+          jurosEl.textContent = '';
+        }
+      } else {
+        totalEl.textContent = '-';
+        jurosEl.textContent = '';
+      }
+    }
+
     function openEditLoanModal(loanId) {
       var l = (state.loans || []).find(function (it) { return String(it.id) === String(loanId); });
       if (!l) {
@@ -4872,17 +4918,45 @@
         return;
       }
       populateSelects();
+
       document.getElementById('edit-loan-id').value = l.id;
       document.getElementById('edit-loan-instituicao').value = l.instituicao || '';
       document.getElementById('edit-loan-descricao').value = l.descricao || '';
       document.getElementById('edit-loan-situacao').value = l.situacao || 'ATIVO';
+
+      var isConsignado = l.tipo_emprestimo === 'CONSIGNADO' || Boolean(l.desconto_em_folha);
+      var modSelect = document.getElementById('edit-loan-modalidade-cobranca');
+      if (modSelect) {
+        modSelect.value = isConsignado ? 'CONSIGNADO_FOLHA' : 'PAGO_USUARIO';
+      }
+      onEditLoanModalidadeChange();
+
+      var vContratado = l.valor_contratado_centavos ? UIHelpers.formatCentavosToInput(l.valor_contratado_centavos) : '';
+      var vParcela = l.valor_parcela_centavos ? UIHelpers.formatCentavosToInput(l.valor_parcela_centavos) : '';
+      var numParcelas = l.numero_parcelas || 24;
+      var taxaFloat = (l.taxa_juros_mensal_bps || 0) / 100;
+      var taxaStr = taxaFloat > 0 ? String(taxaFloat.toFixed(2)).replace('.', ',') : '1,50';
+
+      document.getElementById('edit-loan-valor-contratado').value = vContratado;
+      document.getElementById('edit-loan-parcelas').value = numParcelas;
+      document.getElementById('edit-loan-valor-parcela').value = vParcela;
+      document.getElementById('edit-loan-data-inicial').value = l.data_inicial ? l.data_inicial.substring(0, 10) : '';
+      document.getElementById('edit-loan-taxa').value = taxaStr;
+
       if (document.getElementById('edit-loan-conta')) {
         document.getElementById('edit-loan-conta').value = l.conta_bancaria_id || '';
       }
       document.getElementById('edit-loan-obs').value = l.observacoes || '';
 
+      updateEditLoanPreview();
+
       var modal = document.getElementById('modal-edit-loan-backdrop');
-      if (modal) modal.classList.add('open');
+      if (modal) {
+        modal.classList.add('open');
+        if (UIHelpers && UIHelpers.initInfoPopovers) {
+          UIHelpers.initInfoPopovers(modal);
+        }
+      }
     }
 
     function closeEditLoanModal() {
@@ -4893,17 +4967,32 @@
     function submitEditLoan(ev) {
       ev.preventDefault();
       var id = document.getElementById('edit-loan-id').value;
+      var taxaFloat = parseFloat(String(document.getElementById('edit-loan-taxa').value || '0').replace(',', '.')) || 0;
+      var modalidade = document.getElementById('edit-loan-modalidade-cobranca') ? document.getElementById('edit-loan-modalidade-cobranca').value : 'CONSIGNADO_FOLHA';
+      var isConsignado = modalidade === 'CONSIGNADO_FOLHA';
+      var contaId = !isConsignado && document.getElementById('edit-loan-conta') ? document.getElementById('edit-loan-conta').value : '';
+
+      var elData = document.getElementById('edit-loan-data-inicial');
+      var dataInicialVal = (elData && elData.value ? elData.value : '').trim();
+
       var payload = {
         id: id,
         instituicao: document.getElementById('edit-loan-instituicao').value,
         descricao: document.getElementById('edit-loan-descricao').value,
         situacao: document.getElementById('edit-loan-situacao').value,
-        conta_bancaria_id: document.getElementById('edit-loan-conta') ? document.getElementById('edit-loan-conta').value : '',
+        tipo_emprestimo: isConsignado ? 'CONSIGNADO' : 'PESSOAL',
+        desconto_em_folha: isConsignado,
+        valor_contratado_centavos: UIHelpers.parseInputToCentavos(document.getElementById('edit-loan-valor-contratado').value),
+        numero_parcelas: parseInt(document.getElementById('edit-loan-parcelas').value, 10),
+        valor_parcela_centavos: UIHelpers.parseInputToCentavos(document.getElementById('edit-loan-valor-parcela').value),
+        data_inicial: dataInicialVal,
+        taxa_juros_mensal_bps: Math.round(taxaFloat * 100),
+        conta_bancaria_id: contaId,
         observacoes: document.getElementById('edit-loan-obs').value
       };
 
       callServer('loans.update', payload, function () {
-        showToast('Contrato de empréstimo atualizado com sucesso!', 'success');
+        showToast('Contrato de empréstimo e cronograma atualizados com sucesso!', 'success');
         closeEditLoanModal();
         loadLoans();
       });
@@ -10628,6 +10717,8 @@
       openEditLoanModal: openEditLoanModal,
       closeEditLoanModal: closeEditLoanModal,
       submitEditLoan: submitEditLoan,
+      onEditLoanModalidadeChange: onEditLoanModalidadeChange,
+      updateEditLoanPreview: updateEditLoanPreview,
       switchInvestmentsSection: switchInvestmentsSection,
       prevRadarSlide: prevRadarSlide,
       nextRadarSlide: nextRadarSlide,

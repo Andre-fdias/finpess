@@ -222,9 +222,9 @@
     </div>
   </div>
 
-  <!-- Modal de Edição de Contrato de Empréstimo -->
+  <!-- Modal de Edição Completa de Contrato de Empréstimo -->
   <div id="modal-edit-loan-backdrop" class="modal-backdrop" onclick="if(event.target===this) App.closeEditLoanModal()">
-    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-edit-loan-title" style="max-width: 540px;">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-edit-loan-title" style="max-width: 680px;">
       <div class="modal-header">
         <div style="display:flex; align-items:center; gap:0.5rem;">
           <div style="width:28px; height:28px; border-radius:6px; background:rgba(13, 148, 136, 0.14); color:#0d9488; display:flex; align-items:center; justify-content:center;">
@@ -240,10 +240,24 @@
 
       <form id="form-edit-loan" onsubmit="App.submitEditLoan(event)">
         <input type="hidden" id="edit-loan-id" />
+
+        <!-- Seletor em Destaque da Modalidade de Cobrança / Impacto no Saldo -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:0.85rem 1rem; margin-bottom:1rem;">
+          <label for="edit-loan-modalidade-cobranca" style="font-weight:700; font-size:0.85rem; color:var(--text-primary); margin-bottom:4px; display:inline-flex; align-items:center; gap:0.35rem;">
+            <span>Modalidade do Empréstimo & Impacto no Saldo Bancário *</span>
+            <span class="info-popover-wrap" data-info-key="loan-form-modalidade"></span>
+          </label>
+          <select id="edit-loan-modalidade-cobranca" class="form-control" onchange="App.onEditLoanModalidadeChange()" required style="font-weight:600; font-size:0.88rem;">
+            <option value="CONSIGNADO_FOLHA">🏢 Consignado (Desconto em Folha) — Não desconta da conta bancária</option>
+            <option value="PAGO_USUARIO">💳 Pago pelo Usuário (Débito em Conta / Boleto) — Debita da conta bancária</option>
+          </select>
+          <div id="edit-loan-modalidade-helper" style="font-size:0.78rem; color:var(--text-secondary); margin-top:5px; line-height:1.35;"></div>
+        </div>
+
         <div class="form-grid" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
           <div class="form-group">
             <label for="edit-loan-instituicao">Instituição / Credor *</label>
-            <input type="text" id="edit-loan-instituicao" class="form-control" required />
+            <input type="text" id="edit-loan-instituicao" list="datalist-bancos" class="form-control" required />
           </div>
           <div class="form-group">
             <label for="edit-loan-descricao">Descrição do Contrato *</label>
@@ -259,7 +273,28 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="edit-loan-conta">Conta Bancária de Débito</label>
+            <label for="edit-loan-valor-contratado">Valor Contratado / Liberado (R$) *</label>
+            <input type="text" id="edit-loan-valor-contratado" class="form-control" oninput="App.updateEditLoanPreview()" onkeyup="App.updateEditLoanPreview()" onblur="App.updateEditLoanPreview()" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-loan-parcelas">Número Total de Parcelas *</label>
+            <input type="number" id="edit-loan-parcelas" class="form-control" min="1" max="360" oninput="App.updateEditLoanPreview()" onkeyup="App.updateEditLoanPreview()" onchange="App.updateEditLoanPreview()" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-loan-valor-parcela">Valor da Parcela Mensal (R$) *</label>
+            <input type="text" id="edit-loan-valor-parcela" class="form-control" oninput="App.updateEditLoanPreview()" onkeyup="App.updateEditLoanPreview()" onblur="App.updateEditLoanPreview()" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-loan-data-inicial">Data de Vencimento da 1ª Parcela *</label>
+            <input type="date" id="edit-loan-data-inicial" class="form-control" required />
+            <small style="color:var(--text-muted); font-size:0.75rem; display:block; margin-top:2px;">Atualiza o cronograma das parcelas em aberto.</small>
+          </div>
+          <div class="form-group">
+            <label for="edit-loan-taxa">Taxa de Juros Mensal (% a.m.)</label>
+            <input type="text" id="edit-loan-taxa" class="form-control" placeholder="Ex: 1,65" />
+          </div>
+          <div class="form-group" id="edit-loan-conta-group" style="display:none; grid-column: span 2;">
+            <label for="edit-loan-conta">Conta Bancária de Débito *</label>
             <select id="edit-loan-conta" class="form-control"></select>
           </div>
           <div class="form-group" style="grid-column: span 2;">
@@ -267,6 +302,16 @@
             <input type="text" id="edit-loan-obs" class="form-control" />
           </div>
         </div>
+
+        <!-- Box Dinâmico com Simulação do Custo do Empréstimo -->
+        <div id="edit-loan-preview-box" style="background:rgba(13, 148, 136, 0.05); border:1px dashed rgba(13, 148, 136, 0.3); border-radius:var(--radius-sm); padding:0.75rem 1rem; margin-top:1rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.82rem; color:var(--text-secondary);">Projeção Total a Pagar:</span>
+            <strong id="edit-loan-preview-total" style="color:#0d9488; font-size:0.95rem;">-</strong>
+          </div>
+          <div id="edit-loan-preview-juros" style="font-size:0.78rem; color:var(--text-secondary); margin-top:4px;"></div>
+        </div>
+
         <div style="margin-top:1.25rem; display:flex; justify-content:flex-end; gap:0.5rem;">
           <button type="button" class="btn btn-secondary" onclick="App.closeEditLoanModal()">Cancelar</button>
           <button type="submit" class="btn btn-primary">Salvar Alterações</button>
