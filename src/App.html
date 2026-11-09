@@ -868,10 +868,18 @@
       var curYear = now.getFullYear();
       var curMonthNum = String(now.getMonth() + 1).padStart(2, '0');
 
-      var dateIds = ['lan-data', 'lan-competencia', 'rec-inicio', 'bank-data-inicial', 'trf-data', 'div-data-origem', 'emp-data-inicial', 'inv-data-ref', 'mvi-data', 'cal-data-ref'];
+      var dateIds = ['lan-data', 'lan-competencia', 'rec-inicio', 'bank-data-inicial', 'trf-data', 'div-data-origem', 'inv-data-ref', 'mvi-data', 'cal-data-ref'];
       for (var i = 0; i < dateIds.length; i++) {
         var el = document.getElementById(dateIds[i]);
         if (el && !el.value) el.value = today;
+      }
+
+      // Data de 1º vencimento de empréstimo: padrão 30 dias à frente (próximo mês), nunca hoje
+      var dNextEmp = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+      var nextMonthEmpIso = dNextEmp.getFullYear() + '-' + String(dNextEmp.getMonth() + 1).padStart(2, '0') + '-' + String(dNextEmp.getDate()).padStart(2, '0');
+      var empDataEl = document.getElementById('emp-data-inicial');
+      if (empDataEl && (!empDataEl.value || empDataEl.value === today)) {
+        empDataEl.value = nextMonthEmpIso;
       }
       var monthIds = ['dash-month-select', 'rec-competencia-input'];
       for (var j = 0; j < monthIds.length; j++) {
@@ -4536,6 +4544,18 @@
       if (shouldOpen) {
         populateSelects();
         updateLoanPreview();
+
+        // Inicializa a data do 1º vencimento com 30 dias à frente (próximo mês), nunca hoje
+        var empDataEl = document.getElementById('emp-data-inicial');
+        if (empDataEl) {
+          var now = new Date();
+          var todayIso = now.toISOString().substring(0, 10);
+          if (!empDataEl.value || empDataEl.value === todayIso) {
+            var dNext = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+            empDataEl.value = dNext.getFullYear() + '-' + String(dNext.getMonth() + 1).padStart(2, '0') + '-' + String(dNext.getDate()).padStart(2, '0');
+          }
+        }
+
         card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }
@@ -4593,6 +4613,15 @@
       var isConsignado = modalidade === 'CONSIGNADO_FOLHA';
       var contaId = !isConsignado && document.getElementById('emp-conta') ? document.getElementById('emp-conta').value : '';
 
+      var elData = document.getElementById('emp-data-inicial');
+      var dataInicialVal = (elData && elData.value ? elData.value : '').trim();
+      if (!dataInicialVal) {
+        var now = new Date();
+        var dNext = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+        dataInicialVal = dNext.getFullYear() + '-' + String(dNext.getMonth() + 1).padStart(2, '0') + '-' + String(dNext.getDate()).padStart(2, '0');
+        if (elData) elData.value = dataInicialVal;
+      }
+
       var payload = {
         instituicao: document.getElementById('emp-instituicao').value,
         descricao: document.getElementById('emp-descricao').value,
@@ -4600,7 +4629,7 @@
         valor_contratado_centavos: UIHelpers.parseInputToCentavos(document.getElementById('emp-valor-contratado').value),
         numero_parcelas: parseInt(document.getElementById('emp-parcelas').value, 10),
         valor_parcela_centavos: UIHelpers.parseInputToCentavos(document.getElementById('emp-valor-parcela').value),
-        data_inicial: document.getElementById('emp-data-inicial').value,
+        data_inicial: dataInicialVal,
         taxa_juros_mensal_bps: Math.round(taxaFloat * 100),
         desconto_em_folha: isConsignado,
         desconto_em_folha_ja_deduzido_salario: isConsignado,
@@ -4615,6 +4644,14 @@
         document.getElementById('emp-valor-contratado').value = '';
         document.getElementById('emp-valor-parcela').value = '';
         if (document.getElementById('emp-obs')) document.getElementById('emp-obs').value = '';
+
+        // Reseta campo de data para a próxima data padrão (30 dias à frente)
+        if (elData) {
+          var now = new Date();
+          var dNext = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+          elData.value = dNext.getFullYear() + '-' + String(dNext.getMonth() + 1).padStart(2, '0') + '-' + String(dNext.getDate()).padStart(2, '0');
+        }
+
         toggleNewLoanCard(false);
         loadLoans();
       });
