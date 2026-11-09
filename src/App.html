@@ -4717,19 +4717,35 @@
                   '</div>' +
                 '</div>' +
               '</td>' +
-              '<td>' + modalidadeBadge + '</td>' +
+              '<td class="col-center">' + modalidadeBadge + '</td>' +
               '<td class="col-money"><strong>' + UIHelpers.formatBrl(l.valor_parcela_centavos) + '</strong></td>' +
-              '<td>' + progressHtml + '</td>' +
+              '<td class="col-center">' + progressHtml + '</td>' +
               '<td class="col-money"><strong style="color:var(--danger);">' + UIHelpers.formatBrl(l.saldo_devedor_centavos) + '</strong></td>' +
-              '<td>' + UIHelpers.renderBadge(l.situacao) + '</td>' +
+              '<td class="col-center">' + UIHelpers.renderBadge(l.situacao) + '</td>' +
               '<td style="text-align:right;">' + dropdownHtml + '</td>' +
             '</tr>'
           );
         }).join('');
 
-        document.getElementById('loans-table-container').innerHTML = rows
-          ? '<table class="data-table"><thead><tr><th>Instituição / Descrição</th><th>Modalidade</th><th class="col-money">Parcela</th><th>Progresso</th><th class="col-money">Saldo Devedor</th><th>Situação</th><th style="text-align:right;">Ações</th></tr></thead><tbody>' + rows + '</tbody></table>'
-          : '<p style="color:var(--text-muted); padding:1.5rem; text-align:center;">Nenhum empréstimo cadastrado. Use o botão acima para adicionar um novo contrato.</p>';
+        var loansHeader =
+          '<thead><tr>' +
+            '<th>Instituição / Descrição <span class="info-popover-wrap" data-info-key="loan-col-instituicao"></span></th>' +
+            '<th class="col-center">Modalidade <span class="info-popover-wrap" data-info-key="loan-col-modalidade"></span></th>' +
+            '<th class="col-money">Parcela <span class="info-popover-wrap" data-info-key="loan-col-parcela"></span></th>' +
+            '<th class="col-center">Progresso <span class="info-popover-wrap" data-info-key="loan-col-progresso"></span></th>' +
+            '<th class="col-money">Saldo Devedor <span class="info-popover-wrap" data-info-key="loan-col-saldo-devedor"></span></th>' +
+            '<th class="col-center">Situação <span class="info-popover-wrap" data-info-key="loan-col-situacao"></span></th>' +
+            '<th style="text-align:right;">Ações</th>' +
+          '</tr></thead>';
+
+        var loansTableContainer = document.getElementById('loans-table-container');
+        if (loansTableContainer) {
+          loansTableContainer.innerHTML = rows
+            ? '<table class="data-table">' + loansHeader + '<tbody>' + rows + '</tbody></table>'
+            : '<p style="color:var(--text-muted); padding:1.5rem; text-align:center;">Nenhum empréstimo cadastrado. Use o botão acima para adicionar um novo contrato.</p>';
+        }
+
+        UIHelpers.initInfoPopovers(document.getElementById('sec-loans'));
       });
     }
 
@@ -4759,11 +4775,11 @@
 
         return (
           '<tr>' +
-            '<td><strong>' + p.numero_parcela + '/' + p.total_parcelas + '</strong></td>' +
-            '<td>' + UIHelpers.formatDateBr(p.data_vencimento) + '</td>' +
+            '<td class="col-center"><strong>' + p.numero_parcela + '/' + p.total_parcelas + '</strong></td>' +
+            '<td class="col-center">' + UIHelpers.formatDateBr(p.data_vencimento) + '</td>' +
             '<td class="col-money"><strong>' + UIHelpers.formatBrl(p.valor_centavos) + '</strong></td>' +
-            '<td>' + regraTexto + '</td>' +
-            '<td>' + UIHelpers.renderBadge(p.situacao) + '</td>' +
+            '<td class="col-center">' + regraTexto + '</td>' +
+            '<td class="col-center">' + UIHelpers.renderBadge(p.situacao) + '</td>' +
             '<td style="text-align:right;">' + actionBtn + '</td>' +
           '</tr>'
         );
@@ -4772,12 +4788,15 @@
       var container = document.getElementById('loan-installments-list-container');
       if (container) {
         container.innerHTML = rows
-          ? '<table class="data-table"><thead><tr><th>Parcela</th><th>Vencimento</th><th class="col-money">Valor</th><th>Impacto</th><th>Situação</th><th style="text-align:right;">Ação</th></tr></thead><tbody>' + rows + '</tbody></table>'
+          ? '<table class="data-table"><thead><tr><th class="col-center">Parcela</th><th class="col-center">Vencimento</th><th class="col-money">Valor</th><th class="col-center">Impacto</th><th class="col-center">Situação</th><th style="text-align:right;">Ação</th></tr></thead><tbody>' + rows + '</tbody></table>'
           : '<p style="color:var(--text-muted); padding:1rem; text-align:center;">Nenhuma parcela gerada para este contrato.</p>';
       }
 
       var modal = document.getElementById('modal-loan-installments-backdrop');
-      if (modal) modal.classList.add('open');
+      if (modal) {
+        modal.classList.add('open');
+        UIHelpers.initInfoPopovers(modal);
+      }
     }
 
     function closeLoanInstallmentsModal() {

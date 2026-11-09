@@ -9,15 +9,21 @@
         </svg>
       </div>
       <div>
-        <h1 id="title-loans" class="card-title" style="font-size:1.3rem; margin:0; font-weight:700;">Empréstimos & Financiamentos</h1>
-        <small style="color:var(--text-secondary); font-size:0.82rem;">Controle de contratos, parcelas e proteção inteligente contra desconto duplo em folha.</small>
+        <h1 id="title-loans" class="card-title" style="font-size:1.3rem; margin:0; font-weight:700; display:inline-flex; align-items:center; gap:0.4rem;">
+          <span>Empréstimos & Financiamentos</span>
+          <span class="info-popover-wrap" data-info-key="loan-modulo"></span>
+        </h1>
+        <small style="color:var(--text-secondary); font-size:0.82rem; display:block; margin-top:2px;">Controle de contratos, parcelas e proteção inteligente contra desconto duplo em folha.</small>
       </div>
     </div>
     <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
-      <button type="button" class="btn btn-primary btn-sm" id="btn-toggle-new-loan" onclick="App.toggleNewLoanCard()" style="display:flex; align-items:center; gap:0.4rem;">
-        <span id="icon-toggle-new-loan" style="font-weight:bold; font-size:1rem;">+</span>
-        <span>Novo Empréstimo</span>
-      </button>
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-primary btn-sm" id="btn-toggle-new-loan" onclick="App.toggleNewLoanCard()" style="display:flex; align-items:center; gap:0.4rem;">
+          <span id="icon-toggle-new-loan" style="font-weight:bold; font-size:1rem;">+</span>
+          <span>Novo Empréstimo</span>
+        </button>
+        <span class="info-popover-wrap" data-info-key="loan-novo-contrato" data-align="right"></span>
+      </div>
     </div>
   </div>
 
@@ -28,7 +34,10 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
       </div>
       <div style="font-size:0.84rem; color:var(--text-primary); line-height:1.45;">
-        <strong>Regras Inteligentes de Empréstimo no Finpess:</strong>
+        <strong style="display:inline-flex; align-items:center; gap:0.35rem;">
+          <span>Regras Inteligentes de Empréstimo no Finpess:</span>
+          <span class="info-popover-wrap" data-info-key="loan-banner-regras"></span>
+        </strong>
         <div style="margin-top:4px; display:flex; flex-direction:column; gap:4px; color:var(--text-secondary);">
           <span>• <strong>🏢 Consignado (Desconto em Folha):</strong> O valor já é retido no contracheque antes de o salário cair na conta. <em>Não desconta da conta bancária</em> para não duplicar sua despesa.</span>
           <span>• <strong>💳 Pago pelo Usuário (Débito em Conta / Boleto):</strong> O salário cai na conta e você realiza o pagamento da parcela. <em>Debita da conta bancária</em> e entra no fluxo de despesas.</span>
@@ -41,7 +50,10 @@
   <div class="filter-summary-cards" id="loans-kpi-container" style="margin-bottom:1.25rem;">
     <div class="filter-summary-card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span class="summary-label">Total Contratado</span>
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>Total Contratado</span>
+          <span class="info-popover-wrap" data-info-key="loan-kpi-contratado"></span>
+        </span>
         <span class="badge" style="background:var(--bg-hover); color:var(--text-secondary); font-size:0.65rem;">Principal</span>
       </div>
       <strong class="summary-value" id="loans-kpi-contratado">R$ 0,00</strong>
@@ -49,7 +61,10 @@
     </div>
     <div class="filter-summary-card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span class="summary-label">Saldo Devedor Restante</span>
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>Saldo Devedor Restante</span>
+          <span class="info-popover-wrap" data-info-key="loan-kpi-devedor"></span>
+        </span>
         <span class="badge badge-cancelado" style="font-size:0.65rem;">A Pagar</span>
       </div>
       <strong class="summary-value summary-val-saida" id="loans-kpi-devedor">R$ 0,00</strong>
@@ -57,7 +72,10 @@
     </div>
     <div class="filter-summary-card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span class="summary-label">Progresso Geral</span>
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>Progresso Geral</span>
+          <span class="info-popover-wrap" data-info-key="loan-kpi-progresso"></span>
+        </span>
         <span class="badge" style="background:rgba(16,185,129,0.12); color:var(--success); font-size:0.65rem;">Quitação</span>
       </div>
       <strong class="summary-value" id="loans-kpi-progresso" style="color:var(--success);">0 / 0 pagas</strong>
@@ -65,7 +83,10 @@
     </div>
     <div class="filter-summary-card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span class="summary-label">Contratos Ativos</span>
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>Contratos Ativos</span>
+          <span class="info-popover-wrap" data-info-key="loan-kpi-ativos" data-align="right"></span>
+        </span>
         <span class="badge" style="background:rgba(13,148,136,0.12); color:#0d9488; font-size:0.65rem;">Status</span>
       </div>
       <strong class="summary-value" id="loans-kpi-ativos" style="color:var(--text-primary);">0 contrato(s)</strong>
@@ -80,7 +101,10 @@
         <div style="width:28px; height:28px; border-radius:6px; background:rgba(13, 148, 136, 0.14); color:#0d9488; display:flex; align-items:center; justify-content:center;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
         </div>
-        <h2 class="card-title" style="margin:0; font-size:1.05rem;">Cadastrar Contrato de Empréstimo</h2>
+        <h2 class="card-title" style="margin:0; font-size:1.05rem; display:inline-flex; align-items:center; gap:0.4rem;">
+          <span>Cadastrar Contrato de Empréstimo</span>
+          <span class="info-popover-wrap" data-info-key="loan-novo-contrato"></span>
+        </h2>
       </div>
       <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleNewLoanCard(false)" title="Fechar formulário">✕ Fechar</button>
     </div>
@@ -88,8 +112,9 @@
     <form id="form-loan" onsubmit="App.submitLoan(event)">
       <!-- Seletor em Destaque da Modalidade de Cobrança / Impacto no Saldo -->
       <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:1rem; margin-bottom:1.15rem;">
-        <label for="emp-modalidade-cobranca" style="font-weight:700; font-size:0.88rem; color:var(--text-primary); margin-bottom:6px; display:block;">
-          Modalidade do Empréstimo & Impacto no Saldo Bancário *
+        <label for="emp-modalidade-cobranca" style="font-weight:700; font-size:0.88rem; color:var(--text-primary); margin-bottom:6px; display:inline-flex; align-items:center; gap:0.35rem;">
+          <span>Modalidade do Empréstimo & Impacto no Saldo Bancário *</span>
+          <span class="info-popover-wrap" data-info-key="loan-form-modalidade"></span>
         </label>
         <select id="emp-modalidade-cobranca" class="form-control" onchange="App.onLoanModalidadeChange()" required style="font-weight:600; font-size:0.92rem;">
           <option value="CONSIGNADO_FOLHA" selected>🏢 Consignado (Desconto em Folha) — Salário já cai líquido, NÃO desconta da conta bancária</option>
@@ -159,7 +184,10 @@
   <div class="card" style="margin-bottom:1.25rem;">
     <div class="card-header" style="flex-wrap:wrap; gap:0.5rem; justify-content:space-between; align-items:center;">
       <div>
-        <h2 class="card-title" style="margin:0; font-size:1.1rem;">Contratos de Empréstimos e Evolução de Parcelas</h2>
+        <h2 class="card-title" style="margin:0; font-size:1.1rem; display:inline-flex; align-items:center; gap:0.4rem;">
+          <span>Contratos de Empréstimos e Evolução de Parcelas</span>
+          <span class="info-popover-wrap" data-info-key="loan-posicao"></span>
+        </h2>
         <small style="color:var(--text-secondary); font-size:0.8rem;">Acompanhe o saldo devedor, parcelas quitadas e a regra de impacto no fluxo de caixa.</small>
       </div>
     </div>
@@ -175,7 +203,10 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
           </div>
           <div>
-            <h2 id="modal-loan-inst-title" class="card-title" style="margin:0; font-size:1.05rem;">Cronograma de Parcelas do Empréstimo</h2>
+            <h2 id="modal-loan-inst-title" class="card-title" style="margin:0; font-size:1.05rem; display:inline-flex; align-items:center; gap:0.4rem;">
+              <span>Cronograma de Parcelas do Empréstimo</span>
+              <span class="info-popover-wrap" data-info-key="loan-modal-parcelas"></span>
+            </h2>
             <small id="modal-loan-inst-sub" style="color:var(--text-secondary); font-size:0.75rem;">Acompanhe as parcelas quitadas e dê baixa nas parcelas pendentes.</small>
           </div>
         </div>
@@ -198,7 +229,10 @@
           <div style="width:28px; height:28px; border-radius:6px; background:rgba(13, 148, 136, 0.14); color:#0d9488; display:flex; align-items:center; justify-content:center;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
           </div>
-          <h2 id="modal-edit-loan-title" class="card-title" style="margin:0; font-size:1.05rem;">Editar Contrato de Empréstimo</h2>
+          <h2 id="modal-edit-loan-title" class="card-title" style="margin:0; font-size:1.05rem; display:inline-flex; align-items:center; gap:0.4rem;">
+            <span>Editar Contrato de Empréstimo</span>
+            <span class="info-popover-wrap" data-info-key="loan-modal-editar"></span>
+          </h2>
         </div>
         <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeEditLoanModal()" aria-label="Fechar">✕</button>
       </div>

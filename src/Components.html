@@ -1229,6 +1229,96 @@
         title: 'Cronograma de Parcelas do Acordo',
         desc: 'Extrato com todas as parcelas do acordo formalizado, permitindo registrar a baixa de cada parcela quitada gerando a despesa real correspondente.',
         tip: 'Ao quitar a última parcela, a dívida é automaticamente promovida para situação QUITADA.'
+      },
+      'loan-modulo': {
+        title: 'Módulo de Empréstimos & Financiamentos',
+        desc: 'Gerenciamento estruturado de contratos de empréstimos pessoais, consignados, financiamentos imobiliários e veiculares, com controle de parcelas e amortização.',
+        tip: 'Mantenha todos os contratos centralizados para acompanhar o impacto do endividamento no seu orçamento.'
+      },
+      'loan-novo-contrato': {
+        title: 'Cadastrar Novo Empréstimo',
+        desc: 'Abre o formulário para registrar um novo contrato de empréstimo ou financiamento, definindo credor, valor liberado, quantidade e valor das parcelas.',
+        tip: 'Preencha a taxa de juros informada no CET (Custo Efetivo Total) para visualizar a projeção correta de encargos.'
+      },
+      'loan-banner-regras': {
+        title: 'Regras Inteligentes de Débito (Prevenção de Duplicidade)',
+        desc: 'Diferenciação contábil essencial entre Consignado em Folha (onde o valor já é retido no contracheque e não gera débito na conta bancária) e Pago pelo Usuário (onde a parcela é debitada da conta ou paga via boleto).',
+        tip: 'Evita a duplicidade de despesas: se seu salário já cai líquido com desconto do consignado, a parcela não pode debitar sua conta novamente.'
+      },
+      'loan-kpi-contratado': {
+        title: 'Total Contratado (Valor Principal)',
+        desc: 'Soma de todo o capital bruto original contratado ou liberado pelas instituições financeiras em todos os contratos cadastrados.',
+        formula: 'Total Contratado = Σ(Valor Contratado de cada contrato)',
+        tip: 'Representa o montante que ingressou inicialmente no seu patrimônio antes dos acréscimos de juros.'
+      },
+      'loan-kpi-devedor': {
+        title: 'Saldo Devedor Restante',
+        desc: 'Montante monetário total das parcelas vincendas que ainda precisam ser pagas para a quitação integral de todos os contratos.',
+        formula: 'Saldo Devedor = Σ(Valor das parcelas em aberto)',
+        tip: 'Ao amortizar ou quitar parcelas antecipadamente, exija a redução proporcional dos juros futuros do contrato.'
+      },
+      'loan-kpi-progresso': {
+        title: 'Progresso Geral de Quitação',
+        desc: 'Contador consolidado de parcelas já liquidadas em relação ao total contratado, com percentual geral de amortização.',
+        formula: 'Progresso (%) = (Total de Parcelas Pagas ÷ Total de Parcelas Contratadas) × 100',
+        tip: 'Acompanhe a barra de progresso para visualizar a proximidade da quitação total do seu passivo.'
+      },
+      'loan-kpi-ativos': {
+        title: 'Contratos Ativos e Consignados',
+        desc: 'Total de contratos de empréstimo em andamento e a quantidade específica que opera via desconto consignado em folha.',
+        tip: 'O limite legal para empréstimos consignados costuma ser de 35% a 40% da remuneração líquida mensal.'
+      },
+      'loan-form-modalidade': {
+        title: 'Modalidade de Cobrança do Empréstimo',
+        desc: 'Define como a parcela é liquidada todo mês: Consignado (salário cai líquido, sem débito bancário) ou Pago pelo Usuário (debita da conta bancária de débito escolhida).',
+        tip: 'Para empréstimos via boleto, débito em conta corrente ou carnê, selecione "Pago pelo Usuário".'
+      },
+      'loan-posicao': {
+        title: 'Contratos Cadastrados e Evolução de Parcelas',
+        desc: 'Visão unificada de todos os contratos vigentes, exibindo modalidade de débito, valor da parcela, percentual de quitação e saldo restante.',
+        tip: 'Clique no menu de ações (3 pontos) de cada contrato para abrir o cronograma detalhado de parcelas.'
+      },
+      'loan-col-instituicao': {
+        title: 'Instituição Credora e Descrição',
+        desc: 'Banco ou financeira concedente do crédito e a finalidade do contrato (ex: Reforma, Veículo, Pessoal).',
+        tip: 'Permite identificar rapidamente a origem de cada obrigação financeira.'
+      },
+      'loan-col-modalidade': {
+        title: 'Modalidade de Débito',
+        desc: 'Indica se o empréstimo é Desconto em Folha (sem impacto na conta corrente) ou Pago pelo Usuário (gera débito bancário no dia do vencimento).',
+        tip: 'Contratos em folha aparecem identificados com badge verde e ícone predial.'
+      },
+      'loan-col-parcela': {
+        title: 'Valor da Parcela Mensal',
+        desc: 'Valor fixo pactuado em contrato que vence periodicamente a cada mês até a amortização total.',
+        tip: 'Verifique se o valor corresponde exatamente ao extrato do banco ou do holerite.'
+      },
+      'loan-col-progresso': {
+        title: 'Progresso de Amortização',
+        desc: 'Barra visual e contagem de parcelas pagas sobre o total pactuado no contrato.',
+        formula: 'Evolução = (Parcelas Pagas ÷ Total de Parcelas) × 100',
+        tip: 'Fica 100% verde quando o contrato for completamente liquidado.'
+      },
+      'loan-col-saldo-devedor': {
+        title: 'Saldo Devedor do Contrato',
+        desc: 'Valor residual que ainda resta pagar para finalizar este empréstimo específico.',
+        formula: 'Saldo Devedor = (Parcelas Restantes) × (Valor da Parcela)',
+        tip: 'Utilize para planejar amortizações extraordinárias e economizar juros contratuais.'
+      },
+      'loan-col-situacao': {
+        title: 'Situação do Contrato',
+        desc: 'Status operacional do contrato: ATIVO (em amortização), QUITADO (totalmente pago), SUSPENSO ou CANCELADO.',
+        tip: 'Quando a última parcela for paga, o status pode ser alterado para QUITADO.'
+      },
+      'loan-modal-parcelas': {
+        title: 'Cronograma Completo de Parcelas',
+        desc: 'Extrato analítico de todas as parcelas do contrato com datas de vencimento, valores e status de quitação individual.',
+        tip: 'Você pode dar baixa em cada parcela diretamente pelo botão "Pagar Parcela" ou "Baixar Parcela".'
+      },
+      'loan-modal-editar': {
+        title: 'Editar Dados do Contrato',
+        desc: 'Permite atualizar informações cadastrais do empréstimo, alterar situação para QUITADO ou redefinir a conta bancária vinculada.',
+        tip: 'Alterações cadastrais não afetam o histórico de parcelas já devidamente pagas.'
       }
     };
 
