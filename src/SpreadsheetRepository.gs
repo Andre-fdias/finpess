@@ -216,6 +216,9 @@ var SpreadsheetRepository = (function () {
   };
 
   var cachedSpreadsheet = null;
+  var cachedHeaders = {};
+  var sheetMap = {};
+  var recordsCache = {};
 
   function nowIso() {
     return new Date().toISOString();
@@ -274,6 +277,10 @@ var SpreadsheetRepository = (function () {
 
   function resetSpreadsheetCache() {
     cachedSpreadsheet = null;
+    cachedHeaders = {};
+    sheetMap = {};
+    recordsCache = {};
+    schemaVerifiedInMemory = false;
   }
 
   var isLockedLocally = false;
@@ -338,16 +345,8 @@ var SpreadsheetRepository = (function () {
       try {
         var propsCheck = typeof PropertiesService !== 'undefined' ? PropertiesService.getScriptProperties() : null;
         if (propsCheck && propsCheck.getProperty('SCHEMA_VERIFIED_VERSION') === SCHEMA_VERSION) {
-          var ssCheck = getSpreadsheet();
-          var allExist = true;
-          var namesCheck = Object.keys(SHEETS_SCHEMA);
-          for (var n = 0; n < namesCheck.length; n++) {
-            if (!ssCheck.getSheetByName(namesCheck[n])) { allExist = false; break; }
-          }
-          if (allExist) {
-            schemaVerifiedInMemory = true;
-            return { version: SCHEMA_VERSION, createdSheets: [], migratedColumns: [], cached: true };
-          }
+          schemaVerifiedInMemory = true;
+          return { version: SCHEMA_VERSION, createdSheets: [], migratedColumns: [], cached: true };
         }
       } catch (eCheck) {}
     }
@@ -402,11 +401,17 @@ var SpreadsheetRepository = (function () {
     if (!SHEETS_SCHEMA[sheetName]) {
       throw new Error('Aba inválida ou não definida no esquema: ' + sheetName);
     }
+    if (sheetMap[sheetName]) {
+      return sheetMap[sheetName];
+    }
     var ss = getSpreadsheet();
     var sheet = ss.getSheetByName(sheetName);
     if (!sheet) {
-      ensureSchema();
+      ensureSchema(true);
       sheet = ss.getSheetByName(sheetName);
+    }
+    if (sheet) {
+      sheetMap[sheetName] = sheet;
     }
     return sheet;
   }
@@ -455,10 +460,14 @@ var SpreadsheetRepository = (function () {
   }
 
   function readAllRecords(sheetName) {
+    if (recordsCache[sheetName]) {
+      return recordsCache[sheetName].slice();
+    }
     var sheet = getSheetOrThrow(sheetName);
     var lastRow = sheet.getLastRow();
     var lastCol = sheet.getLastColumn();
     if (lastRow <= 1 || lastCol === 0) {
+      recordsCache[sheetName] = [];
       return [];
     }
     var data = sheet.getRange(1, 1, lastRow, lastCol).getValues();
@@ -477,7 +486,8 @@ var SpreadsheetRepository = (function () {
       obj._rowIndex = r + 1;
       results.push(obj);
     }
-    return results;
+    recordsCache[sheetName] = results;
+    return results.slice();
   }
 
   function findAll(sheetName, filterFn) {
@@ -521,11 +531,15 @@ var SpreadsheetRepository = (function () {
   }
 
   function getActualSheetHeaders(sheet, sheetName) {
+    if (cachedHeaders[sheetName]) {
+      return cachedHeaders[sheetName].slice();
+    }
     var expectedHeaders = SHEETS_SCHEMA[sheetName];
     var lastCol = sheet.getLastColumn();
     if (lastCol === 0) {
       sheet.getRange(1, 1, 1, expectedHeaders.length).setValues([expectedHeaders]);
       sheet.setFrozenRows(1);
+      cachedHeaders[sheetName] = expectedHeaders.slice();
       return expectedHeaders.slice();
     }
     var currentHeaders = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
@@ -540,7 +554,8 @@ var SpreadsheetRepository = (function () {
     if (needsAppend) {
       sheet.getRange(1, 1, 1, currentHeaders.length).setValues([currentHeaders]);
     }
-    return currentHeaders;
+    cachedHeaders[sheetName] = currentHeaders.slice();
+    return currentHeaders.slice();
   }
 
   var _memSyncVersion = Date.now();
@@ -735,6 +750,7 @@ var SpreadsheetRepository = (function () {
       var targetRow = sheet.getLastRow() + 1;
       sheet.getRange(targetRow, 1, 1, headers.length).setValues([rowValues]);
       copy._rowIndex = targetRow;
+      delete recordsCache[sheetName];
       if (sheetName !== 'AUDITORIA' && sheetName !== 'NOTIFICACOES_FILA') {
         bumpSyncVersion(copy.grupo_id);
       }
@@ -781,6 +797,7 @@ var SpreadsheetRepository = (function () {
 
       var startRow = sheet.getLastRow() + 1;
       sheet.getRange(startRow, 1, rowsToInsert.length, headers.length).setValues(rowsToInsert);
+      delete recordsCache[sheetName];
       if (sheetName !== 'AUDITORIA' && sheetName !== 'NOTIFICACOES_FILA') {
         var gId = insertedObjects.length > 0 ? insertedObjects[0].grupo_id : '';
         bumpSyncVersion(gId);
@@ -830,6 +847,7 @@ var SpreadsheetRepository = (function () {
 
       if (modified) {
         sheet.getRange(1, 1, values.length, headers.length).setValues(values);
+        delete recordsCache[sheetName];
         if (sheetName !== 'AUDITORIA' && sheetName !== 'NOTIFICACOES_FILA') {
           bumpSyncVersion(grupoId);
         }
@@ -868,6 +886,7 @@ var SpreadsheetRepository = (function () {
       }
       sheet.getRange(existing._rowIndex, 1, 1, headers.length).setValues([rowValues]);
       updated._rowIndex = existing._rowIndex;
+      delete recordsCache[sheetName];
       if (sheetName !== 'AUDITORIA' && sheetName !== 'NOTIFICACOES_FILA') {
         bumpSyncVersion(updated.grupo_id || grupoId);
       }
@@ -883,6 +902,7 @@ var SpreadsheetRepository = (function () {
         throw new Error('Registro não encontrado para exclusão em ' + sheetName + ': ' + id);
       }
       sheet.deleteRow(existing._rowIndex);
+      delete recordsCache[sheetName];
       if (sheetName !== 'AUDITORIA' && sheetName !== 'NOTIFICACOES_FILA') {
         bumpSyncVersion(existing.grupo_id || grupoId);
       }
@@ -1031,6 +1051,7 @@ var SpreadsheetRepository = (function () {
           }
         }
       }
+      delete recordsCache[sheetName];
       return { ok: true, sheetName: sheetName, clearedRows: Math.max(0, lastRow - 1) };
     });
   }

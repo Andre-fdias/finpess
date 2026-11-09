@@ -409,11 +409,14 @@ var AuthService = (function () {
    * Inicializa o grupo financeiro padrão e configurações caso o proprietário esteja acessando pela primeira vez.
    */
   function bootstrapOwnerAndGroup(ownerEmail) {
-    SpreadsheetRepository.ensureSchema();
     var email = normalizeEmail(ownerEmail);
     var existingUser = SpreadsheetRepository.findOne('USUARIOS', function (u) {
       return normalizeEmail(u.email) === email;
     });
+
+    if (!existingUser) {
+      SpreadsheetRepository.ensureSchema();
+    }
 
     var now = Date.now();
     var nowIsoStr = SpreadsheetRepository.nowIso();
@@ -558,7 +561,6 @@ var AuthService = (function () {
    * Obtém ou registra o usuário da sessão atual, aplicando regras de aprovação.
    */
   function getCurrentSessionUser(authContext) {
-    SpreadsheetRepository.ensureSchema();
     var email = resolveAuthenticatedEmail(authContext);
     if (!email) {
       throw new Error('AUTH_REQUIRED: Sessão não autenticada.');

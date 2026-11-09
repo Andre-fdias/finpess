@@ -72,24 +72,37 @@
     }
 
     var activeLoadingCount = 0;
+    var activeBlockingCount = 0;
 
-    function showLoading(msg) {
+    function showLoading(msg, isBlocking) {
       activeLoadingCount++;
-      var overlay = document.getElementById('global-loading-overlay');
-      var txt = document.getElementById('global-loading-text');
-      if (txt) {
-        txt.textContent = msg || 'Processando com segurança...';
+      if (isBlocking) {
+        activeBlockingCount++;
+        var overlay = document.getElementById('global-loading-overlay');
+        var txt = document.getElementById('global-loading-text');
+        if (txt) {
+          txt.textContent = msg || 'Processando com segurança...';
+        }
+        if (overlay) overlay.style.display = 'flex';
       }
-      if (overlay) overlay.style.display = 'flex';
+      var bar = document.getElementById('top-loading-bar');
+      if (bar) bar.classList.add('loading-active');
       var loader = document.getElementById('global-loader');
       if (loader) loader.style.display = 'inline-block';
     }
 
-    function hideLoading() {
+    function hideLoading(isBlocking) {
       activeLoadingCount = Math.max(0, activeLoadingCount - 1);
+      if (isBlocking) {
+        activeBlockingCount = Math.max(0, activeBlockingCount - 1);
+        if (activeBlockingCount === 0) {
+          var overlay = document.getElementById('global-loading-overlay');
+          if (overlay) overlay.style.display = 'none';
+        }
+      }
       if (activeLoadingCount === 0) {
-        var overlay = document.getElementById('global-loading-overlay');
-        if (overlay) overlay.style.display = 'none';
+        var bar = document.getElementById('top-loading-bar');
+        if (bar) bar.classList.remove('loading-active');
         var loader = document.getElementById('global-loader');
         if (loader) loader.style.display = 'none';
       }
@@ -97,7 +110,8 @@
 
     function callServer(action, payload, callback, options) {
       var isQuiet = Boolean(options && options.quiet);
-      if (!isQuiet) showLoading();
+      var isBlocking = Boolean(options && options.blocking);
+      if (!isQuiet) showLoading(options && options.message, isBlocking);
 
       var token = (typeof window !== 'undefined' && window.__INITIAL_SESSION_TOKEN__) ||
                   localStorage.getItem('fin_session_token') ||
@@ -111,7 +125,7 @@
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         google.script.run
           .withSuccessHandler(function (res) {
-            if (!isQuiet) hideLoading();
+            if (!isQuiet) hideLoading(isBlocking);
             if (!res || !res.ok) {
               var errMsg = (res && res.error) || 'Erro na operação.';
               if (action !== 'session.getBootstrap' &&
@@ -124,14 +138,20 @@
                 setTimeout(function () { if (typeof init === 'function') init(); }, 1000);
                 return;
               }
+              if (options && typeof options.onError === 'function') {
+                options.onError(res || { message: errMsg });
+              }
               if (!isQuiet) showToast(errMsg, 'error');
               return;
             }
             if (callback) callback(res);
           })
           .withFailureHandler(function (err) {
+            if (!isQuiet) hideLoading(isBlocking);
+            if (options && typeof options.onError === 'function') {
+              options.onError(err);
+            }
             if (!isQuiet) {
-              hideLoading();
               showToast(err && err.message ? err.message : String(err), 'error');
             }
           })
@@ -139,7 +159,7 @@
       } else if (typeof window.__LOCAL_API_BRIDGE__ === 'function') {
         try {
           var localRes = window.__LOCAL_API_BRIDGE__(action, payload || {}, authCtx);
-          if (!isQuiet) hideLoading();
+          if (!isQuiet) hideLoading(isBlocking);
           if (!localRes || !localRes.ok) {
             var localErrMsg = (localRes && localRes.error) || 'Erro na operação.';
             if (action !== 'session.getBootstrap' &&
@@ -152,19 +172,25 @@
               setTimeout(function () { if (typeof init === 'function') init(); }, 1000);
               return;
             }
+            if (options && typeof options.onError === 'function') {
+              options.onError(localRes || { message: localErrMsg });
+            }
             if (!isQuiet) showToast(localErrMsg, 'error');
             return;
           }
           if (callback) callback(localRes);
         } catch (e) {
+          if (!isQuiet) hideLoading(isBlocking);
+          if (options && typeof options.onError === 'function') {
+            options.onError(e);
+          }
           if (!isQuiet) {
-            hideLoading();
             showToast(e.message || String(e), 'error');
           }
         }
       } else {
         if (!isQuiet) {
-          hideLoading();
+          hideLoading(isBlocking);
           showToast('Ambiente Google Apps Script não detectado.', 'error');
         }
       }
@@ -563,9 +589,6 @@
       else if (moduleName === 'reports') loadReports();
       else if (moduleName === 'oraculo' || moduleName === 'oracle') loadOraculo();
       else if (moduleName === 'settings') loadSettingsView();
-
-      // Atualiza presença em tempo real para os outros usuários saberem onde você está editando
-      checkSyncVersion();
     }
 
     function toggleMobileSidebar() {
@@ -1056,7 +1079,7 @@
           updateNotificationsBadge(res.notificationsBadge, res.hasCriticalNotification);
         }
         checkAndShowInitialPopup();
-      });
+      }, { blocking: true, message: 'Inicializando o Finpess...' });
     }
 
     function submitLogin(event) {
@@ -1423,10 +1446,19 @@
       }
     }
 
-    function loadDashboard() {
+    function loadDashboard(forceRefresh) {
       var monthEl = document.getElementById('dash-month-select');
       var mes = monthEl ? monthEl.value : '';
+      if (state.dashboard && !mes && !forceRefresh) {
+        renderDashboard(state.dashboard);
+        callServer('dashboard.get', { mesReferencia: mes }, function (res) {
+          state.dashboard = res.data;
+          renderDashboard(res.data);
+        }, { quiet: true });
+        return;
+      }
       callServer('dashboard.get', { mesReferencia: mes }, function (res) {
+        state.dashboard = res.data;
         renderDashboard(res.data);
       });
     }
@@ -1667,22 +1699,9 @@
       };
     }
 
-    function loadLaunches(page) {
-      state.currentPage = page || 1;
-      var curMonth = new Date().toISOString().substring(0, 7);
-      if (!state.recurringForecastsSyncedMonth) {
-        state.recurringForecastsSyncedMonth = curMonth;
-        callServer('recurring.generateForecasts', { competencia: curMonth }, function () {
-          loadLaunches(page);
-        }, function () {
-          loadLaunches(page);
-        });
-        return;
-      }
-      var payload = collectLaunchFilterPayload(page);
-      callServer('launches.list', payload, function (res) {
-        var data = res.data;
-        state.launches = data.items || [];
+    function renderLaunchesView(data) {
+      if (!data) return;
+      state.launches = data.items || [];
 
         // Atualiza mini-painel de totalizadores do período filtrado
         var sumTotal = document.getElementById('summary-filtro-total');
@@ -1832,6 +1851,37 @@
         if (UIHelpers && UIHelpers.initInfoPopovers) {
           UIHelpers.initInfoPopovers(document.getElementById('sec-launches'));
         }
+    }
+
+    function loadLaunches(page, forceRefresh) {
+      state.currentPage = page || 1;
+      var curMonth = new Date().toISOString().substring(0, 7);
+      if (!state.recurringForecastsSyncedMonth) {
+        state.recurringForecastsSyncedMonth = curMonth;
+        callServer('recurring.generateForecasts', { competencia: curMonth }, function () {
+          if (state.currentModule === 'launches') {
+            var pSync = collectLaunchFilterPayload(state.currentPage || 1);
+            callServer('launches.list', pSync, function (rSync) {
+              state.launchesData = rSync.data;
+              renderLaunchesView(rSync.data);
+            }, { quiet: true });
+          }
+        }, { quiet: true });
+      }
+
+      var payload = collectLaunchFilterPayload(page);
+      if (state.launchesData && (page === 1 || page === state.currentPage) && !forceRefresh) {
+        renderLaunchesView(state.launchesData);
+        callServer('launches.list', payload, function (res) {
+          state.launchesData = res.data;
+          renderLaunchesView(res.data);
+        }, { quiet: true });
+        return;
+      }
+
+      callServer('launches.list', payload, function (res) {
+        state.launchesData = res.data;
+        renderLaunchesView(res.data);
       });
     }
 
@@ -2338,133 +2388,149 @@
       );
     }
 
-    function loadRecurringAccounts() {
+    function renderRecurringAccountsView(items) {
+      items = items || state.recurringAccounts || [];
+
+      // Atualiza KPIs do topo
+      var ativas = items.filter(function (r) { return r.situacao === 'ATIVA'; });
+      var totalDespesas = 0;
+      var totalReceitas = 0;
+      var confirmadasMes = 0;
+      var previstasMes = 0;
+
+      items.forEach(function (r) {
+        if (r.tipo === 'ENTRADA') totalReceitas += Number(r.valor_previsto_centavos || 0);
+        else totalDespesas += Number(r.valor_previsto_centavos || 0);
+
+        if (r.ocorrencia_mes_atual) {
+          if (r.ocorrencia_mes_atual.situacao === 'CONFIRMADO') confirmadasMes++;
+          else if (r.ocorrencia_mes_atual.situacao === 'PREVISTO' || r.ocorrencia_mes_atual.situacao === 'PENDENTE') previstasMes++;
+        }
+      });
+
+      var kpiRegras = document.getElementById('rec-kpi-total-regras');
+      if (kpiRegras) kpiRegras.textContent = ativas.length + ' ativa(s)';
+
+      var kpiDespesas = document.getElementById('rec-kpi-despesas');
+      if (kpiDespesas) kpiDespesas.textContent = '-' + UIHelpers.formatBrl(totalDespesas);
+
+      var kpiReceitas = document.getElementById('rec-kpi-receitas');
+      if (kpiReceitas) kpiReceitas.textContent = '+' + UIHelpers.formatBrl(totalReceitas);
+
+      var kpiStatus = document.getElementById('rec-kpi-status-mes');
+      if (kpiStatus) kpiStatus.textContent = confirmadasMes + ' paga(s) / ' + previstasMes + ' prev.';
+
+      var rows = items.map(function (r) {
+        var occStatus = r.ocorrencia_mes_atual ? r.ocorrencia_mes_atual.situacao : 'NÃO GERADA';
+        var isEntrada = r.tipo === 'ENTRADA';
+        var rowClass = isEntrada ? 'row-entrada' : 'row-saida';
+
+        var bankBadge = r.conta_bancaria_nome
+          ? UIHelpers.getBankBadgeHtml(r.conta_bancaria_nome)
+          : '<span style="color:var(--text-muted); font-size:0.8rem;">Padrão</span>';
+
+        var moneyPill = isEntrada
+          ? '<span class="money-pill-entrada"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"></polyline></svg> +' + UIHelpers.formatBrl(r.valor_previsto_centavos) + '</span>'
+          : '<span class="money-pill-saida"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"></polyline></svg> -' + UIHelpers.formatBrl(r.valor_previsto_centavos) + '</span>';
+
+        var statusBadge = UIHelpers.renderBadge(occStatus);
+
+        // Menu de Ações
+        var menuItems = [];
+        if (occStatus !== 'CONFIRMADO') {
+          menuItems.push('<button type="button" class="dropdown-action-btn dropdown-action-success" onclick="App.closeAllActionDropdowns(); App.payRecurring(\'' + UIHelpers.escapeHtml(r.id) + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>Confirmar Pagamento</span></button>');
+        }
+        menuItems.push('<button type="button" class="dropdown-action-btn" onclick="App.closeAllActionDropdowns(); App.openEditRecurringModal(\'' + UIHelpers.escapeHtml(r.id) + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> <span>Editar Regra</span></button>');
+        menuItems.push('<button type="button" class="dropdown-action-btn" onclick="App.closeAllActionDropdowns(); App.goToLaunchesForRecurring(\'' + UIHelpers.escapeHtml(r.id) + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> <span>Ver em Lançamentos</span></button>');
+        if (r.situacao === 'ATIVA') {
+          menuItems.push('<div class="dropdown-action-divider"></div>');
+          var safeNome = UIHelpers.escapeHtml(r.nome).replace(/'/g, "\\'");
+          menuItems.push('<button type="button" class="dropdown-action-btn dropdown-action-danger" onclick="App.closeAllActionDropdowns(); App.cancelRecurringRule(\'' + UIHelpers.escapeHtml(r.id) + '\', \'' + safeNome + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg> <span>Inativar Regra</span></button>');
+        }
+
+        var dropdownId = 'rec-actions-' + r.id;
+        var dropdownHtml =
+          '<div class="table-actions-dropdown">' +
+            '<button type="button" class="btn-dots-action" onclick="App.toggleRowDropdown(event, \'' + dropdownId + '\')" title="Opções da regra" aria-label="Ações">' +
+              '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2.2"></circle><circle cx="12" cy="12" r="2.2"></circle><circle cx="12" cy="19" r="2.2"></circle></svg>' +
+            '</button>' +
+            '<div id="' + dropdownId + '" class="table-dropdown-menu">' +
+              menuItems.join('') +
+            '</div>' +
+          '</div>';
+
+        var tipoTag = isEntrada
+          ? '<span class="rec-tag-tipo" style="background:rgba(16,185,129,0.12); color:var(--success);">Receita</span>'
+          : '<span class="rec-tag-tipo" style="background:rgba(239,68,68,0.1); color:var(--danger);">Despesa</span>';
+
+        var parcelasInfo = '';
+        if (r.data_termino) {
+          var pCount = calculateInstallmentsCount(r.data_inicio, r.data_termino, r.recorrencia);
+          if (pCount > 0) {
+            parcelasInfo = ' • ' + pCount + 'x (até ' + UIHelpers.formatDateBr(r.data_termino) + ')';
+          } else {
+            parcelasInfo = ' • até ' + UIHelpers.formatDateBr(r.data_termino);
+          }
+        }
+
+        return (
+          '<tr class="' + rowClass + '">' +
+          '<td>' +
+            '<div style="display:flex; align-items:center; gap:6px; flex-wrap:nowrap;">' +
+              '<strong style="color:var(--text-primary); font-size:0.88rem; white-space:nowrap;">' + UIHelpers.escapeHtml(r.nome) + '</strong>' +
+              tipoTag +
+            '</div>' +
+            '<small style="color:var(--text-secondary); font-size:0.73rem; display:block; margin-top:3px;">' + UIHelpers.escapeHtml(r.natureza) + ' • ' + UIHelpers.escapeHtml(r.recorrencia) + parcelasInfo + '</small>' +
+          '</td>' +
+          '<td class="col-center"><span class="badge badge-estimado" style="font-weight:600;">Todo dia ' + r.dia_vencimento + '</span></td>' +
+          '<td>' + UIHelpers.escapeHtml(r.categoria_nome) + '</td>' +
+          '<td class="col-center">' + bankBadge + '</td>' +
+          '<td class="col-money">' + moneyPill + '</td>' +
+          '<td class="col-center">' + statusBadge + '</td>' +
+          '<td class="col-center">' + dropdownHtml + '</td>' +
+          '</tr>'
+        );
+      }).join('');
+
+      var tableHeader =
+        '<thead><tr>' +
+          '<th>Conta Recorrente</th>' +
+          '<th class="col-center">Vencimento <span class="info-popover-wrap" data-info-key="rec-col-vencimento"></span></th>' +
+          '<th>Categoria</th>' +
+          '<th class="col-center">Conta Padrão <span class="info-popover-wrap" data-info-key="rec-col-conta"></span></th>' +
+          '<th class="col-money">Valor Previsto</th>' +
+          '<th class="col-center">Situação no Mês <span class="info-popover-wrap" data-info-key="rec-col-situacao"></span></th>' +
+          '<th class="col-center">Ações</th>' +
+        '</tr></thead>';
+
+      var container = document.getElementById('recurring-table-container');
+      if (container) {
+        container.innerHTML = rows
+          ? '<table class="data-table">' + tableHeader + '<tbody>' + rows + '</tbody></table>'
+          : '<p style="color:var(--text-muted); padding:1rem 0;">Nenhuma conta recorrente cadastrada no grupo financeiro.</p>';
+      }
+
+      UIHelpers.initInfoPopovers(document.getElementById('sec-recurring'));
+      loadSubscriptionsInsights();
+    }
+
+    function loadRecurringAccounts(forceRefresh) {
       var compEl = document.getElementById('rec-competencia-input');
       var comp = (compEl && compEl.value) ? compEl.value : new Date().toISOString().substring(0, 7);
       if (compEl && !compEl.value) compEl.value = comp;
 
+      if (state.recurringAccounts && state.recurringAccounts.length >= 0 && !forceRefresh) {
+        renderRecurringAccountsView(state.recurringAccounts);
+        callServer('recurring.list', { competencia: comp }, function (res) {
+          state.recurringAccounts = res.data || [];
+          renderRecurringAccountsView(state.recurringAccounts);
+        }, { quiet: true });
+        return;
+      }
+
       callServer('recurring.list', { competencia: comp }, function (res) {
-        var items = res.data || [];
-        state.recurringAccounts = items;
-
-        // Atualiza KPIs do topo
-        var ativas = items.filter(function (r) { return r.situacao === 'ATIVA'; });
-        var totalDespesas = 0;
-        var totalReceitas = 0;
-        var confirmadasMes = 0;
-        var previstasMes = 0;
-
-        items.forEach(function (r) {
-          if (r.tipo === 'ENTRADA') totalReceitas += Number(r.valor_previsto_centavos || 0);
-          else totalDespesas += Number(r.valor_previsto_centavos || 0);
-
-          if (r.ocorrencia_mes_atual) {
-            if (r.ocorrencia_mes_atual.situacao === 'CONFIRMADO') confirmadasMes++;
-            else if (r.ocorrencia_mes_atual.situacao === 'PREVISTO' || r.ocorrencia_mes_atual.situacao === 'PENDENTE') previstasMes++;
-          }
-        });
-
-        var kpiRegras = document.getElementById('rec-kpi-total-regras');
-        if (kpiRegras) kpiRegras.textContent = ativas.length + ' ativa(s)';
-
-        var kpiDespesas = document.getElementById('rec-kpi-despesas');
-        if (kpiDespesas) kpiDespesas.textContent = '-' + UIHelpers.formatBrl(totalDespesas);
-
-        var kpiReceitas = document.getElementById('rec-kpi-receitas');
-        if (kpiReceitas) kpiReceitas.textContent = '+' + UIHelpers.formatBrl(totalReceitas);
-
-        var kpiStatus = document.getElementById('rec-kpi-status-mes');
-        if (kpiStatus) kpiStatus.textContent = confirmadasMes + ' paga(s) / ' + previstasMes + ' prev.';
-
-        var rows = items.map(function (r) {
-          var occStatus = r.ocorrencia_mes_atual ? r.ocorrencia_mes_atual.situacao : 'NÃO GERADA';
-          var isEntrada = r.tipo === 'ENTRADA';
-          var rowClass = isEntrada ? 'row-entrada' : 'row-saida';
-
-          var bankBadge = r.conta_bancaria_nome
-            ? UIHelpers.getBankBadgeHtml(r.conta_bancaria_nome)
-            : '<span style="color:var(--text-muted); font-size:0.8rem;">Padrão</span>';
-
-          var moneyPill = isEntrada
-            ? '<span class="money-pill-entrada"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"></polyline></svg> +' + UIHelpers.formatBrl(r.valor_previsto_centavos) + '</span>'
-            : '<span class="money-pill-saida"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"></polyline></svg> -' + UIHelpers.formatBrl(r.valor_previsto_centavos) + '</span>';
-
-          var statusBadge = UIHelpers.renderBadge(occStatus);
-
-          // Menu de Ações
-          var menuItems = [];
-          if (occStatus !== 'CONFIRMADO') {
-            menuItems.push('<button type="button" class="dropdown-action-btn dropdown-action-success" onclick="App.closeAllActionDropdowns(); App.payRecurring(\'' + UIHelpers.escapeHtml(r.id) + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>Confirmar Pagamento</span></button>');
-          }
-          menuItems.push('<button type="button" class="dropdown-action-btn" onclick="App.closeAllActionDropdowns(); App.openEditRecurringModal(\'' + UIHelpers.escapeHtml(r.id) + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> <span>Editar Regra</span></button>');
-          menuItems.push('<button type="button" class="dropdown-action-btn" onclick="App.closeAllActionDropdowns(); App.goToLaunchesForRecurring(\'' + UIHelpers.escapeHtml(r.id) + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> <span>Ver em Lançamentos</span></button>');
-          if (r.situacao === 'ATIVA') {
-            menuItems.push('<div class="dropdown-action-divider"></div>');
-            var safeNome = UIHelpers.escapeHtml(r.nome).replace(/'/g, "\\'");
-            menuItems.push('<button type="button" class="dropdown-action-btn dropdown-action-danger" onclick="App.closeAllActionDropdowns(); App.cancelRecurringRule(\'' + UIHelpers.escapeHtml(r.id) + '\', \'' + safeNome + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg> <span>Inativar Regra</span></button>');
-          }
-
-          var dropdownId = 'rec-actions-' + r.id;
-          var dropdownHtml =
-            '<div class="table-actions-dropdown">' +
-              '<button type="button" class="btn-dots-action" onclick="App.toggleRowDropdown(event, \'' + dropdownId + '\')" title="Opções da regra" aria-label="Ações">' +
-                '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2.2"></circle><circle cx="12" cy="12" r="2.2"></circle><circle cx="12" cy="19" r="2.2"></circle></svg>' +
-              '</button>' +
-              '<div id="' + dropdownId + '" class="table-dropdown-menu">' +
-                menuItems.join('') +
-              '</div>' +
-            '</div>';
-
-          var tipoTag = isEntrada
-            ? '<span class="rec-tag-tipo" style="background:rgba(16,185,129,0.12); color:var(--success);">Receita</span>'
-            : '<span class="rec-tag-tipo" style="background:rgba(239,68,68,0.1); color:var(--danger);">Despesa</span>';
-
-          var parcelasInfo = '';
-          if (r.data_termino) {
-            var pCount = calculateInstallmentsCount(r.data_inicio, r.data_termino, r.recorrencia);
-            if (pCount > 0) {
-              parcelasInfo = ' • ' + pCount + 'x (até ' + UIHelpers.formatDateBr(r.data_termino) + ')';
-            } else {
-              parcelasInfo = ' • até ' + UIHelpers.formatDateBr(r.data_termino);
-            }
-          }
-
-          return (
-            '<tr class="' + rowClass + '">' +
-            '<td>' +
-              '<div style="display:flex; align-items:center; gap:6px; flex-wrap:nowrap;">' +
-                '<strong style="color:var(--text-primary); font-size:0.88rem; white-space:nowrap;">' + UIHelpers.escapeHtml(r.nome) + '</strong>' +
-                tipoTag +
-              '</div>' +
-              '<small style="color:var(--text-secondary); font-size:0.73rem; display:block; margin-top:3px;">' + UIHelpers.escapeHtml(r.natureza) + ' • ' + UIHelpers.escapeHtml(r.recorrencia) + parcelasInfo + '</small>' +
-            '</td>' +
-            '<td class="col-center"><span class="badge badge-estimado" style="font-weight:600;">Todo dia ' + r.dia_vencimento + '</span></td>' +
-            '<td>' + UIHelpers.escapeHtml(r.categoria_nome) + '</td>' +
-            '<td class="col-center">' + bankBadge + '</td>' +
-            '<td class="col-money">' + moneyPill + '</td>' +
-            '<td class="col-center">' + statusBadge + '</td>' +
-            '<td class="col-center">' + dropdownHtml + '</td>' +
-            '</tr>'
-          );
-        }).join('');
-
-        var tableHeader =
-          '<thead><tr>' +
-            '<th>Conta Recorrente</th>' +
-            '<th class="col-center">Vencimento <span class="info-popover-wrap" data-info-key="rec-col-vencimento"></span></th>' +
-            '<th>Categoria</th>' +
-            '<th class="col-center">Conta Padrão <span class="info-popover-wrap" data-info-key="rec-col-conta"></span></th>' +
-            '<th class="col-money">Valor Previsto</th>' +
-            '<th class="col-center">Situação no Mês <span class="info-popover-wrap" data-info-key="rec-col-situacao"></span></th>' +
-            '<th class="col-center">Ações</th>' +
-          '</tr></thead>';
-
-        document.getElementById('recurring-table-container').innerHTML = rows
-          ? '<table class="data-table">' + tableHeader + '<tbody>' + rows + '</tbody></table>'
-          : '<p style="color:var(--text-muted); padding:1rem 0;">Nenhuma conta recorrente cadastrada no grupo financeiro.</p>';
-
-        UIHelpers.initInfoPopovers(document.getElementById('sec-recurring'));
-        loadSubscriptionsInsights();
+        state.recurringAccounts = res.data || [];
+        renderRecurringAccountsView(state.recurringAccounts);
       });
     }
 
@@ -2767,7 +2833,25 @@
       }
     }
 
-    function loadBankAccounts() {
+    function loadBankAccounts(forceRefresh) {
+      if (state.bankAccounts && state.bankAccounts.length >= 0 && !forceRefresh) {
+        updateBankAccountsKpis();
+        renderBankAccountsView(state.bankAccounts);
+        callServer('bankAccounts.list', { includeInactive: true }, function (res) {
+          state.bankAccounts = res.data || [];
+          populateSelects();
+          updateBankAccountsKpis();
+          renderBankAccountsView(state.bankAccounts);
+        }, { quiet: true });
+        if (!state.groupMembers || state.groupMembers.length === 0) {
+          callServer('users.listGroupMembers', {}, function (resMembers) {
+            state.groupMembers = resMembers.data || [];
+            populateBankOwnerSelects();
+          }, { quiet: true });
+        }
+        return;
+      }
+
       callServer('users.listGroupMembers', {}, function (resMembers) {
         state.groupMembers = resMembers.data || [];
         populateBankOwnerSelects();
@@ -3493,42 +3577,55 @@
     // MÓDULO DE CARTÕES DE CRÉDITO E FATURAS (NUBANK / WALLET STYLE)
     // =========================================================================
 
-    function loadCreditCards() {
+    function renderCreditCardsView(cards) {
+      cards = cards || state.creditCards || [];
+
+      var totalLivre = 0;
+      var totalComprometido = 0;
+      var totalFaturasMes = 0;
+      var totalLimiteGeral = 0;
+
+      for (var i = 0; i < cards.length; i++) {
+        var c = cards[i];
+        totalLivre += Number(c.limite_disponivel_centavos || 0);
+        totalComprometido += Number(c.limite_comprometido_centavos || 0);
+        totalFaturasMes += Number(c.fatura_atual_centavos || 0);
+        totalLimiteGeral += Number(c.limite_total_centavos || 0);
+      }
+
+      var dispEl = document.getElementById('cards-kpi-disponivel');
+      if (dispEl) dispEl.textContent = UIHelpers.formatBrl(totalLivre);
+
+      var compEl = document.getElementById('cards-kpi-comprometido');
+      if (compEl) compEl.textContent = UIHelpers.formatBrl(totalComprometido);
+
+      var fatEl = document.getElementById('cards-kpi-faturas-mes');
+      if (fatEl) fatEl.textContent = UIHelpers.formatBrl(totalFaturasMes);
+
+      var countEl = document.getElementById('cards-kpi-total-cards');
+      if (countEl) countEl.textContent = cards.length + ' cartão(ões)';
+
+      var limDescEl = document.getElementById('cards-kpi-total-limite');
+      if (limDescEl) limDescEl.textContent = 'Limite total: ' + UIHelpers.formatBrl(totalLimiteGeral);
+
+      populateCreditCardDropdowns(cards);
+      renderCreditCardsGrid(cards);
+      UIHelpers.initInfoPopovers(document.getElementById('sec-credit-cards'));
+    }
+
+    function loadCreditCards(forceRefresh) {
+      if (state.creditCards && state.creditCards.length >= 0 && !forceRefresh) {
+        renderCreditCardsView(state.creditCards);
+        callServer('creditCards.list', {}, function (res) {
+          state.creditCards = res.data || [];
+          renderCreditCardsView(state.creditCards);
+        }, { quiet: true });
+        return;
+      }
       callServer('creditCards.list', {}, function (res) {
         var cards = res.data || [];
         state.creditCards = cards;
-
-        var totalLivre = 0;
-        var totalComprometido = 0;
-        var totalFaturasMes = 0;
-        var totalLimiteGeral = 0;
-
-        for (var i = 0; i < cards.length; i++) {
-          var c = cards[i];
-          totalLivre += Number(c.limite_disponivel_centavos || 0);
-          totalComprometido += Number(c.limite_comprometido_centavos || 0);
-          totalFaturasMes += Number(c.fatura_atual_centavos || 0);
-          totalLimiteGeral += Number(c.limite_total_centavos || 0);
-        }
-
-        var dispEl = document.getElementById('cards-kpi-disponivel');
-        if (dispEl) dispEl.textContent = UIHelpers.formatBrl(totalLivre);
-
-        var compEl = document.getElementById('cards-kpi-comprometido');
-        if (compEl) compEl.textContent = UIHelpers.formatBrl(totalComprometido);
-
-        var fatEl = document.getElementById('cards-kpi-faturas-mes');
-        if (fatEl) fatEl.textContent = UIHelpers.formatBrl(totalFaturasMes);
-
-        var countEl = document.getElementById('cards-kpi-total-cards');
-        if (countEl) countEl.textContent = cards.length + ' cartão(ões)';
-
-        var limDescEl = document.getElementById('cards-kpi-total-limite');
-        if (limDescEl) limDescEl.textContent = 'Limite total: ' + UIHelpers.formatBrl(totalLimiteGeral);
-
-        populateCreditCardDropdowns(cards);
-        renderCreditCardsGrid(cards);
-        UIHelpers.initInfoPopovers(document.getElementById('sec-credit-cards'));
+        renderCreditCardsView(cards);
       });
     }
 
@@ -3542,10 +3639,7 @@
       if (purCardSelect) purCardSelect.innerHTML = opts || '<option value="">Nenhum cartão cadastrado</option>';
       if (simCardSelect) simCardSelect.innerHTML = opts || '<option value="">Nenhum cartão cadastrado</option>';
 
-      // Popula selects de contas bancárias para cartões
-      callServer('bankAccounts.list', {}, function (accRes) {
-        var accs = accRes.data || [];
-        state.bankAccounts = accs;
+      function applyBankAccountsToCardSelects(accs) {
         var accOpts = '<option value="">Nenhuma / Escolher no pagamento</option>' + accs.map(function (a) {
           return '<option value="' + UIHelpers.escapeHtml(a.id) + '">' + UIHelpers.escapeHtml(a.nome_identificacao) + ' (' + UIHelpers.escapeHtml(a.instituicao) + ')</option>';
         }).join('');
@@ -3562,7 +3656,17 @@
             return '<option value="' + UIHelpers.escapeHtml(a.id) + '">' + UIHelpers.escapeHtml(a.nome_identificacao) + ' (Saldo: ' + UIHelpers.formatBrl(a.saldo_confirmado_centavos) + ')</option>';
           }).join('');
         }
-      });
+      }
+
+      if (state.bankAccounts && state.bankAccounts.length > 0) {
+        applyBankAccountsToCardSelects(state.bankAccounts);
+      } else {
+        callServer('bankAccounts.list', {}, function (accRes) {
+          var accs = accRes.data || [];
+          state.bankAccounts = accs;
+          applyBankAccountsToCardSelects(accs);
+        }, { quiet: true });
+      }
     }
 
     function renderCreditCardsGrid(cards) {
@@ -4179,158 +4283,194 @@
         situacao: document.getElementById('div-situacao').value,
         observacoes: document.getElementById('div-obs').value
       };
+      var optimisticId = 'temp_' + Date.now();
+      var optDebt = {
+        id: optimisticId,
+        credor: payload.credor,
+        descricao: payload.descricao,
+        valor_original_centavos: payload.valor_original_centavos,
+        valor_atualizado_centavos: payload.valor_atualizado_centavos,
+        data_origem: payload.data_origem,
+        situacao: payload.situacao,
+        observacoes: payload.observacoes
+      };
+      if (!state.debts) state.debts = [];
+      state.debts.unshift(optDebt);
+      renderDebtsView(state.debts);
+      showToast('Dívida registrada (sem impacto automático nas despesas mensais até aprovação de acordo).', 'success');
+
+      document.getElementById('div-credor').value = '';
+      document.getElementById('div-descricao').value = '';
+      document.getElementById('div-valor-orig').value = '';
+      document.getElementById('div-valor-atual').value = '';
+      if (document.getElementById('div-obs')) document.getElementById('div-obs').value = '';
+      toggleNewDebtCard(false);
+
       callServer('debts.create', payload, function () {
-        showToast('Dívida registrada (sem impacto automático nas despesas mensais até aprovação de acordo).', 'success');
-        document.getElementById('div-credor').value = '';
-        document.getElementById('div-descricao').value = '';
-        document.getElementById('div-valor-orig').value = '';
-        document.getElementById('div-valor-atual').value = '';
-        if (document.getElementById('div-obs')) document.getElementById('div-obs').value = '';
-        toggleNewDebtCard(false);
-        loadDebts();
+        loadDebts(true);
+      }, {
+        quiet: true,
+        onError: function (err) {
+          state.debts = (state.debts || []).filter(function (it) { return it.id !== optimisticId; });
+          renderDebtsView(state.debts);
+          showToast('Erro ao cadastrar dívida: ' + (err.message || err), 'error');
+        }
       });
     }
 
-    function loadDebts() {
-      callServer('debts.list', {}, function (res) {
-        state.debts = res.data || [];
+    function renderDebtsView(debtsList) {
+      debtsList = debtsList || state.debts || [];
 
-        // 1. Atualiza os cards de KPIs
-        var totalOrig = 0;
-        var totalDevedor = 0;
-        var emNegociacaoCount = 0;
-        var resolvidasCount = 0;
-        var totalNegociado = 0;
+      // 1. Atualiza os cards de KPIs
+      var totalOrig = 0;
+      var totalDevedor = 0;
+      var emNegociacaoCount = 0;
+      var resolvidasCount = 0;
+      var totalNegociado = 0;
 
-        state.debts.forEach(function (d) {
-          totalOrig += Number(d.valor_original_centavos || 0);
-          if (d.situacao !== 'QUITADA' && d.situacao !== 'CANCELADA') {
-            totalDevedor += Number(d.valor_atualizado_centavos || 0);
-          }
-          if (d.situacao === 'EM_NEGOCIACAO' || d.situacao === 'PROTESTADA' || d.situacao === 'ANTIGA') {
-            emNegociacaoCount++;
-          }
-          if (d.situacao === 'ACORDO_ATIVO' || d.situacao === 'QUITADA') {
-            resolvidasCount++;
-            totalNegociado += Number(d.valor_negociado_centavos || 0);
-          }
-        });
+      debtsList.forEach(function (d) {
+        totalOrig += Number(d.valor_original_centavos || 0);
+        if (d.situacao !== 'QUITADA' && d.situacao !== 'CANCELADA') {
+          totalDevedor += Number(d.valor_atualizado_centavos || 0);
+        }
+        if (d.situacao === 'EM_NEGOCIACAO' || d.situacao === 'PROTESTADA' || d.situacao === 'ANTIGA') {
+          emNegociacaoCount++;
+        }
+        if (d.situacao === 'ACORDO_ATIVO' || d.situacao === 'QUITADA') {
+          resolvidasCount++;
+          totalNegociado += Number(d.valor_negociado_centavos || 0);
+        }
+      });
 
-        var elTot = document.getElementById('debts-kpi-total');
-        if (elTot) elTot.textContent = state.debts.length + ' dívida(s)';
+      var elTot = document.getElementById('debts-kpi-total');
+      if (elTot) elTot.textContent = debtsList.length + ' dívida(s)';
 
-        var elOrigDesc = document.getElementById('debts-kpi-original-desc');
-        if (elOrigDesc) elOrigDesc.textContent = 'Valor original: ' + UIHelpers.formatBrl(totalOrig);
+      var elOrigDesc = document.getElementById('debts-kpi-original-desc');
+      if (elOrigDesc) elOrigDesc.textContent = 'Valor original: ' + UIHelpers.formatBrl(totalOrig);
 
-        var elDev = document.getElementById('debts-kpi-devedor');
-        if (elDev) elDev.textContent = UIHelpers.formatBrl(totalDevedor);
+      var elDev = document.getElementById('debts-kpi-devedor');
+      if (elDev) elDev.textContent = UIHelpers.formatBrl(totalDevedor);
 
-        var elNeg = document.getElementById('debts-kpi-negociacao');
-        if (elNeg) elNeg.textContent = emNegociacaoCount + ' pendência(s)';
+      var elNeg = document.getElementById('debts-kpi-negociacao');
+      if (elNeg) elNeg.textContent = emNegociacaoCount + ' pendência(s)';
 
-        var elAco = document.getElementById('debts-kpi-acordos');
-        if (elAco) elAco.textContent = resolvidasCount + ' resolvida(s)';
+      var elAco = document.getElementById('debts-kpi-acordos');
+      if (elAco) elAco.textContent = resolvidasCount + ' resolvida(s)';
 
-        var elNegDesc = document.getElementById('debts-kpi-negociado-desc');
-        if (elNegDesc) elNegDesc.textContent = 'Total negociado: ' + UIHelpers.formatBrl(totalNegociado);
+      var elNegDesc = document.getElementById('debts-kpi-negociado-desc');
+      if (elNegDesc) elNegDesc.textContent = 'Total negociado: ' + UIHelpers.formatBrl(totalNegociado);
 
-        // 2. Renderiza a tabela de dívidas
-        var rows = state.debts.map(function (d) {
-          var borderColors = {
-            'ANTIGA': '#64748b',
-            'PROTESTADA': '#ef4444',
-            'EM_NEGOCIACAO': '#f59e0b',
-            'ACORDO_ATIVO': '#8b5cf6',
-            'QUITADA': '#10b981',
-            'CANCELADA': '#94a3b8'
-          };
-          var bColor = borderColors[d.situacao] || '#64748b';
+      // 2. Renderiza a tabela de dívidas
+      var rows = debtsList.map(function (d) {
+        var borderColors = {
+          'ANTIGA': '#64748b',
+          'PROTESTADA': '#ef4444',
+          'EM_NEGOCIACAO': '#f59e0b',
+          'ACORDO_ATIVO': '#8b5cf6',
+          'QUITADA': '#10b981',
+          'CANCELADA': '#94a3b8'
+        };
+        var bColor = borderColors[d.situacao] || '#64748b';
 
-          var acordoInfo = '';
-          if (d.situacao === 'ACORDO_ATIVO') {
-            var parcelas = d.parcelas || [];
-            var pagas = parcelas.filter(function (p) { return p.situacao === 'PAGA'; }).length;
-            var totalP = d.quantidade_parcelas || parcelas.length;
-            acordoInfo = '<div><strong style="color:#7c3aed;">' + pagas + '/' + totalP + ' pagas</strong><br><small style="color:var(--text-secondary);">' + (d.repercutir_fluxo_caixa ? 'Fluxo: Ativo' : 'Fluxo: Isolado') + '</small></div>';
-          } else if (d.situacao === 'QUITADA') {
-            acordoInfo = '<span class="badge badge-confirmado">100% Paga</span>';
-          } else {
-            acordoInfo = '<span style="color:var(--text-secondary); font-size:0.8rem;">Sem acordo ativo</span>';
-          }
-
-          var dropdownId = 'debt-actions-' + d.id;
-          var menuItems = [];
-
-          if (d.situacao !== 'QUITADA' && d.situacao !== 'CANCELADA') {
-            menuItems.push(
-              '<button type="button" class="dropdown-action-btn" onclick="App.openDebtAgreementModal(\'' + UIHelpers.escapeHtml(d.id) + '\'); App.closeAllActionDropdowns();">' +
-                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>' +
-                '<span>' + (d.situacao === 'ACORDO_ATIVO' ? 'Renegociar Acordo' : 'Formalizar Acordo') + '</span>' +
-              '</button>'
-            );
-          }
-
-          if (d.parcelas && d.parcelas.length > 0) {
-            menuItems.push(
-              '<button type="button" class="dropdown-action-btn" onclick="App.viewDebtInstallments(\'' + UIHelpers.escapeHtml(d.id) + '\'); App.closeAllActionDropdowns();">' +
-                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>' +
-                '<span>Ver Parcelas (' + d.parcelas.length + ')</span>' +
-              '</button>'
-            );
-          }
-
-          menuItems.push(
-            '<button type="button" class="dropdown-action-btn" onclick="App.openEditDebtModal(\'' + UIHelpers.escapeHtml(d.id) + '\'); App.closeAllActionDropdowns();">' +
-              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>' +
-              '<span>Editar Dívida</span>' +
-            '</button>'
-          );
-
-          var dropdownHtml =
-            '<div class="table-actions-dropdown">' +
-              '<button type="button" class="btn-dots-action" onclick="App.toggleRowDropdown(event, \'' + dropdownId + '\')" title="Opções da dívida" aria-label="Ações">' +
-                '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2.2"></circle><circle cx="12" cy="12" r="2.2"></circle><circle cx="12" cy="19" r="2.2"></circle></svg>' +
-              '</button>' +
-              '<div id="' + dropdownId + '" class="table-dropdown-menu">' +
-                menuItems.join('') +
-              '</div>' +
-            '</div>';
-
-          return (
-            '<tr style="border-left: 3.5px solid ' + bColor + ';">' +
-              '<td>' +
-                '<strong>' + UIHelpers.escapeHtml(d.credor) + '</strong><br>' +
-                '<small style="color:var(--text-secondary);">' + UIHelpers.escapeHtml(d.descricao) + (d.observacoes ? ' &bull; ' + UIHelpers.escapeHtml(d.observacoes) : '') + '</small>' +
-              '</td>' +
-              '<td class="col-center">' + UIHelpers.formatDateBr(d.data_origem) + '</td>' +
-              '<td class="col-money" style="color:var(--text-secondary);">' + UIHelpers.formatBrl(d.valor_original_centavos) + '</td>' +
-              '<td class="col-money"><strong style="color:var(--danger);">' + UIHelpers.formatBrl(d.valor_atualizado_centavos) + '</strong></td>' +
-              '<td class="col-center">' + UIHelpers.renderBadge(d.situacao) + '</td>' +
-              '<td class="col-center">' + acordoInfo + '</td>' +
-              '<td style="text-align:right;">' + dropdownHtml + '</td>' +
-            '</tr>'
-          );
-        }).join('');
-
-        var debtsHeader =
-          '<thead><tr>' +
-            '<th>Credor / Descrição <span class="info-popover-wrap" data-info-key="debt-col-credor"></span></th>' +
-            '<th class="col-center">Data Origem <span class="info-popover-wrap" data-info-key="debt-col-data"></span></th>' +
-            '<th class="col-money">Valor Original <span class="info-popover-wrap" data-info-key="debt-col-valor-orig"></span></th>' +
-            '<th class="col-money">Valor Atualizado <span class="info-popover-wrap" data-info-key="debt-col-valor-atual"></span></th>' +
-            '<th class="col-center">Situação <span class="info-popover-wrap" data-info-key="debt-col-situacao"></span></th>' +
-            '<th class="col-center">Acordo / Fluxo <span class="info-popover-wrap" data-info-key="debt-col-acordo"></span></th>' +
-            '<th style="text-align:right;">Ações</th>' +
-          '</tr></thead>';
-
-        var debtsTableContainer = document.getElementById('debts-table-container');
-        if (debtsTableContainer) {
-          debtsTableContainer.innerHTML = rows
-            ? '<table class="data-table">' + debtsHeader + '<tbody>' + rows + '</tbody></table>'
-            : '<p style="color:var(--text-muted); padding:1.5rem; text-align:center;">Nenhuma dívida cadastrada. Use o botão acima para adicionar uma nova pendência financeira.</p>';
+        var acordoInfo = '';
+        if (d.situacao === 'ACORDO_ATIVO') {
+          var parcelas = d.parcelas || [];
+          var pagas = parcelas.filter(function (p) { return p.situacao === 'PAGA'; }).length;
+          var totalP = d.quantidade_parcelas || parcelas.length;
+          acordoInfo = '<div><strong style="color:#7c3aed;">' + pagas + '/' + totalP + ' pagas</strong><br><small style="color:var(--text-secondary);">' + (d.repercutir_fluxo_caixa ? 'Fluxo: Ativo' : 'Fluxo: Isolado') + '</small></div>';
+        } else if (d.situacao === 'QUITADA') {
+          acordoInfo = '<span class="badge badge-confirmado">100% Paga</span>';
+        } else {
+          acordoInfo = '<span style="color:var(--text-secondary); font-size:0.8rem;">Sem acordo ativo</span>';
         }
 
-        UIHelpers.initInfoPopovers(document.getElementById('sec-debts'));
+        var dropdownId = 'debt-actions-' + d.id;
+        var menuItems = [];
+
+        if (d.situacao !== 'QUITADA' && d.situacao !== 'CANCELADA') {
+          menuItems.push(
+            '<button type="button" class="dropdown-action-btn" onclick="App.openDebtAgreementModal(\'' + UIHelpers.escapeHtml(d.id) + '\'); App.closeAllActionDropdowns();">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>' +
+              '<span>' + (d.situacao === 'ACORDO_ATIVO' ? 'Renegociar Acordo' : 'Formalizar Acordo') + '</span>' +
+            '</button>'
+          );
+        }
+
+        if (d.parcelas && d.parcelas.length > 0) {
+          menuItems.push(
+            '<button type="button" class="dropdown-action-btn" onclick="App.viewDebtInstallments(\'' + UIHelpers.escapeHtml(d.id) + '\'); App.closeAllActionDropdowns();">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>' +
+              '<span>Ver Parcelas (' + d.parcelas.length + ')</span>' +
+            '</button>'
+          );
+        }
+
+        menuItems.push(
+          '<button type="button" class="dropdown-action-btn" onclick="App.openEditDebtModal(\'' + UIHelpers.escapeHtml(d.id) + '\'); App.closeAllActionDropdowns();">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>' +
+            '<span>Editar Dívida</span>' +
+          '</button>'
+        );
+
+        var dropdownHtml =
+          '<div class="table-actions-dropdown">' +
+            '<button type="button" class="btn-dots-action" onclick="App.toggleRowDropdown(event, \'' + dropdownId + '\')" title="Opções da dívida" aria-label="Ações">' +
+              '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2.2"></circle><circle cx="12" cy="12" r="2.2"></circle><circle cx="12" cy="19" r="2.2"></circle></svg>' +
+            '</button>' +
+            '<div id="' + dropdownId + '" class="table-dropdown-menu">' +
+              menuItems.join('') +
+            '</div>' +
+          '</div>';
+
+        return (
+          '<tr style="border-left: 3.5px solid ' + bColor + ';">' +
+            '<td>' +
+              '<strong>' + UIHelpers.escapeHtml(d.credor) + '</strong><br>' +
+              '<small style="color:var(--text-secondary);">' + UIHelpers.escapeHtml(d.descricao) + (d.observacoes ? ' &bull; ' + UIHelpers.escapeHtml(d.observacoes) : '') + '</small>' +
+            '</td>' +
+            '<td class="col-center">' + UIHelpers.formatDateBr(d.data_origem) + '</td>' +
+            '<td class="col-money" style="color:var(--text-secondary);">' + UIHelpers.formatBrl(d.valor_original_centavos) + '</td>' +
+            '<td class="col-money"><strong style="color:var(--danger);">' + UIHelpers.formatBrl(d.valor_atualizado_centavos) + '</strong></td>' +
+            '<td class="col-center">' + UIHelpers.renderBadge(d.situacao) + '</td>' +
+            '<td class="col-center">' + acordoInfo + '</td>' +
+            '<td style="text-align:right;">' + dropdownHtml + '</td>' +
+          '</tr>'
+        );
+      }).join('');
+
+      var debtsHeader =
+        '<thead><tr>' +
+          '<th>Credor / Descrição <span class="info-popover-wrap" data-info-key="debt-col-credor"></span></th>' +
+          '<th class="col-center">Data Origem <span class="info-popover-wrap" data-info-key="debt-col-data"></span></th>' +
+          '<th class="col-money">Valor Original <span class="info-popover-wrap" data-info-key="debt-col-valor-orig"></span></th>' +
+          '<th class="col-money">Valor Atualizado <span class="info-popover-wrap" data-info-key="debt-col-valor-atual"></span></th>' +
+          '<th class="col-center">Situação <span class="info-popover-wrap" data-info-key="debt-col-situacao"></span></th>' +
+          '<th class="col-center">Acordo / Fluxo <span class="info-popover-wrap" data-info-key="debt-col-acordo"></span></th>' +
+          '<th style="text-align:right;">Ações</th>' +
+        '</tr></thead>';
+
+      var debtsTableContainer = document.getElementById('debts-table-container');
+      if (debtsTableContainer) {
+        debtsTableContainer.innerHTML = rows
+          ? '<table class="data-table">' + debtsHeader + '<tbody>' + rows + '</tbody></table>'
+          : '<p style="color:var(--text-muted); padding:1.5rem; text-align:center;">Nenhuma dívida cadastrada. Use o botão acima para adicionar uma nova pendência financeira.</p>';
+      }
+
+      UIHelpers.initInfoPopovers(document.getElementById('sec-debts'));
+    }
+
+    function loadDebts(forceRefresh) {
+      if (state.debts && state.debts.length >= 0 && !forceRefresh) {
+        renderDebtsView(state.debts);
+        callServer('debts.list', {}, function (res) {
+          state.debts = res.data || [];
+          renderDebtsView(state.debts);
+        }, { quiet: true });
+        return;
+      }
+      callServer('debts.list', {}, function (res) {
+        state.debts = res.data || [];
+        renderDebtsView(state.debts);
       });
     }
 
@@ -4700,153 +4840,198 @@
         observacoes: document.getElementById('emp-obs') ? document.getElementById('emp-obs').value : ''
       };
 
+      var optimisticId = 'temp_' + Date.now();
+      var optLoan = {
+        id: optimisticId,
+        instituicao: payload.instituicao,
+        descricao: payload.descricao,
+        situacao: 'ATIVO',
+        tipo_emprestimo: payload.tipo_emprestimo,
+        desconto_em_folha: isConsignado,
+        desconto_em_folha_ja_deduzido_salario: isConsignado,
+        valor_contratado_centavos: payload.valor_contratado_centavos,
+        numero_parcelas: payload.numero_parcelas,
+        parcelas_pagas: pagasVal,
+        valor_parcela_centavos: payload.valor_parcela_centavos,
+        saldo_devedor_centavos: Math.max(0, (payload.numero_parcelas - pagasVal) * payload.valor_parcela_centavos),
+        data_inicial: dataInicialVal,
+        taxa_juros_mensal_bps: payload.taxa_juros_mensal_bps,
+        conta_bancaria_id: contaId,
+        observacoes: payload.observacoes
+      };
+
+      if (!state.loans) state.loans = [];
+      state.loans.unshift(optLoan);
+      renderLoansView(state.loans);
+      showToast('Contrato de empréstimo cadastrado com sucesso!', 'success');
+
+      document.getElementById('emp-instituicao').value = '';
+      document.getElementById('emp-descricao').value = '';
+      document.getElementById('emp-valor-contratado').value = '';
+      document.getElementById('emp-valor-parcela').value = '';
+      if (elPagas) elPagas.value = '0';
+      if (document.getElementById('emp-obs')) document.getElementById('emp-obs').value = '';
+
+      // Reseta campo de data para a próxima data padrão (30 dias à frente)
+      if (elData) {
+        var now = new Date();
+        var dNext = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+        elData.value = dNext.getFullYear() + '-' + String(dNext.getMonth() + 1).padStart(2, '0') + '-' + String(dNext.getDate()).padStart(2, '0');
+      }
+
+      toggleNewLoanCard(false);
+
       callServer('loans.create', payload, function () {
-        showToast('Contrato de empréstimo e cronograma de parcelas cadastrados com sucesso!', 'success');
-        document.getElementById('emp-instituicao').value = '';
-        document.getElementById('emp-descricao').value = '';
-        document.getElementById('emp-valor-contratado').value = '';
-        document.getElementById('emp-valor-parcela').value = '';
-        if (elPagas) elPagas.value = '0';
-        if (document.getElementById('emp-obs')) document.getElementById('emp-obs').value = '';
-
-        // Reseta campo de data para a próxima data padrão (30 dias à frente)
-        if (elData) {
-          var now = new Date();
-          var dNext = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
-          elData.value = dNext.getFullYear() + '-' + String(dNext.getMonth() + 1).padStart(2, '0') + '-' + String(dNext.getDate()).padStart(2, '0');
+        loadLoans(true);
+      }, {
+        quiet: true,
+        onError: function (err) {
+          state.loans = (state.loans || []).filter(function (it) { return it.id !== optimisticId; });
+          renderLoansView(state.loans);
+          showToast('Erro ao cadastrar contrato: ' + (err.message || err), 'error');
         }
-
-        toggleNewLoanCard(false);
-        loadLoans();
       });
     }
 
-    function loadLoans() {
+    function renderLoansView(loansList) {
+      loansList = loansList || state.loans || [];
+
+      // 1. Atualiza os cards de KPIs
+      var totalContratado = 0;
+      var totalDevedor = 0;
+      var totalPagas = 0;
+      var totalParcelasGeral = 0;
+      var ativosCount = 0;
+      var consignadosCount = 0;
+
+      loansList.forEach(function (l) {
+        totalContratado += Number(l.valor_contratado_centavos || 0);
+        totalDevedor += Number(l.saldo_devedor_centavos || 0);
+        totalPagas += Number(l.parcelas_pagas || 0);
+        totalParcelasGeral += Number(l.numero_parcelas || 0);
+        if (l.situacao === 'ATIVO') ativosCount++;
+        if (l.desconto_em_folha_ja_deduzido_salario) consignadosCount++;
+      });
+
+      var elContratado = document.getElementById('loans-kpi-contratado');
+      if (elContratado) elContratado.textContent = UIHelpers.formatBrl(totalContratado);
+
+      var elDevedor = document.getElementById('loans-kpi-devedor');
+      if (elDevedor) elDevedor.textContent = UIHelpers.formatBrl(totalDevedor);
+
+      var elProg = document.getElementById('loans-kpi-progresso');
+      if (elProg) elProg.textContent = totalPagas + ' / ' + totalParcelasGeral + ' pagas';
+
+      var elProgPercent = document.getElementById('loans-kpi-progresso-percent');
+      if (elProgPercent) {
+        var pct = totalParcelasGeral > 0 ? Math.round((totalPagas / totalParcelasGeral) * 100) : 0;
+        elProgPercent.textContent = pct + '% concluído';
+      }
+
+      var elAtivos = document.getElementById('loans-kpi-ativos');
+      if (elAtivos) elAtivos.textContent = ativosCount + ' contrato(s)';
+
+      var elConsDesc = document.getElementById('loans-kpi-consignados-desc');
+      if (elConsDesc) elConsDesc.textContent = consignadosCount + ' consignado(s) em folha';
+
+      // 2. Renderiza a tabela de contratos de empréstimos
+      var rows = loansList.map(function (l) {
+        var isConsignado = Boolean(l.desconto_em_folha_ja_deduzido_salario);
+        var borderColor = isConsignado ? '#0d9488' : '#2563eb';
+        var bankBadge = UIHelpers.getBankBadgeHtml(l.instituicao);
+
+        var modalidadeBadge = isConsignado
+          ? '<span class="badge" style="background:rgba(13,148,136,0.12); color:#0d9488; font-size:0.75rem;">🏢 Folha (Sem Débito em Conta)</span>'
+          : '<span class="badge" style="background:rgba(37,99,235,0.12); color:#2563eb; font-size:0.75rem;">💳 Pago pelo Usuário</span>';
+
+        var pct = l.numero_parcelas > 0 ? Math.round((l.parcelas_pagas / l.numero_parcelas) * 100) : 0;
+        var progressHtml =
+          '<div style="min-width:130px;">' +
+            '<div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:3px;">' +
+              '<strong>' + l.parcelas_pagas + '/' + l.numero_parcelas + ' pagas</strong>' +
+              '<span>' + pct + '%</span>' +
+            '</div>' +
+            '<div style="background:var(--border-color); height:6px; border-radius:3px; overflow:hidden;">' +
+              '<div style="background:' + (pct === 100 ? 'var(--success)' : (isConsignado ? '#0d9488' : '#2563eb')) + '; width:' + pct + '%; height:100%;"></div>' +
+            '</div>' +
+          '</div>';
+
+        var dropdownId = 'loan-actions-' + l.id;
+        var menuItems = [
+          '<button type="button" class="dropdown-action-btn" onclick="App.viewLoanInstallments(\'' + UIHelpers.escapeHtml(l.id) + '\'); App.closeAllActionDropdowns();">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>' +
+            '<span>Ver Cronograma de Parcelas</span>' +
+          '</button>',
+          '<button type="button" class="dropdown-action-btn" onclick="App.openEditLoanModal(\'' + UIHelpers.escapeHtml(l.id) + '\'); App.closeAllActionDropdowns();">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>' +
+            '<span>Editar Contrato</span>' +
+          '</button>'
+        ];
+
+        var dropdownHtml =
+          '<div class="table-actions-dropdown">' +
+            '<button type="button" class="btn-dots-action" onclick="App.toggleRowDropdown(event, \'' + dropdownId + '\')" title="Opções do empréstimo" aria-label="Ações">' +
+              '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2.2"></circle><circle cx="12" cy="12" r="2.2"></circle><circle cx="12" cy="19" r="2.2"></circle></svg>' +
+            '</button>' +
+            '<div id="' + dropdownId + '" class="table-dropdown-menu">' +
+              menuItems.join('') +
+            '</div>' +
+          '</div>';
+
+        return (
+          '<tr style="border-left: 3.5px solid ' + borderColor + ';">' +
+            '<td>' +
+              '<div style="display:flex;align-items:center;gap:10px;">' +
+                bankBadge +
+                '<div>' +
+                  '<div style="font-weight:600; color:var(--text-primary);">' + UIHelpers.escapeHtml(l.instituicao) + '</div>' +
+                  '<small style="color:var(--text-secondary);">' + UIHelpers.escapeHtml(l.descricao) + (l.observacoes ? ' &bull; ' + UIHelpers.escapeHtml(l.observacoes) : '') + '</small>' +
+                '</div>' +
+              '</div>' +
+            '</td>' +
+            '<td class="col-center">' + modalidadeBadge + '</td>' +
+            '<td class="col-money"><strong>' + UIHelpers.formatBrl(l.valor_parcela_centavos) + '</strong></td>' +
+            '<td class="col-center">' + progressHtml + '</td>' +
+            '<td class="col-money"><strong style="color:var(--danger);">' + UIHelpers.formatBrl(l.saldo_devedor_centavos) + '</strong></td>' +
+            '<td class="col-center">' + UIHelpers.renderBadge(l.situacao) + '</td>' +
+            '<td style="text-align:right;">' + dropdownHtml + '</td>' +
+          '</tr>'
+        );
+      }).join('');
+
+      var loansHeader =
+        '<thead><tr>' +
+          '<th>Instituição / Descrição <span class="info-popover-wrap" data-info-key="loan-col-instituicao"></span></th>' +
+          '<th class="col-center">Modalidade <span class="info-popover-wrap" data-info-key="loan-col-modalidade"></span></th>' +
+          '<th class="col-money">Parcela <span class="info-popover-wrap" data-info-key="loan-col-parcela"></span></th>' +
+          '<th class="col-center">Progresso <span class="info-popover-wrap" data-info-key="loan-col-progresso"></span></th>' +
+          '<th class="col-money">Saldo Devedor <span class="info-popover-wrap" data-info-key="loan-col-saldo-devedor"></span></th>' +
+          '<th class="col-center">Situação <span class="info-popover-wrap" data-info-key="loan-col-situacao"></span></th>' +
+          '<th style="text-align:right;">Ações</th>' +
+        '</tr></thead>';
+
+      var loansTableContainer = document.getElementById('loans-table-container');
+      if (loansTableContainer) {
+        loansTableContainer.innerHTML = rows
+          ? '<table class="data-table">' + loansHeader + '<tbody>' + rows + '</tbody></table>'
+          : '<p style="color:var(--text-muted); padding:1.5rem; text-align:center;">Nenhum empréstimo cadastrado. Use o botão acima para adicionar um novo contrato.</p>';
+      }
+
+      UIHelpers.initInfoPopovers(document.getElementById('sec-loans'));
+    }
+
+    function loadLoans(forceRefresh) {
+      if (state.loans && state.loans.length >= 0 && !forceRefresh) {
+        renderLoansView(state.loans);
+        callServer('loans.list', {}, function (res) {
+          state.loans = res.data || [];
+          renderLoansView(state.loans);
+        }, { quiet: true });
+        return;
+      }
       callServer('loans.list', {}, function (res) {
         state.loans = res.data || [];
-
-        // 1. Atualiza os cards de KPIs
-        var totalContratado = 0;
-        var totalDevedor = 0;
-        var totalPagas = 0;
-        var totalParcelasGeral = 0;
-        var ativosCount = 0;
-        var consignadosCount = 0;
-
-        state.loans.forEach(function (l) {
-          totalContratado += Number(l.valor_contratado_centavos || 0);
-          totalDevedor += Number(l.saldo_devedor_centavos || 0);
-          totalPagas += Number(l.parcelas_pagas || 0);
-          totalParcelasGeral += Number(l.numero_parcelas || 0);
-          if (l.situacao === 'ATIVO') ativosCount++;
-          if (l.desconto_em_folha_ja_deduzido_salario) consignadosCount++;
-        });
-
-        var elContratado = document.getElementById('loans-kpi-contratado');
-        if (elContratado) elContratado.textContent = UIHelpers.formatBrl(totalContratado);
-
-        var elDevedor = document.getElementById('loans-kpi-devedor');
-        if (elDevedor) elDevedor.textContent = UIHelpers.formatBrl(totalDevedor);
-
-        var elProg = document.getElementById('loans-kpi-progresso');
-        if (elProg) elProg.textContent = totalPagas + ' / ' + totalParcelasGeral + ' pagas';
-
-        var elProgPercent = document.getElementById('loans-kpi-progresso-percent');
-        if (elProgPercent) {
-          var pct = totalParcelasGeral > 0 ? Math.round((totalPagas / totalParcelasGeral) * 100) : 0;
-          elProgPercent.textContent = pct + '% concluído';
-        }
-
-        var elAtivos = document.getElementById('loans-kpi-ativos');
-        if (elAtivos) elAtivos.textContent = ativosCount + ' contrato(s)';
-
-        var elConsDesc = document.getElementById('loans-kpi-consignados-desc');
-        if (elConsDesc) elConsDesc.textContent = consignadosCount + ' consignado(s) em folha';
-
-        // 2. Renderiza a tabela de contratos de empréstimos
-        var rows = state.loans.map(function (l) {
-          var isConsignado = Boolean(l.desconto_em_folha_ja_deduzido_salario);
-          var borderColor = isConsignado ? '#0d9488' : '#2563eb';
-          var bankBadge = UIHelpers.getBankBadgeHtml(l.instituicao);
-
-          var modalidadeBadge = isConsignado
-            ? '<span class="badge" style="background:rgba(13,148,136,0.12); color:#0d9488; font-size:0.75rem;">🏢 Folha (Sem Débito em Conta)</span>'
-            : '<span class="badge" style="background:rgba(37,99,235,0.12); color:#2563eb; font-size:0.75rem;">💳 Pago pelo Usuário</span>';
-
-          var pct = l.numero_parcelas > 0 ? Math.round((l.parcelas_pagas / l.numero_parcelas) * 100) : 0;
-          var progressHtml =
-            '<div style="min-width:130px;">' +
-              '<div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:3px;">' +
-                '<strong>' + l.parcelas_pagas + '/' + l.numero_parcelas + ' pagas</strong>' +
-                '<span>' + pct + '%</span>' +
-              '</div>' +
-              '<div style="background:var(--border-color); height:6px; border-radius:3px; overflow:hidden;">' +
-                '<div style="background:' + (pct === 100 ? 'var(--success)' : (isConsignado ? '#0d9488' : '#2563eb')) + '; width:' + pct + '%; height:100%;"></div>' +
-              '</div>' +
-            '</div>';
-
-          var dropdownId = 'loan-actions-' + l.id;
-          var menuItems = [
-            '<button type="button" class="dropdown-action-btn" onclick="App.viewLoanInstallments(\'' + UIHelpers.escapeHtml(l.id) + '\'); App.closeAllActionDropdowns();">' +
-              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>' +
-              '<span>Ver Cronograma de Parcelas</span>' +
-            '</button>',
-            '<button type="button" class="dropdown-action-btn" onclick="App.openEditLoanModal(\'' + UIHelpers.escapeHtml(l.id) + '\'); App.closeAllActionDropdowns();">' +
-              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>' +
-              '<span>Editar Contrato</span>' +
-            '</button>'
-          ];
-
-          var dropdownHtml =
-            '<div class="table-actions-dropdown">' +
-              '<button type="button" class="btn-dots-action" onclick="App.toggleRowDropdown(event, \'' + dropdownId + '\')" title="Opções do empréstimo" aria-label="Ações">' +
-                '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2.2"></circle><circle cx="12" cy="12" r="2.2"></circle><circle cx="12" cy="19" r="2.2"></circle></svg>' +
-              '</button>' +
-              '<div id="' + dropdownId + '" class="table-dropdown-menu">' +
-                menuItems.join('') +
-              '</div>' +
-            '</div>';
-
-          return (
-            '<tr style="border-left: 3.5px solid ' + borderColor + ';">' +
-              '<td>' +
-                '<div style="display:flex;align-items:center;gap:10px;">' +
-                  bankBadge +
-                  '<div>' +
-                    '<div style="font-weight:600; color:var(--text-primary);">' + UIHelpers.escapeHtml(l.instituicao) + '</div>' +
-                    '<small style="color:var(--text-secondary);">' + UIHelpers.escapeHtml(l.descricao) + (l.observacoes ? ' &bull; ' + UIHelpers.escapeHtml(l.observacoes) : '') + '</small>' +
-                  '</div>' +
-                '</div>' +
-              '</td>' +
-              '<td class="col-center">' + modalidadeBadge + '</td>' +
-              '<td class="col-money"><strong>' + UIHelpers.formatBrl(l.valor_parcela_centavos) + '</strong></td>' +
-              '<td class="col-center">' + progressHtml + '</td>' +
-              '<td class="col-money"><strong style="color:var(--danger);">' + UIHelpers.formatBrl(l.saldo_devedor_centavos) + '</strong></td>' +
-              '<td class="col-center">' + UIHelpers.renderBadge(l.situacao) + '</td>' +
-              '<td style="text-align:right;">' + dropdownHtml + '</td>' +
-            '</tr>'
-          );
-        }).join('');
-
-        var loansHeader =
-          '<thead><tr>' +
-            '<th>Instituição / Descrição <span class="info-popover-wrap" data-info-key="loan-col-instituicao"></span></th>' +
-            '<th class="col-center">Modalidade <span class="info-popover-wrap" data-info-key="loan-col-modalidade"></span></th>' +
-            '<th class="col-money">Parcela <span class="info-popover-wrap" data-info-key="loan-col-parcela"></span></th>' +
-            '<th class="col-center">Progresso <span class="info-popover-wrap" data-info-key="loan-col-progresso"></span></th>' +
-            '<th class="col-money">Saldo Devedor <span class="info-popover-wrap" data-info-key="loan-col-saldo-devedor"></span></th>' +
-            '<th class="col-center">Situação <span class="info-popover-wrap" data-info-key="loan-col-situacao"></span></th>' +
-            '<th style="text-align:right;">Ações</th>' +
-          '</tr></thead>';
-
-        var loansTableContainer = document.getElementById('loans-table-container');
-        if (loansTableContainer) {
-          loansTableContainer.innerHTML = rows
-            ? '<table class="data-table">' + loansHeader + '<tbody>' + rows + '</tbody></table>'
-            : '<p style="color:var(--text-muted); padding:1.5rem; text-align:center;">Nenhum empréstimo cadastrado. Use o botão acima para adicionar um novo contrato.</p>';
-        }
-
-        UIHelpers.initInfoPopovers(document.getElementById('sec-loans'));
+        renderLoansView(state.loans);
       });
     }
 
@@ -5101,10 +5286,54 @@
         observacoes: document.getElementById('edit-loan-obs').value
       };
 
+      // Optimistic Update: atualiza o estado em memória imediatamente
+      var previousCopy = null;
+      var updatedLoan = null;
+      if (state.loans) {
+        for (var i = 0; i < state.loans.length; i++) {
+          if (String(state.loans[i].id) === String(id)) {
+            previousCopy = Object.assign({}, state.loans[i]);
+            state.loans[i].instituicao = payload.instituicao;
+            state.loans[i].descricao = payload.descricao;
+            state.loans[i].situacao = payload.situacao;
+            state.loans[i].tipo_emprestimo = payload.tipo_emprestimo;
+            state.loans[i].desconto_em_folha = isConsignado;
+            state.loans[i].desconto_em_folha_ja_deduzido_salario = isConsignado;
+            state.loans[i].valor_contratado_centavos = payload.valor_contratado_centavos;
+            state.loans[i].numero_parcelas = payload.numero_parcelas;
+            state.loans[i].parcelas_pagas = pagasVal;
+            state.loans[i].valor_parcela_centavos = payload.valor_parcela_centavos;
+            state.loans[i].saldo_devedor_centavos = Math.max(0, (payload.numero_parcelas - pagasVal) * payload.valor_parcela_centavos);
+            state.loans[i].data_inicial = dataInicialVal;
+            state.loans[i].taxa_juros_mensal_bps = payload.taxa_juros_mensal_bps;
+            state.loans[i].conta_bancaria_id = contaId;
+            state.loans[i].observacoes = payload.observacoes;
+            updatedLoan = state.loans[i];
+            break;
+          }
+        }
+      }
+
+      closeEditLoanModal();
+      if (updatedLoan) renderLoansView(state.loans);
+      showToast('Contrato de empréstimo e cronograma atualizados com sucesso!', 'success');
+
       callServer('loans.update', payload, function () {
-        showToast('Contrato de empréstimo e cronograma atualizados com sucesso!', 'success');
-        closeEditLoanModal();
-        loadLoans();
+        loadLoans(true);
+      }, {
+        quiet: true,
+        onError: function (err) {
+          if (previousCopy && state.loans) {
+            for (var k = 0; k < state.loans.length; k++) {
+              if (String(state.loans[k].id) === String(id)) {
+                state.loans[k] = previousCopy;
+                break;
+              }
+            }
+            renderLoansView(state.loans);
+          }
+          showToast('Erro ao atualizar contrato: ' + (err.message || err), 'error');
+        }
       });
     }
 
@@ -5949,89 +6178,102 @@
       UIHelpers.initInfoPopovers(document.getElementById('sec-investments'));
     }
 
+    function renderInvestmentsView(s) {
+      if (!s) return;
+
+      // 1. KPIs
+      var elAplicado = document.getElementById('inv-kpi-aplicado');
+      if (elAplicado) elAplicado.textContent = UIHelpers.formatBrl(s.total_aplicado_centavos);
+
+      var elMercado = document.getElementById('inv-kpi-mercado');
+      if (elMercado) elMercado.textContent = UIHelpers.formatBrl(s.total_valor_mercado_informado_centavos);
+
+      var elRend = document.getElementById('inv-kpi-rendimentos');
+      if (elRend) elRend.textContent = UIHelpers.formatBrl(s.total_rendimentos_registrados_centavos);
+
+      var elVar = document.getElementById('inv-kpi-variacao');
+      var elRentBadge = document.getElementById('inv-kpi-rent-badge');
+      var isPositivo = s.variacao_patrimonial_centavos >= 0;
+
+      if (elVar) {
+        elVar.textContent = (isPositivo ? '+' : '') + UIHelpers.formatBrl(s.variacao_patrimonial_centavos);
+        elVar.style.color = isPositivo ? 'var(--success)' : 'var(--danger)';
+      }
+
+      if (elRentBadge) {
+        elRentBadge.textContent = (isPositivo ? '+' : '') + s.rentabilidade_percentual;
+        elRentBadge.style.background = isPositivo ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)';
+        elRentBadge.style.color = isPositivo ? '#059669' : '#dc2626';
+      }
+
+      // 2. Barra Visual de Distribuição de Classes
+      var classes = s.distribuicao_por_classe || [];
+      var totalMercado = s.total_valor_mercado_informado_centavos;
+      var barEl = document.getElementById('inv-allocation-bar');
+      var legEl = document.getElementById('inv-allocation-legend');
+      var divBadge = document.getElementById('inv-diversificacao-badge');
+
+      if (divBadge) {
+        divBadge.textContent = classes.length + ' classe(s) ativa(s) | ' + (s.ativos ? s.ativos.length : 0) + ' ativo(s)';
+      }
+
+      if (barEl && legEl) {
+        if (totalMercado > 0 && classes.length > 0) {
+          barEl.innerHTML = classes.map(function (c) {
+            var meta = CLASS_INFO[c.classe_ativo] || { color: '#64748b', label: c.classe_ativo };
+            var pct = (c.percentual_carteira_bps / 100);
+            return '<div style="width:' + pct + '%; background:' + meta.color + '; height:100%;" title="' + meta.label + ': ' + pct.toFixed(1) + '%"></div>';
+          }).join('');
+
+          legEl.innerHTML = classes.map(function (c) {
+            var meta = CLASS_INFO[c.classe_ativo] || { color: '#64748b', label: c.classe_ativo };
+            var pct = (c.percentual_carteira_bps / 100);
+            return (
+              '<div style="display:flex; align-items:center; gap:5px;">' +
+                '<span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:' + meta.color + ';"></span>' +
+                '<span>' + meta.label + ': <strong>' + pct.toFixed(1) + '%</strong> (' + UIHelpers.formatBrl(c.valor_mercado_informado_centavos) + ')</span>' +
+              '</div>'
+            );
+          }).join('');
+        } else {
+          barEl.innerHTML = '<div style="width:100%; height:100%; background:var(--border-color);"></div>';
+          legEl.innerHTML = '<span style="color:var(--text-muted);">Nenhum ativo com valor de mercado informado.</span>';
+        }
+      }
+
+      // 3. Preenche select de ativos no formulário de movimentação
+      var assetSelect = document.getElementById('mvi-ativo');
+      if (assetSelect) {
+        assetSelect.innerHTML = (s.ativos || []).map(function (a) {
+          return '<option value="' + UIHelpers.escapeHtml(a.id) + '">' + UIHelpers.escapeHtml(a.nome_ativo) + ' (' + UIHelpers.escapeHtml(a.instituicao) + ')</option>';
+        }).join('');
+      }
+
+      // 4. Preenche select de contas bancárias
+      populateInvestmentAccountSelects();
+
+      // 5. Renderiza tabela
+      renderInvestmentsTable(s.ativos || []);
+    }
+
     function loadInvestments(forceRefresh) {
       // Inicializa o banner rotativo se ainda não carregou ou força atualização online
       if (forceRefresh || !state.radarHighlights || state.radarHighlights.length === 0) {
         initRadarCarousel(forceRefresh);
       }
 
+      if (state.investmentsData && !forceRefresh) {
+        renderInvestmentsView(state.investmentsData);
+        callServer('investments.summary', {}, function (res) {
+          state.investmentsData = res.data;
+          renderInvestmentsView(res.data);
+        }, { quiet: true });
+        return;
+      }
+
       callServer('investments.summary', {}, function (res) {
-        var s = res.data;
-        state.investmentsData = s;
-
-        // 1. KPIs
-        var elAplicado = document.getElementById('inv-kpi-aplicado');
-        if (elAplicado) elAplicado.textContent = UIHelpers.formatBrl(s.total_aplicado_centavos);
-
-        var elMercado = document.getElementById('inv-kpi-mercado');
-        if (elMercado) elMercado.textContent = UIHelpers.formatBrl(s.total_valor_mercado_informado_centavos);
-
-        var elRend = document.getElementById('inv-kpi-rendimentos');
-        if (elRend) elRend.textContent = UIHelpers.formatBrl(s.total_rendimentos_registrados_centavos);
-
-        var elVar = document.getElementById('inv-kpi-variacao');
-        var elRentBadge = document.getElementById('inv-kpi-rent-badge');
-        var isPositivo = s.variacao_patrimonial_centavos >= 0;
-
-        if (elVar) {
-          elVar.textContent = (isPositivo ? '+' : '') + UIHelpers.formatBrl(s.variacao_patrimonial_centavos);
-          elVar.style.color = isPositivo ? 'var(--success)' : 'var(--danger)';
-        }
-
-        if (elRentBadge) {
-          elRentBadge.textContent = (isPositivo ? '+' : '') + s.rentabilidade_percentual;
-          elRentBadge.style.background = isPositivo ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)';
-          elRentBadge.style.color = isPositivo ? '#059669' : '#dc2626';
-        }
-
-        // 2. Barra Visual de Distribuição de Classes
-        var classes = s.distribuicao_por_classe || [];
-        var totalMercado = s.total_valor_mercado_informado_centavos;
-        var barEl = document.getElementById('inv-allocation-bar');
-        var legEl = document.getElementById('inv-allocation-legend');
-        var divBadge = document.getElementById('inv-diversificacao-badge');
-
-        if (divBadge) {
-          divBadge.textContent = classes.length + ' classe(s) ativa(s) | ' + (s.ativos ? s.ativos.length : 0) + ' ativo(s)';
-        }
-
-        if (barEl && legEl) {
-          if (totalMercado > 0 && classes.length > 0) {
-            barEl.innerHTML = classes.map(function (c) {
-              var meta = CLASS_INFO[c.classe_ativo] || { color: '#64748b', label: c.classe_ativo };
-              var pct = (c.percentual_carteira_bps / 100);
-              return '<div style="width:' + pct + '%; background:' + meta.color + '; height:100%;" title="' + meta.label + ': ' + pct.toFixed(1) + '%"></div>';
-            }).join('');
-
-            legEl.innerHTML = classes.map(function (c) {
-              var meta = CLASS_INFO[c.classe_ativo] || { color: '#64748b', label: c.classe_ativo };
-              var pct = (c.percentual_carteira_bps / 100);
-              return (
-                '<div style="display:flex; align-items:center; gap:5px;">' +
-                  '<span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:' + meta.color + ';"></span>' +
-                  '<span>' + meta.label + ': <strong>' + pct.toFixed(1) + '%</strong> (' + UIHelpers.formatBrl(c.valor_mercado_informado_centavos) + ')</span>' +
-                '</div>'
-              );
-            }).join('');
-          } else {
-            barEl.innerHTML = '<div style="width:100%; height:100%; background:var(--border-color);"></div>';
-            legEl.innerHTML = '<span style="color:var(--text-muted);">Nenhum ativo com valor de mercado informado.</span>';
-          }
-        }
-
-        // 3. Preenche select de ativos no formulário de movimentação
-        var assetSelect = document.getElementById('mvi-ativo');
-        if (assetSelect) {
-          assetSelect.innerHTML = (s.ativos || []).map(function (a) {
-            return '<option value="' + UIHelpers.escapeHtml(a.id) + '">' + UIHelpers.escapeHtml(a.nome_ativo) + ' (' + UIHelpers.escapeHtml(a.instituicao) + ')</option>';
-          }).join('');
-        }
-
-        // 4. Preenche select de contas bancárias
-        populateInvestmentAccountSelects();
-
-        // 5. Renderiza tabela
-        renderInvestmentsTable(s.ativos || []);
+        state.investmentsData = res.data;
+        renderInvestmentsView(res.data);
       });
     }
 
@@ -6958,10 +7200,19 @@
       });
     }
 
-    function loadGoals() {
-      callServer('goals.list', {}, function (res) {
-        renderGoals(res.data || {});
-      });
+    function loadGoals(forceRefresh) {
+      if (state.goalsData && !forceRefresh) {
+        renderGoals(state.goalsData);
+        callServer('goals.list', {}, function (res) {
+          state.goalsData = res.data || {};
+          renderGoals(state.goalsData);
+        }, { quiet: true });
+      } else {
+        callServer('goals.list', {}, function (res) {
+          state.goalsData = res.data || {};
+          renderGoals(state.goalsData);
+        });
+      }
       loadEmergencyFundRecommendation();
     }
 
@@ -10818,6 +11069,12 @@
       submitEditDebt: submitEditDebt,
       submitLoan: submitLoan,
       loadLoans: loadLoans,
+      renderLoansView: renderLoansView,
+      renderDebtsView: renderDebtsView,
+      renderLaunchesView: renderLaunchesView,
+      renderRecurringAccountsView: renderRecurringAccountsView,
+      renderCreditCardsView: renderCreditCardsView,
+      renderInvestmentsView: renderInvestmentsView,
       toggleNewLoanCard: toggleNewLoanCard,
       onLoanModalidadeChange: onLoanModalidadeChange,
       updateLoanPreview: updateLoanPreview,

@@ -4268,6 +4268,42 @@
   }
 
   /* ==========================================================================
+     BARRA SUPERIOR DE CARREGAMENTO NÃO-BLOQUEANTE (YOUTUBE / GITHUB STYLE)
+     ========================================================================== */
+  #top-loading-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3.5px;
+    background: transparent;
+    z-index: 9999999;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  #top-loading-bar.loading-active {
+    opacity: 1;
+  }
+  #top-loading-bar.loading-active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -40%;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, var(--primary, #1685FF), #10b981, transparent);
+    box-shadow: 0 0 10px var(--primary, #1685FF);
+    animation: topBarLoading 1.1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+  @keyframes topBarLoading {
+    0% { left: -40%; width: 40%; }
+    50% { left: 30%; width: 60%; }
+    100% { left: 100%; width: 40%; }
+  }
+
+  /* ==========================================================================
      OVERLAY GLOBAL DE CARREGAMENTO (SPINNER COM LOGO E TELA ESMAECIDA)
      ========================================================================== */
   .global-loading-overlay {
