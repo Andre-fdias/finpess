@@ -1770,6 +1770,13 @@
     align-items: center;
     margin-left: 5px;
     vertical-align: middle;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+  }
+
+  .info-popover-wrap.is-open,
+  .info-popover-wrap:has(.info-popover-card.show) {
+    z-index: 999999 !important;
   }
 
   .info-help-btn {
@@ -1801,15 +1808,18 @@
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
-    width: 300px;
+    width: 310px;
     max-width: min(320px, calc(100vw - 32px));
     background: linear-gradient(145deg, #101c36 0%, #080e1e 100%);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 14px;
     padding: 0.9rem 1rem;
-    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.65), 0 0 20px rgba(56, 189, 248, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    z-index: 1050;
+    box-shadow: 0 20px 45px -4px rgba(0, 0, 0, 0.75), 0 0 25px rgba(56, 189, 248, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    z-index: 999999 !important;
     text-align: left;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    font-weight: 400 !important;
     white-space: normal !important;
     word-break: normal !important;
     overflow-wrap: break-word !important;
@@ -1820,6 +1830,11 @@
   .info-popover-card.align-right {
     left: auto;
     right: 0;
+  }
+
+  .info-popover-card.align-top {
+    top: auto;
+    bottom: calc(100% + 8px);
   }
 
   .info-popover-card.show {
@@ -4761,5 +4776,33 @@
   }
   .markdown-rendered table {
     margin: 0.6rem 0;
+  }
+
+  /* Padronização Anti-Clipping e Sem Rolamento Horizontal da Central de Investimentos */
+  .inv-tabs-navigation {
+    display: flex !important;
+    gap: 0.5rem !important;
+    flex-wrap: wrap !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 40 !important;
+  }
+
+  .inv-main-tab-btn {
+    overflow: visible !important;
+    position: relative !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  #inv-radar-carousel {
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 45 !important;
+  }
+
+  #sec-investments .card-header {
+    position: relative !important;
+    z-index: 50 !important;
+    overflow: visible !important;
   }
 </style>

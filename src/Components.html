@@ -1640,15 +1640,28 @@
         wrap.appendChild(card);
       }
 
-      // Posicionamento inteligente (evita sair da tela pela direita ou em iframes)
+      // Garante elevação z-index máxima do wrapper do popover ativo
+      wrap.classList.add('is-open');
+
+      // Posicionamento inteligente bidirecional (evita sair da tela pela direita ou por baixo)
       if (typeof window !== 'undefined') {
         var rect = wrap.getBoundingClientRect();
-        var cardWidth = 300;
+        var cardWidth = 310;
+        var cardHeight = 240;
         var docWidth = Math.min(window.innerWidth || 10000, (document.documentElement && document.documentElement.clientWidth) || 10000);
+        var docHeight = window.innerHeight || 800;
+
         if (wrap.getAttribute('data-align') === 'right' || wrap.closest('.page-header-actions, .bank-card-bento-top-actions') || rect.left + cardWidth > docWidth - 16) {
           card.classList.add('align-right');
         } else {
           card.classList.remove('align-right');
+        }
+
+        // Se não couber embaixo mas couber em cima, abre para cima
+        if (rect.bottom + cardHeight > docHeight - 16 && rect.top > cardHeight + 20) {
+          card.classList.add('align-top');
+        } else {
+          card.classList.remove('align-top');
         }
       }
 
@@ -1663,6 +1676,11 @@
       var openCards = document.querySelectorAll('.info-popover-card.show');
       for (var i = 0; i < openCards.length; i++) {
         openCards[i].classList.remove('show');
+        openCards[i].classList.remove('align-top');
+      }
+      var openWraps = document.querySelectorAll('.info-popover-wrap.is-open');
+      for (var j = 0; j < openWraps.length; j++) {
+        openWraps[j].classList.remove('is-open');
       }
     }
 
