@@ -1564,6 +1564,120 @@
         title: 'Total de Compromissos Agendados',
         desc: 'Contador absoluto de todas as entradas, saídas, compromissos e eventos de mercado mapeados no período.',
         tip: 'Permite mensurar a densidade e a complexidade dos seus compromissos no mês.'
+      },
+
+      // ============================================================
+      // PLANEJAMENTO, PROJEÇÕES & ORÇAMENTO
+      // ============================================================
+      'plan-modulo': {
+        title: 'Módulo de Planejamento, Projeções & Orçamento',
+        desc: 'Simulador e motor preditivo de fluxo de caixa futuro para 3, 6, 12 ou 24 meses, integrado a metas orçamentárias por categoria.',
+        tip: 'Antecipe déficits de caixa com meses de antecedência e estabeleça tetos de gastos para manter o orçamento equilibrado.'
+      },
+      'plan-btn-manual': {
+        title: 'Manual de Uso do Planejamento',
+        desc: 'Abre o guia passo a passo com regras contábeis da projeção, cálculo de saldo futuro, integração com cartões e calibração de tetos orçamentários.',
+        tip: 'Consulte o manual para tirar dúvidas sobre como o algoritmo projeta o saldo de cada mês.'
+      },
+      'plan-horizonte': {
+        title: 'Horizonte Temporal de Projeção',
+        desc: 'Determina quantos meses à frente o sistema irá simular (3, 6, 12 ou 24 meses).',
+        formula: 'Horizonte = Quantidade de competências mensais futuras simuladas a partir de hoje.',
+        tip: 'O horizonte de 12 meses é o padrão ideal para prever despesas sazonais (IPVA, IPTU, seguros, matrículas).'
+      },
+      'plan-btn-recalcular': {
+        title: 'Recalcular Projeção em Tempo Real',
+        desc: 'Dispara uma nova execução do motor de projeções consultando os lançamentos, cartões e contas recorrentes mais recentes.',
+        tip: 'Use sempre após cadastrar novos lançamentos ou editar contas fixas para recalibrar as estimativas.'
+      },
+      'plan-btn-snapshot': {
+        title: 'Salvar Snapshot Histórico de Projeção',
+        desc: 'Grava uma fotografia estática da projeção atual na aba de histórico do Google Sheets.',
+        tip: 'Permite acompanhar no futuro a precisão das suas projeções passadas em comparação com o que realmente aconteceu.'
+      },
+      'plan-tab-fluxo': {
+        title: 'Subaba: Fluxo de Caixa Projetado (12M)',
+        desc: 'Acompanhamento cronológico mensal da evolução do saldo bancário acumulado e da variação líquida mês a mês.',
+        tip: 'Monitore a coluna "Saldo Final Estimado" para garantir que nenhum mês termine no vermelho.'
+      },
+      'plan-tab-orcamento': {
+        title: 'Subaba: Orçamento por Categoria (Tetos de Gastos)',
+        desc: 'Defina limites mensais de despesa por categoria (Alimentação, Moradia, Lazer, etc.) e acompanhe o percentual consumido com alertas coloridos.',
+        tip: 'Configure tetos realistas para ser avisado antes de gastar mais do que ganha.'
+      },
+      'plan-banner-regras': {
+        title: 'Princípios Contábeis do Motor Preditivo',
+        desc: 'O motor parte do Saldo Real de hoje, soma receitas previstas e deduz despesas programadas, contas recorrentes e faturas/parcelas futuras de cartão de crédito.',
+        formula: 'Saldo Mês N = Saldo Mês (N-1) + Receitas Previstas - (Despesas Fixas + Parcelas + Faturas Cartão)',
+        tip: 'Parcelas de empréstimos consignados são isoladas para não duplicar saídas do seu saldo bancário.'
+      },
+      'plan-kpi-saldo-inicial': {
+        title: 'Saldo Base Conciliado Hoje',
+        desc: 'Ponto de partida real da projeção. É a soma de todos os saldos disponíveis em contas bancárias cadastradas no sistema no momento atual.',
+        formula: 'Saldo Base = Σ(Saldos de todas as contas bancárias ativas)',
+        tip: 'Mantenha suas contas bancárias conciliadas para que o ponto de partida seja 100% fidedigno.'
+      },
+      'plan-kpi-receitas': {
+        title: 'Receitas Previstas no Período',
+        desc: 'Soma de todas as entradas financeiras esperadas ao longo de todo o horizonte selecionado.',
+        formula: 'Entradas = Σ(Salários + Contas Recorrentes de Entrada + Receitas Agendadas no período)',
+        tip: 'Projetar apenas receitas seguras e confirmadas evita um otimismo ilusório no fluxo de caixa.'
+      },
+      'plan-kpi-saidas': {
+        title: 'Saídas & Parcelamentos Futuros',
+        desc: 'Total de desembolsos projetados no horizonte, incluindo contas fixas, despesas agendadas e parcelas futuras de cartão.',
+        formula: 'Saídas = Σ(Despesas Recorrentes + Faturas de Cartão + Parcelamentos + Acordos de Dívida)',
+        tip: 'Compras parceladas no cartão de crédito impactam a projeção exatamente no mês de vencimento da fatura.'
+      },
+      'plan-kpi-saldo-final': {
+        title: 'Saldo Final Estimado no Horizonte',
+        desc: 'Estimativa do saldo bancário consolidado ao término do horizonte selecionado (ex: daqui a 12 meses).',
+        formula: 'Saldo Final = Saldo Base Hoje + Total Entradas - Total Saídas',
+        tip: 'Se o saldo final for positivo e crescente, seu patrimônio líquido está em processo de expansão sustentável.'
+      },
+      'plan-tabela-cenarios': {
+        title: 'Tabela de Cenários Mensais (Mês a Mês)',
+        desc: 'Detalhamento do comportamento de caixa para cada mês individual. Permite identificar exatamente em qual mês haverá superávit ou risco de déficit.',
+        tip: 'Clique no botão "Ver Composição" em qualquer mês para inspecionar todos os itens que compõem aquele saldo.'
+      },
+      'plan-premissas-algoritmo': {
+        title: 'Premissas Ativas do Algoritmo',
+        desc: 'Critérios de isolamento e integridade matemática: exclusão de consignados em folha, alocação de compras no cartão na data de vencimento da fatura e isolamento de dívidas antigas.',
+        tip: 'Garante que os cálculos nunca contem o mesmo valor duas vezes ou presumam saídas inexistentes.'
+      },
+      'plan-orc-mes-filtro': {
+        title: 'Mês de Referência do Orçamento',
+        desc: 'Seletor do mês de competência para auditoria e acompanhamento do cumprimento dos tetos orçamentários por categoria.',
+        tip: 'Você pode navegar por meses passados para conferir seu histórico ou meses futuros para planejar o orçamento.'
+      },
+      'plan-orc-kpi-total': {
+        title: 'Total Geral Orçado no Mês',
+        desc: 'Soma dos limites mensais estipulados para todas as categorias no mês de referência.',
+        formula: 'Total Orçado = Σ(Teto estipulado de cada categoria)',
+        tip: 'O total orçado deve sempre ser inferior ou igual à sua receita líquida mensal para garantir que sobre dinheiro.'
+      },
+      'plan-orc-kpi-gasto': {
+        title: 'Gasto Comprometido no Mês',
+        desc: 'Soma de todas as despesas já pagas, despesas pendentes e compras no cartão efetuadas na competência selecionada.',
+        formula: 'Comprometido = Despesas Pagas + Despesas Agendadas + Faturas/Parcelas de Cartão do Mês',
+        tip: 'Acompanhe esse valor diariamente para não ser surpreendido no final do mês.'
+      },
+      'plan-orc-kpi-saldo': {
+        title: 'Margem Disponível no Orçamento',
+        desc: 'Espaço financeiro restante antes de atingir o limite orçado global para o mês.',
+        formula: 'Margem Livre = Total Orçado - Gasto Comprometido',
+        tip: 'Se estiver negativo, significa que seus gastos gerais ultrapassaram o teto planejado para o mês.'
+      },
+      'plan-orc-kpi-pct': {
+        title: 'Percentual Geral Consumido',
+        desc: 'Indicador consolidado de consumo do orçamento geral do mês com faixas de sinalização cromática.',
+        formula: '% Consumido = (Gasto Comprometido / Total Orçado) × 100',
+        tip: '🟢 Até 70% (Seguro) | 🟡 70% a 90% (Atenção) | 🟠 90% a 100% (Crítico) | 🔴 Acima de 100% (Estourado).'
+      },
+      'plan-orc-grid-categorias': {
+        title: 'Grid de Categorias & Limites Individuais',
+        desc: 'Cartões visuais com barras de progresso para cada categoria. Mostra o valor gasto, o teto definido e o percentual consumido.',
+        tip: 'Clique no botão "Definir Teto" ou "Ajustar Limite" de qualquer categoria para calibrar seu orçamento mensal.'
       }
     };
 

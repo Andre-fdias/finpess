@@ -8,39 +8,67 @@
         </svg>
       </div>
       <div>
-        <h1 id="title-planning" class="card-title" style="font-size:1.3rem; margin:0; font-weight:700;">Planejamento, Projeções & Orçamento</h1>
-        <small style="color:var(--text-secondary); font-size:0.82rem;">Fluxo de caixa futuro de 12 meses, controle inteligente de limites orçamentários e prevenção de déficits.</small>
+        <h1 id="title-planning" class="card-title" style="font-size:1.3rem; margin:0; font-weight:700; display:inline-flex; align-items:center; gap:0.4rem;">
+          <span>Planejamento, Projeções & Orçamento</span>
+          <span class="info-popover-wrap" data-info-key="plan-modulo"></span>
+        </h1>
+        <small style="color:var(--text-secondary); font-size:0.82rem; display:block; margin-top:2px;">Fluxo de caixa futuro de 12 meses, controle inteligente de limites orçamentários e prevenção de déficits.</small>
       </div>
     </div>
     <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
-      <div id="planning-fluxo-controls" style="display:flex; align-items:center; gap:0.4rem;">
-        <label for="proj-horizonte" style="font-size:0.82rem; font-weight:600; color:var(--text-secondary); margin:0;">Horizonte:</label>
-        <select id="proj-horizonte" class="form-control" style="width:130px; height:34px; font-size:0.8rem;" onchange="App.loadProjections(false)">
-          <option value="3">3 Meses</option>
-          <option value="6">6 Meses</option>
-          <option value="12" selected>12 Meses</option>
-          <option value="24">24 Meses</option>
-        </select>
-        <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadProjections(false)" style="height:34px; display:inline-flex; align-items:center; gap:0.35rem;" title="Recalcular projeções">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
-          <span>Recalcular</span>
+      <!-- Botão de Manual de Uso do Módulo -->
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.togglePlanningGuideModal(true)" id="btn-manual-planning" style="display:inline-flex; align-items:center; gap:0.4rem; height:34px; font-size:0.8rem; font-weight:600; color:#6366f1; border-color:rgba(99,102,241,0.3);" title="Abrir Manual de Uso do Planejamento & Orçamento">
+          <span>📖 Manual de Uso</span>
         </button>
-        <button type="button" class="btn btn-primary btn-sm" onclick="App.loadProjections(true)" style="height:34px; display:inline-flex; align-items:center; gap:0.35rem;" title="Salvar snapshot histórico da projeção na planilha">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-          <span>Salvar Snapshot</span>
-        </button>
+        <span class="info-popover-wrap" data-info-key="plan-btn-manual" data-align="right"></span>
+      </div>
+
+      <div id="planning-fluxo-controls" style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+        <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+          <label for="proj-horizonte" style="font-size:0.82rem; font-weight:600; color:var(--text-secondary); margin:0;">Horizonte:</label>
+          <select id="proj-horizonte" class="form-control" style="width:125px; height:34px; font-size:0.8rem;" onchange="App.loadProjections(false)">
+            <option value="3">3 Meses</option>
+            <option value="6">6 Meses</option>
+            <option value="12" selected>12 Meses</option>
+            <option value="24">24 Meses</option>
+          </select>
+          <span class="info-popover-wrap" data-info-key="plan-horizonte" data-align="right"></span>
+        </div>
+
+        <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadProjections(false)" style="height:34px; display:inline-flex; align-items:center; gap:0.35rem;" title="Recalcular projeções">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+            <span>Recalcular</span>
+          </button>
+          <span class="info-popover-wrap" data-info-key="plan-btn-recalcular" data-align="right"></span>
+        </div>
+
+        <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+          <button type="button" class="btn btn-primary btn-sm" onclick="App.loadProjections(true)" style="height:34px; display:inline-flex; align-items:center; gap:0.35rem;" title="Salvar snapshot histórico da projeção na planilha">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            <span>Salvar Snapshot</span>
+          </button>
+          <span class="info-popover-wrap" data-info-key="plan-btn-snapshot" data-align="right"></span>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Abas de Navegação do Planejamento -->
-  <div style="display:flex; gap:0.5rem; border-bottom:1px solid var(--border-color); padding-bottom:0.65rem; margin-bottom:1.15rem; flex-wrap:wrap;">
-    <button type="button" class="btn btn-sm btn-primary planning-tab-btn" id="btn-planning-tab-fluxo" onclick="App.switchPlanningTab('fluxo')">
-      📊 Fluxo de Caixa Projetado (12M)
-    </button>
-    <button type="button" class="btn btn-sm btn-secondary planning-tab-btn" id="btn-planning-tab-orcamento" onclick="App.switchPlanningTab('orcamento')">
-      🎯 Orçamento por Categoria (Limites 70/90/100%)
-    </button>
+  <div style="display:flex; gap:0.5rem; border-bottom:1px solid var(--border-color); padding-bottom:0.65rem; margin-bottom:1.15rem; flex-wrap:wrap; align-items:center;">
+    <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+      <button type="button" class="btn btn-sm btn-primary planning-tab-btn" id="btn-planning-tab-fluxo" onclick="App.switchPlanningTab('fluxo')">
+        📊 Fluxo de Caixa Projetado (12M)
+      </button>
+      <span class="info-popover-wrap" data-info-key="plan-tab-fluxo"></span>
+    </div>
+    <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+      <button type="button" class="btn btn-sm btn-secondary planning-tab-btn" id="btn-planning-tab-orcamento" onclick="App.switchPlanningTab('orcamento')">
+        🎯 Orçamento por Categoria (Limites 70/90/100%)
+      </button>
+      <span class="info-popover-wrap" data-info-key="plan-tab-orcamento"></span>
+    </div>
   </div>
 
   <!-- ========================================================================= -->
@@ -54,7 +82,10 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
         </div>
         <div style="font-size:0.84rem; color:var(--text-primary); line-height:1.45;">
-          <strong>Princípios do Fluxo de Caixa Projetado de 12 Meses:</strong>
+          <strong style="display:inline-flex; align-items:center; gap:0.35rem;">
+            <span>Princípios do Fluxo de Caixa Projetado de 12 Meses:</span>
+            <span class="info-popover-wrap" data-info-key="plan-banner-regras"></span>
+          </strong>
           <div style="margin-top:4px; display:flex; flex-direction:column; gap:4px; color:var(--text-secondary);">
             <span>• <strong>Ponto de Partida Real:</strong> Inicia com o saldo real em conta hoje e projeta receitas fixas, contas mensais, faturas de cartão e parcelas futuras.</span>
             <span>• <strong>Integração com Cartões de Crédito:</strong> Faturas abertas e parcelas futuras de compras no cartão reduzem o caixa estimado no mês em que vencem.</span>
@@ -76,7 +107,10 @@
     <div class="filter-summary-cards" style="margin-bottom:1.25rem;">
       <div class="filter-summary-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <span class="summary-label">Saldo Base Hoje</span>
+          <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+            <span>Saldo Base Hoje</span>
+            <span class="info-popover-wrap" data-info-key="plan-kpi-saldo-inicial"></span>
+          </span>
           <span class="badge" style="background:var(--bg-hover); color:var(--text-secondary); font-size:0.65rem;">Confirmado</span>
         </div>
         <strong class="summary-value" id="proj-kpi-saldo-inicial">R$ 0,00</strong>
@@ -85,7 +119,10 @@
 
       <div class="filter-summary-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <span class="summary-label">Entradas no Período</span>
+          <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+            <span>Entradas no Período</span>
+            <span class="info-popover-wrap" data-info-key="plan-kpi-receitas"></span>
+          </span>
           <span class="badge" style="background:rgba(16,185,129,0.12); color:var(--success); font-size:0.65rem;">Receitas</span>
         </div>
         <strong class="summary-value summary-val-entrada" id="proj-kpi-receitas">+R$ 0,00</strong>
@@ -94,7 +131,10 @@
 
       <div class="filter-summary-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <span class="summary-label">Saídas & Cartões</span>
+          <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+            <span>Saídas & Cartões</span>
+            <span class="info-popover-wrap" data-info-key="plan-kpi-saidas"></span>
+          </span>
           <span class="badge badge-cancelado" style="font-size:0.65rem;">Compromissos</span>
         </div>
         <strong class="summary-value summary-val-saida" id="proj-kpi-saidas">-R$ 0,00</strong>
@@ -103,11 +143,14 @@
 
       <div class="filter-summary-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <span class="summary-label">Saldo Final Projetado</span>
+          <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+            <span>Saldo Final Projetado</span>
+            <span class="info-popover-wrap" data-info-key="plan-kpi-saldo-final"></span>
+          </span>
           <span class="badge" id="proj-kpi-status-badge" style="background:rgba(99,102,241,0.14); color:#6366f1; font-size:0.65rem;">Estimado</span>
         </div>
         <strong class="summary-value" id="proj-kpi-saldo-final">R$ 0,00</strong>
-        <small id="proj-kpi-saldo-desc" style="color:var(--text-secondary); font-size:0.75rem;">Saldo estimado ao final dos 12 meses</small>
+        <small id="proj-kpi-saldo-desc" style="color:var(--text-secondary); font-size:0.75rem;">Saldo estimado ao final do horizonte</small>
       </div>
     </div>
 
@@ -119,8 +162,11 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
           </div>
           <div>
-            <h2 class="card-title" style="margin:0; font-size:1.05rem;">Cenários Mensais Projetados (Mês a Mês)</h2>
-            <small style="color:var(--text-secondary); font-size:0.75rem;">Acompanhe a evolução do saldo bancário e o impacto de faturas de cartão e parcelamentos em cada mês.</small>
+            <h2 class="card-title" style="margin:0; font-size:1.05rem; display:inline-flex; align-items:center; gap:0.4rem;">
+              <span>Cenários Mensais Projetados (Mês a Mês)</span>
+              <span class="info-popover-wrap" data-info-key="plan-tabela-cenarios"></span>
+            </h2>
+            <small style="color:var(--text-secondary); font-size:0.75rem; display:block; margin-top:2px;">Acompanhe a evolução do saldo bancário e o impacto de faturas de cartão e parcelamentos em cada mês.</small>
           </div>
         </div>
         <span class="badge badge-info" id="proj-table-count-badge">Carregando...</span>
@@ -136,8 +182,11 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
           </div>
           <div>
-            <h2 class="card-title" style="margin:0; font-size:1.05rem;">Premissas Ativas do Algoritmo</h2>
-            <small style="color:var(--text-secondary); font-size:0.75rem;">Critérios de isolamento contábil e proteção contra duplicidades aplicados pelo sistema.</small>
+            <h2 class="card-title" style="margin:0; font-size:1.05rem; display:inline-flex; align-items:center; gap:0.4rem;">
+              <span>Premissas Ativas do Algoritmo</span>
+              <span class="info-popover-wrap" data-info-key="plan-premissas-algoritmo"></span>
+            </h2>
+            <small style="color:var(--text-secondary); font-size:0.75rem; display:block; margin-top:2px;">Critérios de isolamento contábil e proteção contra duplicidades aplicados pelo sistema.</small>
           </div>
         </div>
         <span class="badge badge-confirmado">Motor Ativo</span>
@@ -157,12 +206,16 @@
     <div class="card" style="margin-bottom:1.15rem;">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
         <div>
-          <h2 class="card-title" style="margin:0; font-size:1.1rem;">Limites Inteligentes por Categoria</h2>
-          <small style="color:var(--text-secondary); font-size:0.8rem;">Monitore o percentual consumido de cada teto com alertas coloridos automáticos.</small>
+          <h2 class="card-title" style="margin:0; font-size:1.1rem; display:inline-flex; align-items:center; gap:0.4rem;">
+            <span>Limites Inteligentes por Categoria</span>
+            <span class="info-popover-wrap" data-info-key="plan-tab-orcamento"></span>
+          </h2>
+          <small style="color:var(--text-secondary); font-size:0.8rem; display:block; margin-top:2px;">Monitore o percentual consumido de cada teto com alertas coloridos automáticos.</small>
         </div>
         <div style="display:flex; align-items:center; gap:0.5rem;">
           <label for="budget-mes-filtro" style="font-size:0.82rem; font-weight:600; color:var(--text-secondary); margin:0;">Mês:</label>
           <input type="month" id="budget-mes-filtro" class="form-control" style="width:150px; height:34px; font-size:0.82rem;" onchange="App.loadCategoryBudgets()" />
+          <span class="info-popover-wrap" data-info-key="plan-orc-mes-filtro" data-align="right"></span>
           <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadCategoryBudgets()" style="height:34px;">Atualizar</button>
         </div>
       </div>
@@ -172,7 +225,10 @@
     <div class="filter-summary-cards" style="margin-bottom:1.25rem;">
       <div class="filter-summary-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <span class="summary-label">Total Orçado no Mês</span>
+          <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+            <span>Total Orçado no Mês</span>
+            <span class="info-popover-wrap" data-info-key="plan-orc-kpi-total"></span>
+          </span>
           <span class="badge" style="background:rgba(99,102,241,0.12); color:#6366f1; font-size:0.65rem;">Teto Geral</span>
         </div>
         <strong class="summary-value" id="budget-kpi-total-orcado">R$ 0,00</strong>
@@ -181,7 +237,10 @@
 
       <div class="filter-summary-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <span class="summary-label">Gasto Comprometido</span>
+          <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+            <span>Gasto Comprometido</span>
+            <span class="info-popover-wrap" data-info-key="plan-orc-kpi-gasto"></span>
+          </span>
           <span class="badge badge-cancelado" style="font-size:0.65rem;">Realizado + Previsto</span>
         </div>
         <strong class="summary-value summary-val-saida" id="budget-kpi-total-gasto">R$ 0,00</strong>
@@ -190,7 +249,10 @@
 
       <div class="filter-summary-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <span class="summary-label">Saldo Disponível no Orçamento</span>
+          <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+            <span>Saldo Disponível no Orçamento</span>
+            <span class="info-popover-wrap" data-info-key="plan-orc-kpi-saldo"></span>
+          </span>
           <span class="badge" id="budget-kpi-saldo-badge" style="background:rgba(16,185,129,0.12); color:var(--success); font-size:0.65rem;">Livre</span>
         </div>
         <strong class="summary-value summary-val-entrada" id="budget-kpi-saldo-restante">R$ 0,00</strong>
@@ -199,7 +261,10 @@
 
       <div class="filter-summary-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <span class="summary-label">% Geral Consumido</span>
+          <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+            <span>% Geral Consumido</span>
+            <span class="info-popover-wrap" data-info-key="plan-orc-kpi-pct"></span>
+          </span>
           <span class="badge" id="budget-kpi-pct-badge" style="font-size:0.65rem;">Status</span>
         </div>
         <strong class="summary-value" id="budget-kpi-pct-geral">0%</strong>
@@ -215,8 +280,11 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
           </div>
           <div>
-            <h2 class="card-title" style="margin:0; font-size:1.05rem;">Acompanhamento de Categorias</h2>
-            <small style="color:var(--text-secondary); font-size:0.78rem;">🟢 Até 70% (Seguro) • 🟡 70-90% (Atenção) • 🟠 90-100% (Crítico) • 🔴 Acima de 100% (Estourado)</small>
+            <h2 class="card-title" style="margin:0; font-size:1.05rem; display:inline-flex; align-items:center; gap:0.4rem;">
+              <span>Acompanhamento de Categorias</span>
+              <span class="info-popover-wrap" data-info-key="plan-orc-grid-categorias"></span>
+            </h2>
+            <small style="color:var(--text-secondary); font-size:0.78rem; display:block; margin-top:2px;">🟢 Até 70% (Seguro) • 🟡 70-90% (Atenção) • 🟠 90-100% (Crítico) • 🔴 Acima de 100% (Estourado)</small>
           </div>
         </div>
       </div>
@@ -278,6 +346,131 @@
 
       <div style="display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border-color); padding-top:1rem; margin-top:1rem;">
         <button type="button" class="btn btn-secondary" onclick="App.closeProjectionDetailsModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: MANUAL DE USO COMPLETO DO PLANEJAMENTO, PROJEÇÕES & ORÇAMENTO -->
+  <div id="modal-planning-guide" class="modal-backdrop" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.65); align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:1rem;">
+    <div class="card" style="max-width:880px; width:100%; max-height:90vh; display:flex; flex-direction:column; padding:0; border-radius:14px; box-shadow:0 20px 40px rgba(0,0,0,0.45); overflow:hidden;">
+      <div class="modal-header" style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+        <div style="display:flex; align-items:center; gap:0.65rem;">
+          <div style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg, #6366f1, #4f46e5); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.15rem;">
+            📊
+          </div>
+          <div>
+            <h2 style="font-size:1.15rem; font-weight:700; margin:0; color:var(--text-primary);">Manual de Operação: Planejamento, Projeções & Orçamento</h2>
+            <small style="color:var(--text-muted); font-size:0.78rem;">Guia passo a passo do motor preditivo de 12M, tetos por categoria e regras contábeis.</small>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.togglePlanningGuideModal(false)" style="border-radius:50%; width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1rem;">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding:1.5rem; overflow-y:auto; display:flex; flex-direction:column; gap:1.25rem; line-height:1.55;">
+        <!-- Bloco 1: Visão Geral -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            🎯 1. Visão Geral e Objetivo do Módulo
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            O módulo de <strong>Planejamento, Projeções & Orçamento</strong> é a bússola financeira do Finpess. Ele permite enxergar o futuro da sua vida financeira com base matemática concreta, simulando como o seu saldo bancário se comportará nos próximos <strong>3, 6, 12 ou 24 meses</strong>.
+          </p>
+          <p style="margin:0; font-size:0.84rem; color:var(--text-secondary);">
+            Com ele você descobre com meses de antecedência se haverá folga para investir ou risco de saldo negativo, permitindo cortar despesas ou negociar compromissos antes de incorrer em juros bancários.
+          </p>
+        </div>
+
+        <!-- Bloco 2: Motor de Projeção 12M -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            📈 2. Como Funciona o Motor de Projeção (Fluxo de Caixa 12M)
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            O algoritmo de projeção executa um encadeamento cronológico rigoroso:
+          </p>
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.83rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:4px;">
+            <li><strong>Saldo Base Hoje:</strong> É o valor real e líquido somado de todas as suas contas bancárias ativas cadastradas.</li>
+            <li><strong>Entradas Previstas:</strong> Salários, rendimentos de investimentos e receitas recorrentes ativas.</li>
+            <li><strong>Saídas & Compromissos:</strong> Contas fixas mensais, parcelas de empréstimos (pagos pelo usuário), acordos de dívidas e faturas futuras de cartões de crédito.</li>
+            <li><strong>Variação Líquida:</strong> Diferença entre receitas e despesas do mês em questão (Superávit se positivo, Déficit se negativo).</li>
+            <li><strong>Saldo Final Acumulado:</strong> O saldo final do mês atual se torna o saldo inicial do mês seguinte, traçando uma curva patrimonial fiel.</li>
+          </ul>
+        </div>
+
+        <!-- Bloco 3: Integração com Cartões -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            💳 3. Integração com Cartões de Crédito e Parcelamentos
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            Diferente de planilhas simplistas, o Finpess distribui automaticamente as parcelas de compras no cartão nas faturas dos meses correspondentes. Quando a fatura vence, ela abate do saldo bancário projetado naquele mês exato, garantindo que parcelamentos longos (ex: 10x ou 12x) sejam refletidos no caixa futuro com exatidão até o último centavo.
+          </p>
+        </div>
+
+        <!-- Bloco 4: Regras de Isolamento -->
+        <div style="background:rgba(245, 158, 11, 0.05); border:1px solid rgba(245, 158, 11, 0.25); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#d97706; display:flex; align-items:center; gap:0.4rem;">
+            🛡️ 4. Regras de Isolamento Contábil (Consignado e Dívidas)
+          </h3>
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.83rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:4px;">
+            <li><strong>Empréstimos Consignados:</strong> Como a parcela é retida no contracheque pela folha de pagamento, ela <em>não debita da conta bancária</em> na projeção, evitando duplicar despesas caso o seu salário cadastrado já seja o valor líquido.</li>
+            <li><strong>Dívidas Antigas Negativadas:</strong> Não diminuem o saldo diário ou mensal a menos que você feche um acordo parcelado. Ao firmar um acordo, as parcelas pactuadas passam a entrar nas saídas futuras programadas.</li>
+          </ul>
+        </div>
+
+        <!-- Bloco 5: Orçamento por Categoria -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            🎯 5. Orçamento por Categoria & Alertas Visuais (70/90/100%)
+          </h3>
+          <p style="margin:0 0 0.5rem 0; font-size:0.84rem; color:var(--text-secondary);">
+            Na subaba <strong>"Orçamento por Categoria"</strong>, você estabelece o limite máximo mensal em reais para cada grupo de despesa (ex: Alimentação: R$ 1.500,00; Lazer: R$ 500,00). O sistema calcula os gastos somando lançamentos realizados e compras no cartão e sinaliza o status:
+          </p>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.6rem; margin-top:0.5rem;">
+            <div style="padding:0.6rem; border-radius:8px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25);">
+              <strong style="color:#059669; font-size:0.82rem; display:block;">🟢 Até 70% (Seguro)</strong>
+              <small style="color:var(--text-secondary); font-size:0.75rem;">Consumo equilibrado e dentro da margem de conforto.</small>
+            </div>
+            <div style="padding:0.6rem; border-radius:8px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25);">
+              <strong style="color:#d97706; font-size:0.82rem; display:block;">🟡 70% a 90% (Atenção)</strong>
+              <small style="color:var(--text-secondary); font-size:0.75rem;">Consumo elevado. Recomenda-se cautela nos novos gastos.</small>
+            </div>
+            <div style="padding:0.6rem; border-radius:8px; background:rgba(249,115,22,0.08); border:1px solid rgba(249,115,22,0.25);">
+              <strong style="color:#ea580c; font-size:0.82rem; display:block;">🟠 90% a 100% (Crítico)</strong>
+              <small style="color:var(--text-secondary); font-size:0.75rem;">Próximo do teto. Qualquer nova compra excederá o orçamento.</small>
+            </div>
+            <div style="padding:0.6rem; border-radius:8px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25);">
+              <strong style="color:#dc2626; font-size:0.82rem; display:block;">🔴 Acima de 100% (Estourado)</strong>
+              <small style="color:var(--text-secondary); font-size:0.75rem;">Teto ultrapassado. Exige compensação em outras categorias.</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloco 6: Snapshots Históricos -->
+        <div style="background:var(--bg-hover); border:1px solid var(--border-color); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            📸 6. Snapshots Históricos & Acompanhamento de Metas
+          </h3>
+          <p style="margin:0; font-size:0.84rem; color:var(--text-secondary);">
+            Ao clicar no botão <strong>"Salvar Snapshot"</strong>, o Finpess grava na planilha uma cópia imutável do cenário simulado com data e hora. Isso possibilita comparar no futuro a precisão das suas previsões com o saldo que realmente foi realizado, aprimorando seu planejamento contínuo.
+          </p>
+        </div>
+
+        <!-- Bloco 7: Boas Práticas -->
+        <div style="background:rgba(16, 185, 129, 0.05); border:1px solid rgba(16, 185, 129, 0.25); border-radius:10px; padding:1rem 1.15rem;">
+          <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#059669; display:flex; align-items:center; gap:0.4rem;">
+            💡 7. Melhores Práticas para Prevenção de Déficits
+          </h3>
+          <ul style="margin:0; padding-left:1.2rem; font-size:0.83rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:4px;">
+            <li><strong>Recalcule sempre:</strong> Após lançar novas compras parceladas ou reajustar salários, clique em <em>Recalcular</em> para atualizar o horizonte.</li>
+            <li><strong>Inspecione a Composição:</strong> Se notar um mês com saldo negativo na tabela, clique em <em>Ver Composição</em> para ver detalhadamente quais faturas ou contas estão pesando naquele mês.</li>
+            <li><strong>Margem de Segurança:</strong> Busque manter uma margem livre geral de pelo menos 10% a 15% nos tetos de categoria para absorver imprevistos sem comprometer a reserva.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="padding:1rem 1.5rem; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; flex-shrink:0;">
+        <button type="button" class="btn btn-primary" onclick="App.togglePlanningGuideModal(false)" style="font-weight:600;">Entendido! Fechar Manual</button>
       </div>
     </div>
   </div>

@@ -6981,7 +6981,22 @@
             ? '<table class="data-table"><thead><tr><th>Competência</th><th class="col-money">Saldo Inicial</th><th class="col-money">Entradas Previstas</th><th class="col-money">Saídas & Parcelas</th><th class="col-money">Variação Líquida</th><th class="col-money">Saldo Final Estimado</th><th>Status</th><th style="text-align:right;">Composição</th></tr></thead><tbody>' + rows + '</tbody></table>'
             : '<p style="color:var(--text-muted); text-align:center; padding:2rem 0;">Nenhum cenário projetado para este horizonte.</p>';
         }
+
+        var secPlanning = document.getElementById('sec-planning');
+        if (secPlanning && window.UIHelpers && typeof window.UIHelpers.initInfoPopovers === 'function') {
+          window.UIHelpers.initInfoPopovers(secPlanning);
+        }
       });
+    }
+
+    function togglePlanningGuideModal(forceOpen) {
+      var modal = document.getElementById('modal-planning-guide');
+      if (!modal) return;
+      var isCurrentlyOpen = modal.classList.contains('open') || modal.style.display === 'flex';
+      var shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !isCurrentlyOpen;
+      modal.style.display = shouldOpen ? 'flex' : 'none';
+      if (shouldOpen) modal.classList.add('open');
+      else modal.classList.remove('open');
     }
 
     function viewProjectionMonthDetails(competencia) {
@@ -7171,6 +7186,11 @@
       }).join('');
 
       grid.innerHTML = html;
+
+      var secPlanning = document.getElementById('sec-planning');
+      if (secPlanning && window.UIHelpers && typeof window.UIHelpers.initInfoPopovers === 'function') {
+        window.UIHelpers.initInfoPopovers(secPlanning);
+      }
     }
 
     function openEditBudgetModal(catId, nome, atual) {
@@ -11153,6 +11173,7 @@
       loadProjections: loadProjections,
       viewProjectionMonthDetails: viewProjectionMonthDetails,
       closeProjectionDetailsModal: closeProjectionDetailsModal,
+      togglePlanningGuideModal: togglePlanningGuideModal,
       switchPlanningTab: switchPlanningTab,
       loadCategoryBudgets: loadCategoryBudgets,
       openEditBudgetModal: openEditBudgetModal,
