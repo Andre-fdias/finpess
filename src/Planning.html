@@ -1,5 +1,5 @@
 <section id="sec-planning" class="module-section" aria-labelledby="title-planning">
-  <!-- Cabeçalho Principal com Badge de Ícone e Controles do Horizonte -->
+  <!-- Cabeçalho Principal com Badge de Ícone e Manual de Uso -->
   <div class="page-header-card" style="margin-bottom:1.15rem; border-radius:var(--radius-md);">
     <div class="page-header-content">
       <div class="page-icon-badge" style="background:rgba(99, 102, 241, 0.14); color:#6366f1;">
@@ -15,7 +15,7 @@
         <small style="color:var(--text-secondary); font-size:0.82rem; display:block; margin-top:2px;">Fluxo de caixa futuro de 12 meses, controle inteligente de limites orçamentários e prevenção de déficits.</small>
       </div>
     </div>
-    <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+    <div style="display:flex; gap:0.6rem; align-items:center; flex-shrink:0;">
       <!-- Botão de Manual de Uso do Módulo -->
       <div style="display:inline-flex; align-items:center; gap:0.35rem;">
         <button type="button" class="btn btn-secondary btn-sm" onclick="App.togglePlanningGuideModal(true)" id="btn-manual-planning" style="display:inline-flex; align-items:center; gap:0.4rem; height:34px; font-size:0.8rem; font-weight:600; color:#6366f1; border-color:rgba(99,102,241,0.3);" title="Abrir Manual de Uso do Planejamento & Orçamento">
@@ -23,8 +23,63 @@
         </button>
         <span class="info-popover-wrap" data-info-key="plan-btn-manual" data-align="right"></span>
       </div>
+    </div>
+  </div>
 
-      <div id="planning-fluxo-controls" style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+  <!-- Painel Destacado de Visualizações Gráficas & Cenários do Planejamento -->
+  <div class="card" style="padding:0.75rem 1rem; margin-bottom:1.25rem; border-radius:var(--radius-md); background:var(--bg-secondary); border:1px solid var(--border-color);">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.6rem;">
+      <div style="display:flex; align-items:center; gap:0.45rem; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-secondary);">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+        <span>Opções de Visualização & Planejamento</span>
+      </div>
+      <small style="color:var(--text-muted); font-size:0.73rem;">Alterne entre a projeção do fluxo de caixa e os limites de gastos por categoria</small>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:0.65rem;">
+      <!-- Aba 1: Fluxo de Caixa Projetado -->
+      <div style="position:relative; display:flex; align-items:center;">
+        <button type="button" class="btn btn-sm planning-tab-btn btn-primary" id="btn-planning-tab-fluxo" onclick="App.switchPlanningTab('fluxo')" style="width:100%; min-height:48px; display:inline-flex; align-items:center; justify-content:flex-start; gap:0.65rem; font-size:0.88rem; font-weight:700; border-radius:10px; padding:0.5rem 2.5rem 0.5rem 1rem; text-align:left; cursor:pointer;">
+          <span style="font-size:1.3rem; flex-shrink:0;">📊</span>
+          <div style="display:flex; flex-direction:column; line-height:1.25;">
+            <span>Fluxo de Caixa Projetado (12M)</span>
+            <small style="font-size:0.72rem; font-weight:normal; opacity:0.85;">Evolução de saldo bancário mês a mês e prevenção de déficits</small>
+          </div>
+        </button>
+        <span class="info-popover-wrap" data-info-key="plan-tab-fluxo" data-align="right" style="position:absolute; right:10px; z-index:5;"></span>
+      </div>
+
+      <!-- Aba 2: Orçamento por Categoria -->
+      <div style="position:relative; display:flex; align-items:center;">
+        <button type="button" class="btn btn-sm planning-tab-btn btn-secondary" id="btn-planning-tab-orcamento" onclick="App.switchPlanningTab('orcamento')" style="width:100%; min-height:48px; display:inline-flex; align-items:center; justify-content:flex-start; gap:0.65rem; font-size:0.88rem; font-weight:600; border-radius:10px; padding:0.5rem 2.5rem 0.5rem 1rem; text-align:left; cursor:pointer;">
+          <span style="font-size:1.3rem; flex-shrink:0;">🎯</span>
+          <div style="display:flex; flex-direction:column; line-height:1.25;">
+            <span>Orçamento por Categoria</span>
+            <small style="font-size:0.72rem; font-weight:normal; opacity:0.85;">Acompanhamento de tetos mensais com alertas 70/90/100%</small>
+          </div>
+        </button>
+        <span class="info-popover-wrap" data-info-key="plan-tab-orcamento" data-align="right" style="position:absolute; right:10px; z-index:5;"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SUBABA 1: FLUXO DE CAIXA PROJETADO (12 MESES) -->
+  <!-- ========================================================================= -->
+  <div id="planning-subtab-fluxo" class="planning-subtab-content">
+    <!-- Barra de Ferramentas e Controles Exclusivos do Fluxo de Caixa Projetado -->
+    <div class="card" id="planning-fluxo-controls" style="padding:0.75rem 1.15rem; margin-bottom:1.15rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-color); background:var(--bg-surface);">
+      <div style="display:flex; align-items:center; gap:0.6rem;">
+        <div style="width:34px; height:34px; border-radius:8px; background:rgba(99, 102, 241, 0.12); color:#6366f1; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <div>
+          <strong style="font-size:0.88rem; color:var(--text-primary); display:block;">Horizonte & Simulação do Fluxo</strong>
+          <small style="color:var(--text-secondary); font-size:0.75rem;">Ajuste o período futuro de projeção e recalcule as estimativas.</small>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
         <div style="display:inline-flex; align-items:center; gap:0.35rem;">
           <label for="proj-horizonte" style="font-size:0.82rem; font-weight:600; color:var(--text-secondary); margin:0;">Horizonte:</label>
           <select id="proj-horizonte" class="form-control" style="width:125px; height:34px; font-size:0.8rem;" onchange="App.loadProjections(false)">
@@ -53,28 +108,6 @@
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- Abas de Navegação do Planejamento -->
-  <div style="display:flex; gap:0.5rem; border-bottom:1px solid var(--border-color); padding-bottom:0.65rem; margin-bottom:1.15rem; flex-wrap:wrap; align-items:center;">
-    <div style="display:inline-flex; align-items:center; gap:0.35rem;">
-      <button type="button" class="btn btn-sm btn-primary planning-tab-btn" id="btn-planning-tab-fluxo" onclick="App.switchPlanningTab('fluxo')">
-        📊 Fluxo de Caixa Projetado (12M)
-      </button>
-      <span class="info-popover-wrap" data-info-key="plan-tab-fluxo"></span>
-    </div>
-    <div style="display:inline-flex; align-items:center; gap:0.35rem;">
-      <button type="button" class="btn btn-sm btn-secondary planning-tab-btn" id="btn-planning-tab-orcamento" onclick="App.switchPlanningTab('orcamento')">
-        🎯 Orçamento por Categoria (Limites 70/90/100%)
-      </button>
-      <span class="info-popover-wrap" data-info-key="plan-tab-orcamento"></span>
-    </div>
-  </div>
-
-  <!-- ========================================================================= -->
-  <!-- SUBABA 1: FLUXO DE CAIXA PROJETADO (12 MESES) -->
-  <!-- ========================================================================= -->
-  <div id="planning-subtab-fluxo" class="planning-subtab-content">
     <!-- Banner Didático de Regras Inteligentes da Projeção -->
     <div class="recurring-sync-banner" style="background:rgba(99, 102, 241, 0.05); border:1px solid rgba(99, 102, 241, 0.22); border-radius:var(--radius-md); padding:0.85rem 1.15rem; margin-bottom:1.15rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
       <div style="display:flex; align-items:flex-start; gap:0.75rem; max-width:960px;">
