@@ -1053,6 +1053,98 @@
         title: 'Extrato Analítico da Conta',
         desc: 'Linha do tempo contínua de todas as transações da conta, exibindo a origem do registro, categoria e saldo acumulado linha a linha.',
         tip: 'Você pode exportar o extrato para CSV (Excel) ou gerar uma versão impressa corporativa em PDF.'
+      },
+      'crd-modulo': {
+        title: 'Módulo de Cartões de Crédito & Faturas',
+        desc: 'Gerencie múltiplos cartões de crédito físicos e virtuais, acompanhando faturas mensais, controle rigoroso de limites e parcelamentos sem duplicidade contábil.',
+        tip: 'Comprar sempre após o fechamento garante até 40 dias de prazo para pagar sem incidência de juros.'
+      },
+      'crd-novo-cartao': {
+        title: 'Cadastrar Novo Cartão de Crédito',
+        desc: 'Adicione um cartão com seu limite contratado, dia de fechamento e dia de vencimento para cálculo automático do melhor dia de compra.',
+        tip: 'Informe os 4 últimos dígitos para identificação visual rápida e segura na carteira digital.'
+      },
+      'crd-nova-compra': {
+        title: 'Registrar Nova Compra no Cartão',
+        desc: 'Lança despesas à vista ou parceladas no cartão de crédito, distribuindo automaticamente as parcelas pelas faturas dos meses correspondentes.',
+        tip: 'Compras no cartão NÃO debitam sua conta bancária de imediato — o débito ocorre somente ao pagar a fatura.'
+      },
+      'crd-simulador': {
+        title: 'Simulador de Compras & Impacto de Limite',
+        desc: 'Simula se uma compra à vista ou parcelada cabe no limite disponível atual e projeta o impacto financeiro mês a mês nas faturas futuras.',
+        tip: 'Use antes de compras de alto valor para verificar se não comprometerá o orçamento dos próximos meses.'
+      },
+      'crd-kpi-disponivel': {
+        title: 'Limite Disponível Geral',
+        desc: 'Soma de todo o limite de crédito livre e desimpedido para novas compras em todos os seus cartões de crédito ativos.',
+        formula: 'Limite Disponível = Limite Total Contratado - Limite Comprometido',
+        tip: 'Recomenda-se manter pelo menos 30% do limite livre para emergências e manutenção de score de crédito.'
+      },
+      'crd-kpi-comprometido': {
+        title: 'Limite Comprometido',
+        desc: 'Total retido pelos bancos emissores por compras à vista do ciclo atual e parcelas futuras a vencer nos próximos meses.',
+        formula: 'Limite Comprometido = Σ(Compras do ciclo atual + Parcelas futuras a vencer)',
+        tip: 'Conforme cada fatura é paga mensalmente, o limite proporcional das parcelas quitadas é imediatamente liberado.'
+      },
+      'crd-kpi-faturas-mes': {
+        title: 'Faturas Deste Mês',
+        desc: 'Total consolidado a pagar em faturas de todos os cartões cujo vencimento ocorre dentro do mês corrente.',
+        formula: 'Faturas do Mês = Σ(Saldos a pagar das faturas com vencimento no mês selecionado)',
+        tip: 'Pagar o valor total da fatura evita a cobrança de juros rotativos de cartão de crédito.'
+      },
+      'crd-kpi-ativos': {
+        title: 'Cartões Ativos Cadastrados',
+        desc: 'Quantidade de cartões de crédito habilitados e somatório do limite de crédito global disponibilizado pelos bancos.',
+        formula: 'Limite Global = Σ(Limite Total de todos os cartões ativos)',
+        tip: 'Cartões inativados mantêm suas faturas passadas preservadas para fins de auditoria e relatórios históricos.'
+      },
+      'crd-form-dia-fechamento': {
+        title: 'Dia de Fechamento da Fatura (Corte)',
+        desc: 'Data em que o banco emissor encerra o ciclo mensal de compras e fecha a fatura para cálculo do valor final a pagar.',
+        tip: 'Compras realizadas a partir do dia seguinte ao fechamento entram apenas na fatura do mês subsequente.'
+      },
+      'crd-form-dia-vencimento': {
+        title: 'Dia de Vencimento da Fatura',
+        desc: 'Data limite para efetuar o pagamento da fatura sem incidência de juros de mora ou encargos rotativos.',
+        tip: 'Geralmente ocorre de 7 a 10 dias após o fechamento da fatura.'
+      },
+      'crd-melhor-dia': {
+        title: 'Melhor Dia de Compra (Golden Day)',
+        desc: 'O dia logo após o fechamento da fatura. Compras feitas nesta data ganham o prazo máximo possível (até 40 dias) até o vencimento.',
+        formula: 'Melhor Dia = Dia do Fechamento + 1 dia',
+        tip: 'Priorize concentrar compras grandes e parcelamentos nesta data estratégica.'
+      },
+      'crd-card-fatura-atual': {
+        title: 'Fatura Atual do Cartão',
+        desc: 'Valor total acumulado em compras e parcelas alocadas na fatura do ciclo vigente deste cartão.',
+        formula: 'Fatura Atual = Σ(Lançamentos e parcelas alocados no ciclo atual)',
+        tip: 'Acompanhe a barra de limite para evitar estourar o limite contratado.'
+      },
+      'crd-modal-faturas': {
+        title: 'Extrato e Faturas do Cartão',
+        desc: 'Demonstrativo completo de faturas abertas, fechadas e pagas deste cartão, com detalhamento item a item de cada compra e parcela.',
+        tip: 'Você pode selecionar competências passadas ou futuras para auditar parcelamentos de longo prazo.'
+      },
+      'crd-col-data': {
+        title: 'Data da Compra',
+        desc: 'Data original em que a transação no cartão foi realizada pelo titular.',
+        tip: 'Utilizada para definir se a compra entrou antes ou após a data de corte da fatura.'
+      },
+      'crd-col-parcela': {
+        title: 'Controle de Parcelas',
+        desc: 'Número da parcela vigente em relação ao total contratado (ex: 3/10).',
+        tip: 'Permite acompanhar exatamente em que estágio do parcelamento cada compra se encontra.'
+      },
+      'crd-pagar-fatura': {
+        title: 'Liquidação de Fatura com Antiduplicidade',
+        desc: 'Permite quitar a fatura total ou parcialmente gerando uma saída única na conta bancária de débito escolhida.',
+        formula: 'Saldo a Pagar = Total da Fatura - Valor Já Pago',
+        tip: 'O sistema FINPESS possui proteção antiduplicidade: o pagamento da fatura não duplica as despesas registradas individualmente no cartão.'
+      },
+      'crd-simulador-impacto': {
+        title: 'Resultado da Simulação Orçamentária',
+        desc: 'Demonstra a viabilidade da compra no limite disponível e projeta o cronograma completo de parcelas nas faturas dos próximos meses.',
+        tip: 'Evite comprometer mais de 50% da sua renda mensal líquida somando todas as parcelas de cartões.'
       }
     };
 

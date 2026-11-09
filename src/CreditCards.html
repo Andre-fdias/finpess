@@ -9,23 +9,35 @@
         </svg>
       </div>
       <div>
-        <h1 id="title-credit-cards" class="card-title" style="font-size:1.3rem; margin:0; font-weight:700;">Cartões de Crédito & Faturas</h1>
-        <small style="color:var(--text-secondary); font-size:0.82rem;">Controle de limites em tempo real, melhor dia de compra, faturas mensais e parcelamentos sem duplicidade contábil.</small>
+        <h1 id="title-credit-cards" class="card-title" style="font-size:1.3rem; margin:0; font-weight:700; display:inline-flex; align-items:center; gap:0.4rem;">
+          <span>Cartões de Crédito & Faturas</span>
+          <span class="info-popover-wrap" data-info-key="crd-modulo"></span>
+        </h1>
+        <small style="color:var(--text-secondary); font-size:0.82rem; display:block;">Controle de limites em tempo real, melhor dia de compra, faturas mensais e parcelamentos sem duplicidade contábil.</small>
       </div>
     </div>
     <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
-      <button type="button" class="btn btn-primary btn-sm" id="btn-toggle-new-card" onclick="App.toggleNewCreditCardCard()" style="display:flex; align-items:center; gap:0.4rem;">
-        <span id="icon-toggle-new-card" style="font-weight:bold; font-size:1rem;">+</span>
-        <span>Novo Cartão</span>
-      </button>
-      <button type="button" class="btn btn-secondary btn-sm" id="btn-open-new-purchase" onclick="App.openNewPurchaseModal()" style="display:flex; align-items:center; gap:0.4rem;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
-        <span>Nova Compra</span>
-      </button>
-      <button type="button" class="btn btn-secondary btn-sm" id="btn-open-simulate-purchase" onclick="App.openSimulatePurchaseModal()" style="display:flex; align-items:center; gap:0.4rem;" title="Simular compras futuras e impacto no orçamento">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-        <span>Simulador</span>
-      </button>
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-primary btn-sm" id="btn-toggle-new-card" onclick="App.toggleNewCreditCardCard()" style="display:flex; align-items:center; gap:0.4rem;">
+          <span id="icon-toggle-new-card" style="font-weight:bold; font-size:1rem;">+</span>
+          <span>Novo Cartão</span>
+        </button>
+        <span class="info-popover-wrap" data-info-key="crd-novo-cartao"></span>
+      </div>
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-open-new-purchase" onclick="App.openNewPurchaseModal()" style="display:flex; align-items:center; gap:0.4rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
+          <span>Nova Compra</span>
+        </button>
+        <span class="info-popover-wrap" data-info-key="crd-nova-compra"></span>
+      </div>
+      <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-open-simulate-purchase" onclick="App.openSimulatePurchaseModal()" style="display:flex; align-items:center; gap:0.4rem;" title="Simular compras futuras e impacto no orçamento">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          <span>Simulador</span>
+        </button>
+        <span class="info-popover-wrap" data-info-key="crd-simulador" data-align="right"></span>
+      </div>
     </div>
   </div>
 
@@ -33,7 +45,10 @@
   <div class="filter-summary-cards" id="cards-kpi-container" style="margin-bottom:1.25rem;">
     <div class="filter-summary-card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span class="summary-label">Limite Disponível Geral</span>
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>Limite Disponível Geral</span>
+          <span class="info-popover-wrap" data-info-key="crd-kpi-disponivel"></span>
+        </span>
         <span class="badge badge-confirmado" style="font-size:0.65rem;">Livre</span>
       </div>
       <strong class="summary-value" id="cards-kpi-disponivel" style="color:var(--success);">R$ 0,00</strong>
@@ -41,7 +56,10 @@
     </div>
     <div class="filter-summary-card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span class="summary-label">Limite Comprometido</span>
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>Limite Comprometido</span>
+          <span class="info-popover-wrap" data-info-key="crd-kpi-comprometido"></span>
+        </span>
         <span class="badge" style="background:rgba(239,68,68,0.12); color:#ef4444; font-size:0.65rem;">Comprometido</span>
       </div>
       <strong class="summary-value" id="cards-kpi-comprometido" style="color:#ef4444;">R$ 0,00</strong>
@@ -49,7 +67,10 @@
     </div>
     <div class="filter-summary-card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span class="summary-label">Faturas Deste Mês</span>
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>Faturas Deste Mês</span>
+          <span class="info-popover-wrap" data-info-key="crd-kpi-faturas-mes"></span>
+        </span>
         <span class="badge" style="background:rgba(245,158,11,0.12); color:#f59e0b; font-size:0.65rem;">Atual</span>
       </div>
       <strong class="summary-value" id="cards-kpi-faturas-mes" style="color:var(--text-primary);">R$ 0,00</strong>
@@ -57,7 +78,10 @@
     </div>
     <div class="filter-summary-card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span class="summary-label">Cartões Ativos</span>
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>Cartões Ativos</span>
+          <span class="info-popover-wrap" data-info-key="crd-kpi-ativos" data-align="right"></span>
+        </span>
         <span class="badge" style="background:rgba(99,102,241,0.12); color:#6366f1; font-size:0.65rem;">Ativos</span>
       </div>
       <strong class="summary-value" id="cards-kpi-total-cards" style="color:var(--text-primary);">0 cartão(ões)</strong>
@@ -109,12 +133,18 @@
             <input type="text" id="crd-limite-total" class="form-control" placeholder="0,00" required oninput="UIHelpers.maskCurrencyInput(this)" />
           </div>
           <div class="form-group">
-            <label for="crd-dia-fechamento">Dia do Fechamento (Corte) *</label>
+            <label for="crd-dia-fechamento" style="display:inline-flex; align-items:center; gap:0.3rem;">
+              <span>Dia do Fechamento (Corte) *</span>
+              <span class="info-popover-wrap" data-info-key="crd-form-dia-fechamento"></span>
+            </label>
             <input type="number" id="crd-dia-fechamento" class="form-control" min="1" max="31" placeholder="Ex.: 10" required />
             <small style="color:var(--text-muted); font-size:0.7rem;">O melhor dia de compra será o dia seguinte.</small>
           </div>
           <div class="form-group">
-            <label for="crd-dia-vencimento">Dia do Vencimento *</label>
+            <label for="crd-dia-vencimento" style="display:inline-flex; align-items:center; gap:0.3rem;">
+              <span>Dia do Vencimento *</span>
+              <span class="info-popover-wrap" data-info-key="crd-form-dia-vencimento"></span>
+            </label>
             <input type="number" id="crd-dia-vencimento" class="form-control" min="1" max="31" placeholder="Ex.: 17" required />
             <small style="color:var(--text-muted); font-size:0.7rem;">Data limite para pagamento da fatura.</small>
           </div>
@@ -163,7 +193,10 @@
     <div class="modal-card" style="max-width:850px; width:95%; max-height:90vh; overflow-y:auto;">
       <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
         <div>
-          <h3 id="modal-invoices-card-title" style="margin:0; font-size:1.15rem; font-weight:700;">Faturas do Cartão</h3>
+          <h3 id="modal-invoices-card-title" style="margin:0; font-size:1.15rem; font-weight:700; display:inline-flex; align-items:center; gap:0.4rem;">
+            <span>Faturas do Cartão</span>
+            <span class="info-popover-wrap" data-info-key="crd-modal-faturas"></span>
+          </h3>
           <small id="modal-invoices-card-subtitle" style="color:var(--text-secondary); font-size:0.8rem;">Detalhamento de faturas, compras e parcelas</small>
         </div>
         <button type="button" class="btn-close-modal" onclick="App.closeCardInvoicesModal()" aria-label="Fechar">&times;</button>
@@ -195,10 +228,13 @@
               <span style="font-size:0.72rem; color:var(--text-secondary);">Valor Pago: <strong id="invoice-banner-paid" style="color:var(--success);">R$ 0,00</strong></span><br>
               <span style="font-size:0.72rem; color:var(--text-secondary);">Saldo a Pagar: <strong id="invoice-banner-pending" style="color:#ef4444;">R$ 0,00</strong></span>
             </div>
-            <button type="button" class="btn btn-primary btn-sm" id="btn-pay-this-invoice" onclick="App.openPayInvoiceModalFromDetails()" style="display:inline-flex; align-items:center; gap:0.35rem;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              <span>Pagar Fatura</span>
-            </button>
+            <div style="display:inline-flex; align-items:center; gap:0.35rem;">
+              <button type="button" class="btn btn-primary btn-sm" id="btn-pay-this-invoice" onclick="App.openPayInvoiceModalFromDetails()" style="display:inline-flex; align-items:center; gap:0.35rem;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Pagar Fatura</span>
+              </button>
+              <span class="info-popover-wrap" data-info-key="crd-pagar-fatura" data-align="right"></span>
+            </div>
           </div>
         </div>
 
@@ -221,7 +257,10 @@
   <div id="modal-new-card-purchase" class="modal-overlay" style="display:none;">
     <div class="modal-card" style="max-width:560px; width:95%;">
       <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="margin:0; font-size:1.1rem; font-weight:700;">Nova Compra no Cartão de Crédito</h3>
+        <h3 style="margin:0; font-size:1.1rem; font-weight:700; display:inline-flex; align-items:center; gap:0.4rem;">
+          <span>Nova Compra no Cartão de Crédito</span>
+          <span class="info-popover-wrap" data-info-key="crd-nova-compra"></span>
+        </h3>
         <button type="button" class="btn-close-modal" onclick="App.closeNewPurchaseModal()" aria-label="Fechar">&times;</button>
       </div>
       <div class="modal-body" style="padding:1rem 0;">
@@ -298,7 +337,10 @@
   <div id="modal-pay-card-invoice" class="modal-overlay" style="display:none;">
     <div class="modal-card" style="max-width:500px; width:95%;">
       <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="margin:0; font-size:1.1rem; font-weight:700;">Quitar Fatura do Cartão</h3>
+        <h3 style="margin:0; font-size:1.1rem; font-weight:700; display:inline-flex; align-items:center; gap:0.4rem;">
+          <span>Quitar Fatura do Cartão</span>
+          <span class="info-popover-wrap" data-info-key="crd-pagar-fatura"></span>
+        </h3>
         <button type="button" class="btn-close-modal" onclick="App.closePayInvoiceModal()" aria-label="Fechar">&times;</button>
       </div>
       <div class="modal-body" style="padding:1rem 0;">
@@ -350,7 +392,10 @@
   <div id="modal-simulate-purchase" class="modal-overlay" style="display:none;">
     <div class="modal-card" style="max-width:620px; width:95%; max-height:90vh; overflow-y:auto;">
       <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="margin:0; font-size:1.1rem; font-weight:700;">Simulador de Compras & Planejamento</h3>
+        <h3 style="margin:0; font-size:1.1rem; font-weight:700; display:inline-flex; align-items:center; gap:0.4rem;">
+          <span>Simulador de Compras & Planejamento</span>
+          <span class="info-popover-wrap" data-info-key="crd-simulador"></span>
+        </h3>
         <button type="button" class="btn-close-modal" onclick="App.closeSimulatePurchaseModal()" aria-label="Fechar">&times;</button>
       </div>
       <div class="modal-body" style="padding:1rem 0;">
@@ -397,7 +442,10 @@
         <!-- Resultados da Simulação -->
         <div id="sim-result-container" style="display:none; padding:0 1.25rem;">
           <div class="divider" style="margin:0.75rem 0;"></div>
-          <h4 style="font-size:0.92rem; font-weight:700; margin-bottom:0.5rem; color:var(--text-primary);">Resultado da Simulação</h4>
+          <h4 style="font-size:0.92rem; font-weight:700; margin-bottom:0.5rem; color:var(--text-primary); display:inline-flex; align-items:center; gap:0.4rem;">
+            <span>Resultado da Simulação</span>
+            <span class="info-popover-wrap" data-info-key="crd-simulador-impacto"></span>
+          </h4>
           <div id="sim-verdict-banner" style="padding:0.75rem; border-radius:var(--radius-sm); margin-bottom:0.75rem; font-size:0.85rem;"></div>
           <div id="sim-schedule-table" style="max-height:220px; overflow-y:auto;"></div>
         </div>
