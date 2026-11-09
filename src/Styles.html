@@ -2800,6 +2800,46 @@
     flex-shrink: 0;
   }
 
+  /* ==========================================================================
+     TABELA DE CONTAS BANCÁRIAS & EXTRATOS - PADRONIZAÇÃO VISUAL ZEN
+     ========================================================================== */
+  #banks-table-container .data-table,
+  #bank-statement-container .data-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+  }
+
+  #banks-table-container .data-table th,
+  #banks-table-container .data-table td,
+  #bank-statement-container .data-table th,
+  #bank-statement-container .data-table td {
+    vertical-align: middle !important;
+    padding: 0.65rem 0.85rem;
+  }
+
+  #banks-table-container .data-table th.col-center,
+  #banks-table-container .data-table td.col-center,
+  #bank-statement-container .data-table th.col-center,
+  #bank-statement-container .data-table td.col-center {
+    text-align: center !important;
+  }
+
+  #banks-table-container .badge,
+  #bank-statement-container .badge {
+    height: 24px;
+    min-height: 24px;
+    max-height: 24px;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-size: 0.73rem;
+    padding: 0 8px;
+    border-radius: 6px;
+  }
+
   /* Menu de Ações Dropdown (3 Pontinhos) */
   .table-actions-dropdown {
     position: relative;

@@ -951,6 +951,108 @@
         title: 'Duração e Parcelas da Recorrência',
         desc: 'Permite definir se a regra é contínua por tempo indeterminado (deixar vazio) ou temporária com quantidade de parcelas fixas (ex: 10 parcelas).',
         tip: 'Ao informar a quantidade de parcelas, o sistema projeta e preenche a data de término final automaticamente.'
+      },
+
+      // === CONTAS BANCÁRIAS & TRANSFERÊNCIAS ===
+      'bank-modulo': {
+        title: 'Contas Bancárias & Transferências',
+        desc: 'Gerenciador central de contas correntes, poupanças, contas de pagamento e carteiras físicas. Controla a disponibilidade líquida de recursos e o caixa imediato do grupo.',
+        tip: 'Mantenha os saldos conferidos com os aplicativos dos bancos para garantir que as decisões de investimento e pagamento sejam precisas.'
+      },
+      'bank-nova-conta': {
+        title: 'Nova Conta Bancária',
+        desc: 'Permite cadastrar uma nova conta corrente, poupança, carteira digital ou dinheiro físico, vinculando-a a uma instituição oficial e a um titular do grupo.',
+        tip: 'Defina com atenção o saldo inicial e a data inicial: apenas lançamentos a partir dessa data afetarão o saldo confirmado.'
+      },
+      'bank-nova-transferencia': {
+        title: 'Transferência entre Contas Próprias',
+        desc: 'Movimenta recursos entre duas contas do mesmo grupo familiar de forma bilateral (débito na origem e crédito no destino) sem inflar artificialmente suas receitas ou despesas.',
+        tip: 'Ao transferir entre contas próprias, o patrimônio líquido total permanece inalterado.'
+      },
+      'bank-kpi-confirmado': {
+        title: 'Saldo Consolidado (Real)',
+        desc: 'Soma exata do dinheiro disponível hoje em todas as contas bancárias e carteiras ativas do grupo familiar.',
+        formula: 'Soma dos saldos confirmados de todas as contas ATIVAS',
+        tip: 'Reflete o seu poder de compra e liquidez imediata no momento atual.'
+      },
+      'bank-kpi-previsto': {
+        title: 'Previsão Líquida a Realizar',
+        desc: 'Diferença entre todas as receitas previstas e despesas previstas com vencimento até o final do período vigente.',
+        formula: 'Receitas Previstas - Despesas Previstas',
+        tip: 'Se for positivo (+), você tem folga de caixa projetada; se for negativo (-), suas contas a pagar superam as entradas futuras.'
+      },
+      'bank-kpi-projetado': {
+        title: 'Saldo Projetado Geral',
+        desc: 'Estimativa de como o saldo bancário consolidado fechará considerando os saldos reais mais todas as previsões agendadas.',
+        formula: 'Saldo Consolidado Real + Previsão Líquida',
+        tip: 'Permite identificar com antecedência se será necessário resgatar reservas ou remanejar despesas para evitar saldo negativo.'
+      },
+      'bank-kpi-ativas': {
+        title: 'Contas Ativas no Grupo',
+        desc: 'Quantidade de contas bancárias em operação aptas a receber ou liquidar lançamentos financeiros.',
+        tip: 'Contas inativadas mantêm seu histórico contábil preservado, mas ficam ocultas nos formulários de novos lançamentos.'
+      },
+      'bank-posicao-financeira': {
+        title: 'Modos de Visualização (Cards vs Tabela)',
+        desc: 'Permite alternar entre a exibição moderna em Cartões Bento Grid com visual plástico e a exibição compacta em Tabela analítica com rolagem.',
+        tip: 'Sua escolha fica salva automaticamente no navegador para os próximos acessos.'
+      },
+      'bank-col-conta': {
+        title: 'Instituição & Identificação',
+        desc: 'Identifica o banco emissor, o nome personalizado da conta, o titular cadastrado e eventuais observações de agência ou bandeira.',
+        tip: 'O sistema detecta automaticamente o logo e as cores oficiais de mais de 30 instituições financeiras brasileiras.'
+      },
+      'bank-col-tipo': {
+        title: 'Tipo de Conta',
+        desc: 'Classificação contábil do recurso: Conta Corrente (alta rotatividade), Poupança (reserva), Pagamento (carteiras digitais) ou Carteira Física (dinheiro em espécie).',
+        tip: 'Utilize Carteira Física para controlar o dinheiro sacado para despesas do dia a dia.'
+      },
+      'bank-col-saldo-inicial': {
+        title: 'Saldo Inicial Cadastrado',
+        desc: 'Saldo de partida que a conta possuía na data de corte em que foi cadastrada no sistema.',
+        tip: 'Serve como âncora histórica para a conferência contábil de todos os lançamentos posteriores.'
+      },
+      'bank-col-saldo-confirmado': {
+        title: 'Saldo Confirmado (Disponível)',
+        desc: 'Saldo real e efetivo da conta bancária, somando as receitas confirmadas e subtraindo os pagamentos e transferências liquidados.',
+        formula: 'Saldo Inicial + Créditos Confirmados - Débitos Confirmados',
+        tip: 'Este valor deve bater rigorosamente com o saldo exibido no extrato do seu aplicativo bancário.'
+      },
+      'bank-col-saldo-projetado': {
+        title: 'Saldo Projetado da Conta',
+        desc: 'Projeção futura de saldo desta conta específica ao final do mês, considerando despesas e receitas agendadas para ela.',
+        formula: 'Saldo Confirmado + Entradas Previstas - Saídas Previstas',
+        tip: 'Alerta sobre risco de saldo negativo ou cheque especial nesta instituição financeira.'
+      },
+      'bank-col-situacao': {
+        title: 'Situação da Conta',
+        desc: 'ATIVA: disponível para novas transações e totalizada nos saldos. INATIVA: bloqueada para novos lançamentos, mantendo histórico preservado.',
+        tip: 'Para contas que você encerrou, altere a situação para Inativa para limpar as listas de seleção sem perder dados.'
+      },
+      'bank-form-titular': {
+        title: 'Titular / Proprietário da Conta',
+        desc: 'Membro do grupo familiar responsável legal ou usuário principal desta conta bancária.',
+        tip: 'Facilita a prestação de contas e a filtragem de transações por pessoa no painel de Lançamentos.'
+      },
+      'bank-form-saldo-inicial': {
+        title: 'Saldo Inicial e Data de Corte',
+        desc: 'Valor em dinheiro que a conta continha no dia exato em que você começou a registrá-la no sistema.',
+        tip: 'Informe a data do último fechamento de extrato para que a contabilidade comece perfeitamente balanceada.'
+      },
+      'bank-form-transferencia': {
+        title: 'Regra de Transferência Bilateral',
+        desc: 'Debita o valor da conta de origem e credita exatamente o mesmo valor na conta de destino na data informada.',
+        tip: 'Caso necessite estornar ou cancelar no futuro, o cancelamento de uma ponta reverte automaticamente a outra em sincronia atômica.'
+      },
+      'bank-conciliacao': {
+        title: 'Conciliação Manual e Ajuste Auditado',
+        desc: 'Compara o saldo do sistema com o extrato real do banco. Se houver divergência, permite gerar um lançamento de ajuste identificado para manter o caixa exato.',
+        tip: 'Faça a conciliação quinzenal ou mensal para detectar tarifas não registradas ou esquecimentos.'
+      },
+      'bank-extrato': {
+        title: 'Extrato Analítico da Conta',
+        desc: 'Linha do tempo contínua de todas as transações da conta, exibindo a origem do registro, categoria e saldo acumulado linha a linha.',
+        tip: 'Você pode exportar o extrato para CSV (Excel) ou gerar uma versão impressa corporativa em PDF.'
       }
     };
 
@@ -1037,7 +1139,8 @@
           var isRight = wrap.getAttribute('data-align') === 'right';
           if (!isRight && typeof window !== 'undefined') {
             var rect = wrap.getBoundingClientRect();
-            if (rect.left + 310 > window.innerWidth - 16) {
+            var docWidth = Math.min(window.innerWidth || 10000, (document.documentElement && document.documentElement.clientWidth) || 10000);
+            if (rect.left + 310 > docWidth - 16 || wrap.closest('.page-header-actions, .bank-card-bento-top-actions')) {
               isRight = true;
             }
           }
@@ -1068,7 +1171,8 @@
           var c = this.querySelector('.info-popover-card');
           if (c && typeof window !== 'undefined') {
             var r = this.getBoundingClientRect();
-            if (r.left + 310 > window.innerWidth - 16 || this.getAttribute('data-align') === 'right') {
+            var docWidth = Math.min(window.innerWidth || 10000, (document.documentElement && document.documentElement.clientWidth) || 10000);
+            if (this.getAttribute('data-align') === 'right' || this.closest('.page-header-actions, .bank-card-bento-top-actions') || r.left + 310 > docWidth - 16) {
               c.classList.add('align-right');
             } else {
               c.classList.remove('align-right');
@@ -1128,11 +1232,12 @@
         wrap.appendChild(card);
       }
 
-      // Posicionamento inteligente (evita sair da tela pela direita)
+      // Posicionamento inteligente (evita sair da tela pela direita ou em iframes)
       if (typeof window !== 'undefined') {
         var rect = wrap.getBoundingClientRect();
         var cardWidth = 300;
-        if (rect.left + cardWidth > window.innerWidth - 16 || wrap.getAttribute('data-align') === 'right') {
+        var docWidth = Math.min(window.innerWidth || 10000, (document.documentElement && document.documentElement.clientWidth) || 10000);
+        if (wrap.getAttribute('data-align') === 'right' || wrap.closest('.page-header-actions, .bank-card-bento-top-actions') || rect.left + cardWidth > docWidth - 16) {
           card.classList.add('align-right');
         } else {
           card.classList.remove('align-right');

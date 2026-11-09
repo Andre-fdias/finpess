@@ -3106,18 +3106,31 @@
                   '</div>' +
                 '</div>' +
               '</td>' +
-              '<td><span class="badge" style="background:var(--bg-hover); color:var(--text-secondary); font-size:0.75rem;">' + tipoLabel + '</span></td>' +
+              '<td class="col-center"><span class="badge" style="background:var(--bg-hover); color:var(--text-secondary);">' + tipoLabel + '</span></td>' +
               '<td class="col-money" style="color:var(--text-secondary);">' + UIHelpers.formatBrl(b.saldo_inicial_centavos) + '</td>' +
               '<td class="col-money">' + saldoConfHtml + '</td>' +
               '<td class="col-money">' + saldoProjHtml + '</td>' +
-              '<td>' + UIHelpers.renderBadge(b.situacao) + '</td>' +
+              '<td class="col-center">' + UIHelpers.renderBadge(b.situacao) + '</td>' +
               '<td style="text-align:right;">' + dropdownHtml + '</td>' +
             '</tr>'
           );
         }).join('');
 
-        container.innerHTML = '<div class="table-responsive"><table class="data-table"><thead><tr><th>Conta / Instituição</th><th>Tipo</th><th class="col-money">Saldo Inicial</th><th class="col-money">Saldo Confirmado</th><th class="col-money">Saldo Projetado</th><th>Situação</th><th style="text-align:right;">Ações</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+        var bankTableHeader =
+          '<thead><tr>' +
+            '<th>Conta / Instituição <span class="info-popover-wrap" data-info-key="bank-col-conta"></span></th>' +
+            '<th class="col-center">Tipo <span class="info-popover-wrap" data-info-key="bank-col-tipo"></span></th>' +
+            '<th class="col-money">Saldo Inicial <span class="info-popover-wrap" data-info-key="bank-col-saldo-inicial"></span></th>' +
+            '<th class="col-money">Saldo Confirmado <span class="info-popover-wrap" data-info-key="bank-col-saldo-confirmado"></span></th>' +
+            '<th class="col-money">Saldo Projetado <span class="info-popover-wrap" data-info-key="bank-col-saldo-projetado"></span></th>' +
+            '<th class="col-center">Situação <span class="info-popover-wrap" data-info-key="bank-col-situacao"></span></th>' +
+            '<th style="text-align:right;">Ações</th>' +
+          '</tr></thead>';
+
+        container.innerHTML = '<div class="table-responsive"><table class="data-table">' + bankTableHeader + '<tbody>' + rows + '</tbody></table></div>';
       }
+
+      UIHelpers.initInfoPopovers(document.getElementById('sec-banks'));
     }
 
     function openEditBankAccountModal(accId) {
@@ -3390,9 +3403,10 @@
         }).join('');
 
         document.getElementById('bank-statement-container').innerHTML = rows
-          ? '<table class="data-table"><thead><tr><th>Data</th><th>Descrição / Origem</th><th>Categoria</th><th>Tipo</th><th>Situação</th><th class="col-money">Movimento</th><th class="col-money">Saldo Acumulado</th></tr></thead><tbody>' + rows + '</tbody></table>'
+          ? '<table class="data-table"><thead><tr><th>Data</th><th>Descrição / Origem</th><th>Categoria</th><th class="col-center">Tipo</th><th class="col-center">Situação</th><th class="col-money">Movimento</th><th class="col-money">Saldo Acumulado <span class="info-popover-wrap" data-info-key="bank-extrato"></span></th></tr></thead><tbody>' + rows + '</tbody></table>'
           : '<p style="color:var(--text-muted); padding:1.25rem 0; text-align:center;">Nenhum lançamento encontrado nesta conta para o período selecionado.</p>';
 
+        UIHelpers.initInfoPopovers(card);
         card.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     }
