@@ -45,63 +45,6 @@ var LoanService = (function () {
     return count;
   }
 
-  /**
-   * Sincroniza parcelas passadas de contratos consignados (desconto em folha).
-   * Como o valor é retido no contracheque pela folha de pagamento, parcelas cuja data de
-   * vencimento já passou são amortizadas automaticamente sem duplicar saídas bancárias.
-   */
-  function syncConsignadoLoansPastInstallments(user) {
-    if (!user || !user.grupo_id) return;
-    var todayIso = SpreadsheetRepository.todayIso();
-    var consignados = SpreadsheetRepository.findByGrupo('EMPRESTIMOS', user.grupo_id, function (l) {
-      return (l.tipo_emprestimo === 'CONSIGNADO' || Boolean(l.desconto_em_folha)) && l.situacao === 'ATIVO';
-    });
-    if (consignados.length === 0) return;
-
-    var cMap = {};
-    for (var i = 0; i < consignados.length; i++) {
-      cMap[consignados[i].id] = consignados[i];
-    }
-
-    var pendingPastParcelas = SpreadsheetRepository.findByGrupo('PARCELAS', user.grupo_id, function (p) {
-      return p.origem_tipo === 'EMPRESTIMO' &&
-        Boolean(cMap[p.origem_id]) &&
-        p.situacao === 'PREVISTA' &&
-        p.data_vencimento &&
-        p.data_vencimento <= todayIso;
-    });
-
-    if (pendingPastParcelas.length === 0) return;
-
-    var affectedLoanIds = {};
-    for (var j = 0; j < pendingPastParcelas.length; j++) {
-      var par = pendingPastParcelas[j];
-      affectedLoanIds[par.origem_id] = true;
-      SpreadsheetRepository.updateById('PARCELAS', par.id, {
-        situacao: 'PAGA',
-        data_pagamento: par.data_vencimento
-      }, user.grupo_id);
-    }
-
-    for (var lid in affectedLoanIds) {
-      var allPars = SpreadsheetRepository.findByGrupo('PARCELAS', user.grupo_id, function (p) {
-        return p.origem_tipo === 'EMPRESTIMO' && p.origem_id === lid && p.situacao !== 'CANCELADA';
-      });
-      var devedor = 0;
-      var hasPending = false;
-      for (var k = 0; k < allPars.length; k++) {
-        if (allPars[k].situacao !== 'PAGA') {
-          hasPending = true;
-          devedor += Number(allPars[k].valor_centavos || 0);
-        }
-      }
-      SpreadsheetRepository.updateById('EMPRESTIMOS', lid, {
-        saldo_devedor_centavos: devedor,
-        situacao: hasPending ? 'ATIVO' : 'QUITADO'
-      }, user.grupo_id);
-    }
-  }
-
   function createLoan(user, payload, channel) {
     assertWebChannelOnly(channel);
     AuthService.assertGroupAccess(user, user.grupo_id);
@@ -446,22 +389,42 @@ var LoanService = (function () {
 
   function listLoans(user) {
     AuthService.assertGroupAccess(user, user.grupo_id);
-    syncConsignadoLoansPastInstallments(user);
-    syncUserPaidLoanLaunches(user);
     var loans = SpreadsheetRepository.findByGrupo('EMPRESTIMOS', user.grupo_id);
     var allParcelas = SpreadsheetRepository.findByGrupo('PARCELAS', user.grupo_id, function (p) {
       return p.origem_tipo === 'EMPRESTIMO' && p.situacao !== 'CANCELADA';
     });
+    var todayIso = SpreadsheetRepository.todayIso();
 
     return loans.map(function (l) {
+      var isConsignado = l.tipo_emprestimo === 'CONSIGNADO' || Boolean(l.desconto_em_folha);
       var lParcelas = allParcelas.filter(function (p) { return p.origem_id === l.id; });
       lParcelas.sort(function (a, b) { return a.numero_parcela - b.numero_parcela; });
       var copy = {};
       for (var k in l) {
         if (Object.prototype.hasOwnProperty.call(l, k) && k !== '_rowIndex') copy[k] = l[k];
       }
+
+      var pagasCount = 0;
+      var remainingDevedor = 0;
+      for (var i = 0; i < lParcelas.length; i++) {
+        var p = lParcelas[i];
+        var isPaga = p.situacao === 'PAGA' || (isConsignado && l.situacao === 'ATIVO' && p.data_vencimento && p.data_vencimento <= todayIso);
+        if (isPaga) {
+          pagasCount++;
+        } else {
+          remainingDevedor += Number(p.valor_centavos || 0);
+        }
+      }
+
       copy.parcelas = lParcelas;
-      copy.parcelas_pagas = lParcelas.filter(function (p) { return p.situacao === 'PAGA'; }).length;
+      copy.parcelas_pagas = pagasCount;
+      if (l.situacao === 'QUITADO' || l.situacao === 'CANCELADO') {
+        copy.saldo_devedor_centavos = 0;
+      } else if (pagasCount >= Number(l.numero_parcelas || 0)) {
+        copy.saldo_devedor_centavos = 0;
+      } else if (remainingDevedor > 0) {
+        copy.saldo_devedor_centavos = remainingDevedor;
+      }
       return copy;
     });
   }
@@ -560,15 +523,18 @@ var LoanService = (function () {
     var finalDescricao = updateData.descricao || loan.descricao || loan.instituicao;
     var finalInstituicao = updateData.instituicao || loan.instituicao;
 
-    // Atualiza parcelas existentes
+    // Atualiza parcelas existentes em lote
+    var parcelasUpdates = {};
+    var lancamentosUpdates = {};
+
     for (var ep = 0; ep < existingParcelas.length; ep++) {
       var par = existingParcelas[ep];
 
       if (par.numero_parcela > newNumeroParcelas) {
         if (par.situacao !== 'PAGA') {
-          SpreadsheetRepository.updateById('PARCELAS', par.id, { situacao: 'CANCELADA' }, user.grupo_id);
+          parcelasUpdates[par.id] = { situacao: 'CANCELADA' };
           if (par.lancamento_id) {
-            SpreadsheetRepository.updateById('LANCAMENTOS', par.lancamento_id, { situacao: 'CANCELADO' }, user.grupo_id);
+            lancamentosUpdates[par.lancamento_id] = { situacao: 'CANCELADO' };
           }
         }
       } else {
@@ -595,8 +561,10 @@ var LoanService = (function () {
           parPatch.data_pagamento = '';
         }
 
+        parcelasUpdates[par.id] = parPatch;
+
         if (par.lancamento_id) {
-          SpreadsheetRepository.updateById('LANCAMENTOS', par.lancamento_id, {
+          lancamentosUpdates[par.lancamento_id] = {
             valor_centavos: newValorParcela,
             data_lancamento: dueIso,
             data_competencia: dueIso,
@@ -604,10 +572,16 @@ var LoanService = (function () {
             conta_bancaria_id: updateData.conta_bancaria_id !== undefined ? updateData.conta_bancaria_id : loan.conta_bancaria_id,
             situacao: updateData.situacao === 'CANCELADO' ? 'CANCELADO' : (isPaga ? 'CONFIRMADO' : 'PREVISTO'),
             data_pagamento: isPaga ? (parPatch.data_pagamento || dueIso) : ''
-          }, user.grupo_id);
+          };
         }
-        SpreadsheetRepository.updateById('PARCELAS', par.id, parPatch, user.grupo_id);
       }
+    }
+
+    if (Object.keys(parcelasUpdates).length > 0) {
+      SpreadsheetRepository.updateBatch('PARCELAS', parcelasUpdates, user.grupo_id);
+    }
+    if (Object.keys(lancamentosUpdates).length > 0) {
+      SpreadsheetRepository.updateBatch('LANCAMENTOS', lancamentosUpdates, user.grupo_id);
     }
 
     // Se o número de parcelas aumentou, cria as novas parcelas

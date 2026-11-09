@@ -789,6 +789,55 @@ var SpreadsheetRepository = (function () {
     });
   }
 
+  function updateBatch(sheetName, updatesById, grupoId) {
+    if (!updatesById || Object.keys(updatesById).length === 0) return [];
+    return withLock(function () {
+      var sheet = getSheetOrThrow(sheetName);
+      var headers = getActualSheetHeaders(sheet, sheetName);
+      var idColIdx = headers.indexOf('id');
+      var grupoColIdx = headers.indexOf('grupo_id');
+      var dataRange = sheet.getDataRange();
+      var values = dataRange.getValues();
+      if (values.length <= 1) return [];
+
+      var now = nowIso();
+      var atualizadoColIdx = headers.indexOf('atualizado_em');
+      var updatedList = [];
+      var modified = false;
+
+      for (var r = 1; r < values.length; r++) {
+        var row = values[r];
+        var rowId = String(row[idColIdx] || '');
+        var patch = updatesById[rowId];
+        if (!patch) continue;
+
+        if (grupoId && grupoColIdx !== -1 && String(row[grupoColIdx] || '') !== String(grupoId)) {
+          continue;
+        }
+
+        for (var c = 0; c < headers.length; c++) {
+          var colName = headers[c];
+          if (patch[colName] !== undefined && colName !== 'id' && colName !== 'grupo_id' && colName !== 'criado_em') {
+            row[c] = serializeValueForSheet(colName, patch[colName]);
+          }
+        }
+        if (atualizadoColIdx !== -1) {
+          row[atualizadoColIdx] = now;
+        }
+        modified = true;
+        updatedList.push(rowId);
+      }
+
+      if (modified) {
+        sheet.getRange(1, 1, values.length, headers.length).setValues(values);
+        if (sheetName !== 'AUDITORIA' && sheetName !== 'NOTIFICACOES_FILA') {
+          bumpSyncVersion(grupoId);
+        }
+      }
+      return updatedList;
+    });
+  }
+
   function updateById(sheetName, id, patch, grupoId) {
     return withLock(function () {
       var sheet = getSheetOrThrow(sheetName);
@@ -1002,6 +1051,7 @@ var SpreadsheetRepository = (function () {
     insert: insert,
     insertBatch: insertBatch,
     updateById: updateById,
+    updateBatch: updateBatch,
     deleteById: deleteById,
     clearSheetData: clearSheetData,
     bumpSyncVersion: bumpSyncVersion,
