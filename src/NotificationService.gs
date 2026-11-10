@@ -1427,29 +1427,38 @@ var NotificationService = (function () {
       return { ok: false, motivo: 'SCRIPTAPP_UNAVAILABLE' };
     }
     var fnName = 'executarEnvioMatinalNotificacoes';
-    var triggers = ScriptApp.getProjectTriggers();
-    for (var i = 0; i < triggers.length; i++) {
-      if (triggers[i].getHandlerFunction() === fnName) {
-        return {
-          ok: true,
-          status: 'JA_CONFIGURADO',
-          triggerId: triggers[i].getUniqueId(),
-          mensagem: 'Gatilho matinal automático diário (07:00-08:00) já se encontra ativo.'
-        };
+    try {
+      var triggers = ScriptApp.getProjectTriggers();
+      for (var i = 0; i < triggers.length; i++) {
+        if (triggers[i].getHandlerFunction() === fnName) {
+          return {
+            ok: true,
+            status: 'JA_CONFIGURADO',
+            triggerId: triggers[i].getUniqueId(),
+            mensagem: 'Gatilho matinal automático diário (07:00-08:00) já se encontra ativo.'
+          };
+        }
       }
-    }
-    var newTrig = ScriptApp.newTrigger(fnName)
-      .timeBased()
-      .everyDays(1)
-      .atHour(7)
-      .create();
+      var newTrig = ScriptApp.newTrigger(fnName)
+        .timeBased()
+        .everyDays(1)
+        .atHour(7)
+        .create();
 
-    return {
-      ok: true,
-      status: 'CRIADO',
-      triggerId: newTrig.getUniqueId(),
-      mensagem: 'Gatilho matinal automático diário configurado com sucesso para às 07:00h.'
-    };
+      return {
+        ok: true,
+        status: 'CRIADO',
+        triggerId: newTrig.getUniqueId(),
+        mensagem: 'Gatilho matinal automático diário configurado com sucesso para às 07:00h.'
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        status: 'ERRO_PERMISSAO',
+        motivo: 'SCRIPTAPP_AUTH_REQUIRED',
+        mensagem: 'Autorização necessária no Google Apps Script: ' + (err && err.message ? err.message : String(err))
+      };
+    }
   }
 
   function getTriggerStatus() {
@@ -1457,18 +1466,26 @@ var NotificationService = (function () {
       return { configurado: false, detalhes: 'Ambiente sem ScriptApp' };
     }
     var fnName = 'executarEnvioMatinalNotificacoes';
-    var triggers = ScriptApp.getProjectTriggers();
-    for (var i = 0; i < triggers.length; i++) {
-      if (triggers[i].getHandlerFunction() === fnName) {
-        return {
-          configurado: true,
-          funcao: fnName,
-          triggerId: triggers[i].getUniqueId(),
-          tipo: 'TIME_DRIVEN_DAILY_07H'
-        };
+    try {
+      var triggers = ScriptApp.getProjectTriggers();
+      for (var i = 0; i < triggers.length; i++) {
+        if (triggers[i].getHandlerFunction() === fnName) {
+          return {
+            configurado: true,
+            funcao: fnName,
+            triggerId: triggers[i].getUniqueId(),
+            tipo: 'TIME_DRIVEN_DAILY_07H'
+          };
+        }
       }
+      return { configurado: false, funcao: fnName };
+    } catch (err) {
+      return {
+        configurado: false,
+        erro: 'PERMISSAO_NECESSARIA',
+        detalhes: err && err.message ? err.message : String(err)
+      };
     }
-    return { configurado: false, funcao: fnName };
   }
 
   return {
