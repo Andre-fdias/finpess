@@ -71,49 +71,50 @@ var TelegramLaunchService = (function () {
    */
   function formatConfirmationPreview(extractedData, previewHash, processState) {
     var tipoLabel = extractedData.tipo === 'ENTRADA'
-      ? 'Entrada'
-      : (extractedData.tipo === 'SAIDA' ? 'Saída' : 'Não identificado (solicitar)');
+      ? '🟢 Entrada (Receita)'
+      : (extractedData.tipo === 'SAIDA' ? '🔴 Saída (Despesa)' : '⚪ Não identificado');
     var valorLabel = extractedData.valor_centavos
       ? ValidationService.formatCentavosToBrl(extractedData.valor_centavos)
       : 'Não identificado (informe o valor)';
     var dataLabel = extractedData.data
       ? ValidationService.formatDateBr(extractedData.data)
       : 'Não definida';
-    var catLabel = extractedData.categoria_sugerida || 'Não definida';
+    var catLabel = extractedData.categoria_sugerida || 'Geral';
     if (extractedData.subcategoria_sugerida) {
-      catLabel += ' / ' + extractedData.subcategoria_sugerida;
+      catLabel += ' › ' + extractedData.subcategoria_sugerida;
     }
-    var contaLabel = extractedData.conta_bancaria_sugerida || 'não definida';
+    var contaLabel = extractedData.conta_bancaria_sugerida || 'Padrão do Sistema';
     var formaMap = {
       PIX: 'Pix',
-      DEBITO: 'Débito',
-      CREDITO: 'Crédito',
-      DINHEIRO: 'Dinheiro',
-      BOLETO: 'Boleto',
-      TRANSFERENCIA: 'Transferência'
+      DEBITO: 'Cartão de Débito',
+      CREDITO: 'Cartão de Crédito',
+      DINHEIRO: 'Dinheiro em Espécie',
+      BOLETO: 'Boleto Bancário',
+      TRANSFERENCIA: 'Transferência / TED'
     };
     var formaLabel = formaMap[extractedData.forma_pagamento] || extractedData.forma_pagamento || 'Não informada';
 
     var situacaoLabel = (extractedData.situacao === 'PREVISTO' || extractedData.situacao === 'PENDENTE')
       ? '⏳ A Vencer (Previsto)'
-      : '✅ Realizado (Confirmado)';
+      : '✅ Realizado (Baixa no saldo)';
 
     var lines = [
-      'Confirme seu lançamento',
-      '',
-      '- Tipo: ' + tipoLabel + '.',
-      '- Descrição: ' + (extractedData.descricao || 'Não informada') + '.',
-      '- Valor: ' + valorLabel + '.',
-      '- Data: ' + dataLabel + '.',
-      '- Categoria: ' + catLabel + '.',
-      '- Conta: ' + contaLabel + '.',
-      '- Forma de pagamento: ' + formaLabel + '.',
-      '- Situação: ' + situacaoLabel + '.'
+      '💳 *NOVO LANÇAMENTO DETECTADO*',
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━',
+      '🏷️ - Descrição: ' + (extractedData.descricao || 'Não informada') + '.',
+      '💰 - Valor: ' + valorLabel + '.',
+      '📂 - Tipo: ' + tipoLabel + '.',
+      '📅 - Data: ' + dataLabel + '.',
+      '📁 - Categoria: ' + catLabel + '.',
+      '🏦 - Conta: ' + contaLabel + '.',
+      '💳 - Forma de pagamento: ' + formaLabel + '.',
+      '⚡ - Situação: ' + situacaoLabel + '.',
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━'
     ];
 
     if (extractedData.campos_pendentes && extractedData.campos_pendentes.length > 0) {
       lines.push('');
-      lines.push('Atenção - informação pendente para confirmar: ' + extractedData.campos_pendentes.join(', ') + '.');
+      lines.push('⚠️ *Atenção:* selecione a conta bancária abaixo para confirmar:');
     }
 
     return lines.join('\n');

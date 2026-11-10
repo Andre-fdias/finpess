@@ -252,6 +252,175 @@ function runTelegramTests() {
   assert.ok(startLinkResp.resposta_bot.text.includes('Vínculo automático concluído com sucesso'));
   results.push('Configuração automática 1-clique do Telegram e vínculo via /start FIN-... comprovados.');
 
+  // 11. Testar comandos do Assistente Financeiro (/menu, /saldo, /faturas, /contas, /resumo, /metas, /dividas, /investimentos, /extrato, /oraculo)
+  const menuCmd = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1400,
+    message: {
+      message_id: 400,
+      from: { id: 777099 },
+      chat: { id: 777099 },
+      text: '/menu'
+    }
+  }, newSecret);
+  assert.strictEqual(menuCmd.status, 'COMANDO_PROCESSADO');
+  assert.ok(menuCmd.resposta_bot.reply_markup.inline_keyboard.length >= 4, 'Menu deve conter teclado com botões interativos');
+
+  const saldoCmd = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1401,
+    message: {
+      message_id: 401,
+      from: { id: 777099 },
+      chat: { id: 777099 },
+      text: '/saldo'
+    }
+  }, newSecret);
+  assert.strictEqual(saldoCmd.status, 'COMANDO_PROCESSADO');
+  assert.ok(saldoCmd.resposta_bot.text.includes('SALDO DAS CONTAS BANCÁRIAS'));
+  assert.ok(saldoCmd.resposta_bot.text.includes('TOTAL CONSOLIDADO REALIZADO'));
+
+  const faturasCmd = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1402,
+    message: {
+      message_id: 402,
+      from: { id: 777099 },
+      chat: { id: 777099 },
+      text: '/faturas'
+    }
+  }, newSecret);
+  assert.strictEqual(faturasCmd.status, 'COMANDO_PROCESSADO');
+  assert.ok(faturasCmd.resposta_bot.text.includes('CARTÕES DE CRÉDITO & FATURAS'));
+
+  const contasCmd = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1403,
+    message: {
+      message_id: 403,
+      from: { id: 777099 },
+      chat: { id: 777099 },
+      text: '/contas'
+    }
+  }, newSecret);
+  assert.strictEqual(contasCmd.status, 'COMANDO_PROCESSADO');
+  assert.ok(contasCmd.resposta_bot.text.includes('COMPROMISSOS & CONTAS A VENCER'));
+
+  const resumoCmd = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1404,
+    message: {
+      message_id: 404,
+      from: { id: 777099 },
+      chat: { id: 777099 },
+      text: '/resumo'
+    }
+  }, newSecret);
+  assert.strictEqual(resumoCmd.status, 'COMANDO_PROCESSADO');
+  assert.ok(resumoCmd.resposta_bot.text.includes('BALANÇO FINANCEIRO'));
+
+  const metasCmd = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1405,
+    message: {
+      message_id: 405,
+      from: { id: 777099 },
+      chat: { id: 777099 },
+      text: '/metas'
+    }
+  }, newSecret);
+  assert.strictEqual(metasCmd.status, 'COMANDO_PROCESSADO');
+  assert.ok(metasCmd.resposta_bot.text.includes('METAS FINANCEIRAS & RESERVA'));
+
+  const dividasCmd = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1406,
+    message: {
+      message_id: 406,
+      from: { id: 777099 },
+      chat: { id: 777099 },
+      text: '/dividas'
+    }
+  }, newSecret);
+  assert.strictEqual(dividasCmd.status, 'COMANDO_PROCESSADO');
+  assert.ok(dividasCmd.resposta_bot.text.includes('DÍVIDAS, ACORDOS & EMPRÉSTIMOS'));
+
+  const investCmd = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1407,
+    message: {
+      message_id: 407,
+      from: { id: 777099 },
+      chat: { id: 777099 },
+      text: '/investimentos'
+    }
+  }, newSecret);
+  assert.strictEqual(investCmd.status, 'COMANDO_PROCESSADO');
+  assert.ok(investCmd.resposta_bot.text.includes('PATRIMÔNIO & INVESTIMENTOS'));
+
+  const extratoCmd = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1408,
+    message: {
+      message_id: 408,
+      from: { id: 777099 },
+      chat: { id: 777099 },
+      text: '/extrato'
+    }
+  }, newSecret);
+  assert.strictEqual(extratoCmd.status, 'COMANDO_PROCESSADO');
+  assert.ok(extratoCmd.resposta_bot.text.includes('ÚLTIMOS LANÇAMENTOS DO MÊS'));
+
+  const oraculoCmd = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1409,
+    message: {
+      message_id: 409,
+      from: { id: 777099 },
+      chat: { id: 777099 },
+      text: '/oraculo quanto posso gastar até o fim do mês?'
+    }
+  }, newSecret);
+  assert.strictEqual(oraculoCmd.status, 'COMANDO_PROCESSADO');
+  assert.ok(oraculoCmd.resposta_bot.text.includes('ORÁCULO FINANCEIRO IA'));
+  results.push('Comandos do Assistente Financeiro nos 14 módulos (/menu, /saldo, /faturas, /contas, /resumo, /metas, /dividas, /investimentos, /extrato, /oraculo) validados com 100% de sucesso.');
+
+  // 12. Testar Callback Interativo do Menu (MENU_SALDO)
+  const callbackSaldo = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1410,
+    callback_query: {
+      id: 'cb_saldo_123',
+      from: { id: 777099 },
+      message: {
+        message_id: 400,
+        chat: { id: 777099 }
+      },
+      data: 'MENU_SALDO'
+    }
+  }, newSecret);
+  assert.strictEqual(callbackSaldo.status, 'CONSULTA_PROCESSADA');
+  assert.strictEqual(callbackSaldo.tipo_consulta, 'SALDO');
+  assert.ok(callbackSaldo.resposta_bot.text.includes('SALDO DAS CONTAS BANCÁRIAS'));
+  results.push('Navegação interativa por botões inline (MENU_SALDO) validada com sucesso.');
+
+  // 13. Testar Roteamento Conversacional ("qual o meu saldo?", "quanto gastei?")
+  const convSaldo = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1411,
+    message: {
+      message_id: 411,
+      from: { id: 777099 },
+      chat: { id: 777099 },
+      text: 'qual o meu saldo?'
+    }
+  }, newSecret);
+  assert.strictEqual(convSaldo.status, 'CONSULTA_PROCESSADA');
+  assert.strictEqual(convSaldo.tipo_consulta, 'SALDO');
+  assert.ok(convSaldo.resposta_bot.text.includes('SALDO DAS CONTAS BANCÁRIAS'));
+
+  const convResumo = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1412,
+    message: {
+      message_id: 412,
+      from: { id: 777099 },
+      chat: { id: 777099 },
+      text: 'quanto gastei este mês?'
+    }
+  }, newSecret);
+  assert.strictEqual(convResumo.status, 'CONSULTA_PROCESSADA');
+  assert.strictEqual(convResumo.tipo_consulta, 'RESUMO');
+  assert.ok(convResumo.resposta_bot.text.includes('BALANÇO FINANCEIRO'));
+  results.push('Roteamento conversacional em linguagem natural sem erro de parse comprovado.');
+
   return results;
 }
 

@@ -129,14 +129,21 @@ var SetupService = (function () {
         botFirstName = getMeJson.result.first_name || botFirstName;
       }
 
-      // 2. Configura automaticamente a lista de comandos no Telegram (setMyCommands)
+      // 2. Configura automaticamente a lista de comandos oficiais no Telegram (setMyCommands)
       var commandsPayload = {
         commands: [
-          { command: 'start', description: 'Iniciar e vincular conta automaticamente' },
-          { command: 'ajuda', description: 'Ver exemplos de mensagens e áudios aceitos' },
-          { command: 'status', description: 'Verificar situação do vínculo com a planilha' },
-          { command: 'vincular', description: 'Vincular conta com código temporário' },
-          { command: 'desvincular', description: 'Revogar vínculo do Telegram com segurança' },
+          { command: 'menu', description: 'Painel principal com botões interativos' },
+          { command: 'saldo', description: 'Ver saldo total consolidado e por conta bancária' },
+          { command: 'faturas', description: 'Faturas abertas, limites e melhor dia de compra' },
+          { command: 'contas', description: 'Contas a vencer nos próximos 7 dias' },
+          { command: 'resumo', description: 'Balanço do mês atual (entradas vs. saídas pagas)' },
+          { command: 'metas', description: 'Acompanhar progresso de metas e reserva de emergência' },
+          { command: 'dividas', description: 'Resumo de dívidas, acordos e empréstimos' },
+          { command: 'investimentos', description: 'Patrimônio investido e maiores posições' },
+          { command: 'extrato', description: 'Consultar últimos lançamentos registrados' },
+          { command: 'oraculo', description: 'Consultar Oráculo IA sobre suas finanças' },
+          { command: 'ajuda', description: 'Guia de uso de texto, áudios e cupom fiscal' },
+          { command: 'status', description: 'Verificar status da conexão e usuário vinculado' },
           { command: 'cancelar', description: 'Cancelar proposta de lançamento pendente' }
         ]
       };

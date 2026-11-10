@@ -111,7 +111,7 @@ var TelegramWebhookService = (function () {
 
   function editTelegramMessage(chatId, messageId, text, replyMarkup, options) {
     var opts = options || {};
-    if (!chatId || !messageId) return;
+    if (!chatId || !messageId) return null;
     var payload = {
       chat_id: String(chatId),
       message_id: messageId,
@@ -145,6 +145,394 @@ var TelegramWebhookService = (function () {
         }
       }
     }
+    return payload;
+  }
+
+  function sendChatAction(chatId, action, options) {
+    var opts = options || {};
+    if (!chatId) return;
+    if (opts.sendRealTelegramMessages) {
+      var props = typeof PropertiesService !== 'undefined' ? PropertiesService.getScriptProperties() : null;
+      var botToken = props ? props.getProperty('TELEGRAM_BOT_TOKEN') : '';
+      if (botToken && typeof UrlFetchApp !== 'undefined') {
+        try {
+          UrlFetchApp.fetch('https://api.telegram.org/bot' + botToken + '/sendChatAction', {
+            method: 'post',
+            contentType: 'application/json',
+            payload: JSON.stringify({
+              chat_id: String(chatId),
+              action: action || 'typing'
+            }),
+            muteHttpExceptions: true
+          });
+        } catch (e) {}
+      }
+    }
+  }
+
+  function formatMonthRef(isoYm) {
+    if (!isoYm) return '';
+    var parts = isoYm.split('-');
+    var months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    var mIdx = parseInt(parts[1], 10) - 1;
+    return (months[mIdx] || '') + ' de ' + parts[0];
+  }
+
+  function buildMainMenuKeyboard() {
+    return {
+      inline_keyboard: [
+        [
+          { text: '💰 Saldo em Contas', callback_data: 'MENU_SALDO' },
+          { text: '💳 Cartões & Faturas', callback_data: 'MENU_FATURAS' }
+        ],
+        [
+          { text: '📅 Contas a Vencer', callback_data: 'MENU_CONTAS' },
+          { text: '📊 Balanço do Mês', callback_data: 'MENU_RESUMO' }
+        ],
+        [
+          { text: '🎯 Metas & Reserva', callback_data: 'MENU_METAS' },
+          { text: '📉 Dívidas & Empréstimos', callback_data: 'MENU_DIVIDAS' }
+        ],
+        [
+          { text: '📈 Investimentos', callback_data: 'MENU_INVEST' },
+          { text: '📋 Últimos Lançamentos', callback_data: 'MENU_EXTRATO' }
+        ],
+        [
+          { text: '🔮 Oráculo IA', callback_data: 'MENU_ORACULO' },
+          { text: '❓ Central de Ajuda', callback_data: 'MENU_AJUDA' }
+        ]
+      ]
+    };
+  }
+
+  function formatMainMenu(user) {
+    var firstName = (user.nome || 'Usuário').split(' ')[0];
+    return [
+      '👋 *Olá, ' + firstName + '!*',
+      'Seja bem-vindo ao seu *Assistente Financeiro Inteligente*.',
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━',
+      'Aqui você pode consultar seus saldos, faturas, metas, investimentos e obter análises do Oráculo IA.',
+      '',
+      '💡 *O que deseja consultar agora?*',
+      'Toque em um dos botões abaixo ou envie mensagens como:',
+      '• _"Almoço 38,50 no débito"_ (para registrar)',
+      '• _"Qual o meu saldo?"_ ou _"/saldo"_',
+      '• _"Quais contas vencem essa semana?"_'
+    ].join('\n');
+  }
+
+  function formatSaldosResponse(user) {
+    var accounts = BankAccountService.listBankAccountsWithBalances(user, false);
+    var totalConfirmado = 0;
+    var totalProjetado = 0;
+    var lines = [
+      '🏦 *SALDO DAS CONTAS BANCÁRIAS*',
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━'
+    ];
+    if (!accounts || accounts.length === 0) {
+      lines.push('Nenhuma conta bancária ativa cadastrada.');
+    } else {
+      for (var i = 0; i < accounts.length; i++) {
+        var a = accounts[i];
+        var sConf = Number(a.saldo_confirmado_centavos || 0);
+        var sProj = Number(a.saldo_projetado_centavos || 0);
+        totalConfirmado += sConf;
+        totalProjetado += sProj;
+        var icon = sConf >= 0 ? '🟢' : '🔴';
+        lines.push(icon + ' *' + a.nome_identificacao + '* (' + (a.instituicao || 'Banco') + ')');
+        lines.push('   • Confirmado: `' + ValidationService.formatCentavosToBrl(sConf) + '`');
+        if (sProj !== sConf) {
+          lines.push('   • Projetado: `' + ValidationService.formatCentavosToBrl(sProj) + '`');
+        }
+      }
+    }
+    lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    lines.push('💵 *TOTAL CONSOLIDADO REALIZADO:* `' + ValidationService.formatCentavosToBrl(totalConfirmado) + '`');
+    if (totalProjetado !== totalConfirmado) {
+      lines.push('⏳ *Total Projetado:* `' + ValidationService.formatCentavosToBrl(totalProjetado) + '`');
+    }
+    return lines.join('\n');
+  }
+
+  function formatFaturasResponse(user) {
+    var cards = CreditCardService.listCards(user);
+    var lines = [
+      '💳 *CARTÕES DE CRÉDITO & FATURAS*',
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━'
+    ];
+    if (!cards || cards.length === 0) {
+      lines.push('Nenhum cartão de crédito cadastrado.');
+    } else {
+      var totalComprometido = 0;
+      var totalLimite = 0;
+      for (var i = 0; i < cards.length; i++) {
+        var c = cards[i];
+        var limTotal = Number(c.limite_total_centavos || 0) + Number(c.limite_adicional_centavos || 0);
+        var limComp = Number(c.limite_comprometido_centavos || 0);
+        var limDisp = Math.max(0, limTotal - limComp);
+        totalLimite += limTotal;
+        totalComprometido += limComp;
+        lines.push('💳 *' + c.nome + '* (' + (c.bandeira || 'Cartão') + ')');
+        lines.push('   • Limite Disponível: `' + ValidationService.formatCentavosToBrl(limDisp) + '` de `' + ValidationService.formatCentavosToBrl(limTotal) + '`');
+        lines.push('   • Fatura Atual: `' + ValidationService.formatCentavosToBrl(c.fatura_atual_centavos || 0) + '`');
+        lines.push('   • Melhor dia de compra: *Dia ' + (c.melhor_dia_compra || c.dia_fechamento || '-') + '* (Vence dia ' + (c.dia_vencimento || '-') + ')');
+        lines.push('');
+      }
+      lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      lines.push('📊 *Comprometimento Geral:* `' + ValidationService.formatCentavosToBrl(totalComprometido) + '` / `' + ValidationService.formatCentavosToBrl(totalLimite) + '`');
+    }
+    return lines.join('\n');
+  }
+
+  function formatContasResponse(user) {
+    var today = SpreadsheetRepository.todayIso();
+    var allLaunches = SpreadsheetRepository.findByGrupo('LANCAMENTOS', user.grupo_id, function (l) {
+      return l.tipo === 'SAIDA' && (l.situacao === 'PREVISTO' || l.situacao === 'PENDENTE');
+    });
+    allLaunches.sort(function (a, b) {
+      return (a.data_lancamento || '').localeCompare(b.data_lancamento || '');
+    });
+    var vencidas = [];
+    var proximas7Dias = [];
+    var outras = [];
+
+    var dToday = new Date(today + 'T12:00:00Z');
+    var d7 = new Date(dToday.getTime() + 7 * 86400000);
+    var date7Iso = d7.toISOString().substring(0, 10);
+
+    for (var i = 0; i < allLaunches.length; i++) {
+      var l = allLaunches[i];
+      if (l.data_lancamento < today) {
+        vencidas.push(l);
+      } else if (l.data_lancamento <= date7Iso) {
+        proximas7Dias.push(l);
+      } else {
+        outras.push(l);
+      }
+    }
+
+    var lines = [
+      '📅 *COMPROMISSOS & CONTAS A VENCER*',
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━'
+    ];
+
+    if (vencidas.length > 0) {
+      lines.push('⚠️ *ATENÇÃO: CONTAS ATRASADAS (' + vencidas.length + '):*');
+      for (var v = 0; v < Math.min(vencidas.length, 5); v++) {
+        var cv = vencidas[v];
+        lines.push('🔴 *' + cv.descricao + '* - `' + ValidationService.formatCentavosToBrl(cv.valor_centavos) + '` (Venceu em ' + ValidationService.formatDateBr(cv.data_lancamento) + ')');
+      }
+      lines.push('');
+    }
+
+    if (proximas7Dias.length > 0) {
+      lines.push('⏳ *PRÓXIMOS 7 DIAS (' + proximas7Dias.length + '):*');
+      var total7 = 0;
+      for (var p = 0; p < proximas7Dias.length; p++) {
+        var cp = proximas7Dias[p];
+        total7 += Number(cp.valor_centavos || 0);
+        lines.push('• *' + cp.descricao + '*: `' + ValidationService.formatCentavosToBrl(cp.valor_centavos) + '` (' + ValidationService.formatDateBr(cp.data_lancamento) + ')');
+      }
+      lines.push('👉 *Subtotal 7 dias:* `' + ValidationService.formatCentavosToBrl(total7) + '`');
+      lines.push('');
+    } else {
+      lines.push('✅ Nenhuma conta a vencer nos próximos 7 dias.');
+      lines.push('');
+    }
+
+    if (outras.length > 0) {
+      lines.push('📋 *Mais adiante no mês:* ' + outras.length + ' conta(s) prevista(s).');
+    }
+
+    return lines.join('\n');
+  }
+
+  function formatResumoResponse(user) {
+    var today = SpreadsheetRepository.todayIso();
+    var curMonth = today.substring(0, 7);
+    var dash = FinanceService.getDashboardData(user, curMonth);
+    var mesExtenso = formatMonthRef(curMonth);
+
+    var recConf = dash.confirmados.receitas_realizadas_mes_centavos;
+    var despConf = dash.confirmados.despesas_pagas_mes_centavos;
+    var resReal = dash.confirmados.resultado_mensal_realizado_centavos;
+    var despPrev = dash.previstos.despesas_previstas_mes_centavos + dash.pendentes.despesas_pendentes_mes_centavos;
+
+    var iconRes = resReal >= 0 ? '🟢' : '🔴';
+
+    var lines = [
+      '📊 *BALANÇO FINANCEIRO DE ' + mesExtenso.toUpperCase() + '*',
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━',
+      '🟢 *Receitas Realizadas:* `' + ValidationService.formatCentavosToBrl(recConf) + '`',
+      '🔴 *Despesas Pagas:* `' + ValidationService.formatCentavosToBrl(despConf) + '`',
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━',
+      iconRes + ' *Resultado Caixa (Realizado):* `' + ValidationService.formatCentavosToBrl(resReal) + '`',
+      '⏳ *Despesas Previstas/Pendentes:* `' + ValidationService.formatCentavosToBrl(despPrev) + '`',
+      '🔮 *Saldo Projetado no Fim do Mês:* `' + ValidationService.formatCentavosToBrl(dash.estimados.saldo_final_mes_projetado_centavos) + '`',
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━'
+    ];
+
+    if (dash.scoreSaude) {
+      lines.push('🎯 *Saúde Financeira:* Nota ' + dash.scoreSaude.nota + '/100 (' + dash.scoreSaude.faixa_rotulo + ')');
+    }
+
+    return lines.join('\n');
+  }
+
+  function formatMetasResponse(user) {
+    var goals = GoalService.listGoals(user);
+    var lines = [
+      '🎯 *METAS FINANCEIRAS & RESERVA*',
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━'
+    ];
+    if (!goals || goals.length === 0) {
+      lines.push('Nenhuma meta cadastrada no momento.');
+      lines.push('Crie metas pelo painel web para acompanhar o progresso aqui!');
+    } else {
+      for (var i = 0; i < goals.length; i++) {
+        var g = goals[i];
+        var pct = Math.round(Number(g.percentual_atingido || 0));
+        var barra = '';
+        var slots = Math.min(10, Math.floor(pct / 10));
+        for (var b = 0; b < slots; b++) barra += '🟩';
+        for (var e = slots; e < 10; e++) barra += '⬜';
+        lines.push('🎯 *' + g.nome + '*');
+        lines.push(barra + ' ' + pct + '%');
+        lines.push('   • Acumulado: `' + ValidationService.formatCentavosToBrl(g.valor_acumulado_centavos) + '` / `' + ValidationService.formatCentavosToBrl(g.valor_alvo_centavos) + '`');
+        if (g.data_limite) {
+          lines.push('   • Prazo: ' + ValidationService.formatDateBr(g.data_limite) + ' (' + (g.dias_restantes > 0 ? g.dias_restantes + ' dias restantes' : 'Concluído') + ')');
+        }
+        lines.push('');
+      }
+    }
+    return lines.join('\n');
+  }
+
+  function formatDividasResponse(user) {
+    var debts = DebtService.listDebts(user);
+    var loans = LoanService.listLoans(user);
+
+    var lines = [
+      '📉 *DÍVIDAS, ACORDOS & EMPRÉSTIMOS*',
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━'
+    ];
+
+    var totalDevedor = 0;
+
+    if (debts && debts.length > 0) {
+      lines.push('🏷️ *Dívidas e Renegociações:*');
+      for (var d = 0; d < debts.length; d++) {
+        var db = debts[d];
+        if (db.situacao !== 'QUITADA' && db.situacao !== 'CANCELADA') {
+          var saldoDev = Number(db.saldo_devedor_centavos || 0);
+          totalDevedor += saldoDev;
+          lines.push('• *' + db.descricao + '* (' + (db.credor || 'Credor') + ')');
+          lines.push('  Saldo Devedor: `' + ValidationService.formatCentavosToBrl(saldoDev) + '` (' + (db.parcelas_pagas || 0) + '/' + (db.parcelas_total || 0) + ' pagas)');
+        }
+      }
+      lines.push('');
+    }
+
+    if (loans && loans.length > 0) {
+      lines.push('🏦 *Empréstimos Ativos:*');
+      for (var l = 0; l < loans.length; l++) {
+        var ln = loans[l];
+        if (ln.situacao === 'ATIVO') {
+          var sDevLoan = Number(ln.saldo_devedor_centavos || 0);
+          totalDevedor += sDevLoan;
+          lines.push('• *' + ln.descricao + '* (' + (ln.instituicao || 'Banco') + ')');
+          lines.push('  Saldo Devedor: `' + ValidationService.formatCentavosToBrl(sDevLoan) + '` | Parcela: `' + ValidationService.formatCentavosToBrl(ln.valor_parcela_centavos) + '`');
+        }
+      }
+      lines.push('');
+    }
+
+    if (totalDevedor === 0) {
+      lines.push('🎉 *Parabéns! Não há dívidas ou empréstimos ativos pendentes.*');
+    } else {
+      lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      lines.push('⚠️ *Saldo Devedor Consolidado:* `' + ValidationService.formatCentavosToBrl(totalDevedor) + '`');
+    }
+
+    return lines.join('\n');
+  }
+
+  function formatInvestimentosResponse(user) {
+    var port = InvestmentService.getPortfolioSummary(user);
+    var lines = [
+      '📈 *PATRIMÔNIO & INVESTIMENTOS*',
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━'
+    ];
+
+    if (!port || !port.posicoes || port.posicoes.length === 0) {
+      lines.push('Nenhum ativo ou investimento cadastrado.');
+      lines.push('Cadastre seus ativos pelo painel web no módulo Investimentos!');
+    } else {
+      var totalAtual = Number(port.total_mercado_centavos || port.total_aplicado_centavos || 0);
+      var totalAplicado = Number(port.total_aplicado_centavos || 0);
+      var rentCent = totalAtual - totalAplicado;
+      var rentPct = totalAplicado > 0 ? ((rentCent / totalAplicado) * 100).toFixed(2) : '0.00';
+      var rentIcon = rentCent >= 0 ? '🟢 +' : '🔴 ';
+
+      lines.push('💰 *Patrimônio Total:* `' + ValidationService.formatCentavosToBrl(totalAtual) + '`');
+      lines.push('📥 *Total Aplicado:* `' + ValidationService.formatCentavosToBrl(totalAplicado) + '`');
+      lines.push('📊 *Rentabilidade Histórica:* ' + rentIcon + rentPct + '% (`' + ValidationService.formatCentavosToBrl(rentCent) + '`)');
+      lines.push('');
+      lines.push('🏆 *Principais Posições:*');
+      for (var i = 0; i < Math.min(port.posicoes.length, 5); i++) {
+        var pos = port.posicoes[i];
+        lines.push('• *' + pos.codigo + '* (' + (pos.classe || 'Ativo') + '): `' + ValidationService.formatCentavosToBrl(pos.valor_mercado_centavos || pos.valor_total_aplicado_centavos) + '`');
+      }
+    }
+
+    return lines.join('\n');
+  }
+
+  function formatExtratoResponse(user) {
+    var today = SpreadsheetRepository.todayIso();
+    var curMonth = today.substring(0, 7);
+    var launches = FinanceService.listLaunches(user, { pageSize: 6, mesCompetencia: curMonth });
+    var items = (launches && launches.items) ? launches.items : [];
+
+    var lines = [
+      '📋 *ÚLTIMOS LANÇAMENTOS DO MÊS*',
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━'
+    ];
+
+    if (items.length === 0) {
+      lines.push('Nenhum lançamento registrado neste mês.');
+    } else {
+      for (var i = 0; i < items.length; i++) {
+        var it = items[i];
+        var icon = it.tipo === 'ENTRADA' ? '🟢 +' : '🔴 -';
+        var sit = (it.situacao === 'PREVISTO' || it.situacao === 'PENDENTE') ? '⏳' : '✅';
+        lines.push(icon + ' `' + ValidationService.formatCentavosToBrl(it.valor_centavos) + '` ' + sit + ' *' + it.descricao + '*');
+        lines.push('   ' + ValidationService.formatDateBr(it.data_lancamento) + ' • ' + (it.categoria_nome || 'Geral') + ' • ' + (it.conta_bancaria_nome || 'Banco'));
+      }
+    }
+
+    return lines.join('\n');
+  }
+
+  function formatOraculoResponse(user, queryText) {
+    var prompt = queryText ? String(queryText).replace(/^\/oraculo\s*/i, '').trim() : '';
+    if (!prompt) {
+      prompt = 'Faça um resumo executivo da minha situação financeira este mês, apontando saúde, saldo e onde posso economizar.';
+    }
+    var today = SpreadsheetRepository.todayIso();
+    var curMonth = today.substring(0, 7);
+    var oracleRes = GeminiService.askOracle(user, prompt, curMonth);
+    var resposta = oracleRes && oracleRes.resposta ? oracleRes.resposta : 'Não foi possível obter resposta do Oráculo.';
+
+    var lines = [
+      '🔮 *ORÁCULO FINANCEIRO IA*',
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━',
+      '💬 *Consulta:* _"' + prompt + '"_',
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━',
+      resposta
+    ];
+
+    return lines.join('\n');
   }
 
   function extractLinkingToken(input) {
@@ -236,22 +624,104 @@ var TelegramWebhookService = (function () {
     }
 
     if (cmd === '/ajuda') {
+      var ajudaLines = [
+        '✨ *CENTRAL DE AJUDA — FINANÇAS INTELIGENTES*',
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━',
+        'Seu assistente financeiro pessoal integrado a todos os módulos do sistema.',
+        '',
+        '📱 *Comandos de Consulta:*',
+        '• /menu - Painel com botões interativos',
+        '• /saldo - Saldos consolidados e por conta bancária',
+        '• /faturas - Faturas de cartões, limites e melhor dia de compra',
+        '• /contas - Contas a vencer nos próximos 7 dias e vencidas',
+        '• /resumo - Balanço de receitas vs. despesas pagas do mês',
+        '• /metas - Progresso de metas e reserva de emergência',
+        '• /dividas - Resumo de dívidas, acordos e empréstimos',
+        '• /investimentos - Patrimônio investido e rentabilidade',
+        '• /extrato - Últimos lançamentos registrados no mês',
+        '• /oraculo [pergunta] - Consultoria e diagnóstico financeiro IA',
+        '• /status - Situação do vínculo e usuário conectado',
+        '• /cancelar - Cancelar proposta de lançamento pendente',
+        '• /desvincular - Revogar conexão deste Telegram',
+        '',
+        '✍️ *Como Lançar Despesas e Entradas:*',
+        'Envie uma mensagem em linguagem natural:',
+        '• _"Almoço 38,50 no débito"_',
+        '• _"Mercado 154,20 no Pix Santander"_',
+        '• _"Recebi 3500 de salário no Itaú"_',
+        '• _"Conta de luz 180 vencendo dia 25"_',
+        '',
+        '🎙️ *Mensagens de Áudio:*',
+        'Envie um áudio como _"Gastei 45 reais na farmácia no Pix"_ e a IA transcreve e categoriza.',
+        '',
+        '📸 *Foto de Cupom ou Comprovante:*',
+        'Envie a foto de um cupom fiscal ou nota para leitura óptica com OCR inteligente.',
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━'
+      ];
       return sendTelegramReply(
         telegramChatId,
-        'Exemplos aceitos (apenas Entradas e Saídas):\n' +
-        '• "Recebi R$ 3.500 de salário"\n' +
-        '• "Gastei R$ 42,90 no supermercado hoje"\n' +
-        '• "Paguei R$ 120 de água"\n' +
-        '• Áudio: "Hoje eu gastei quarenta e cinco reais e cinquenta centavos na farmácia, no Pix"\n\n' +
-        'Nota: Contas recorrentes, contas bancárias, dívidas, empréstimos e investimentos são gerenciados exclusivamente pelo sistema web.',
-        null,
+        ajudaLines.join('\n'),
+        { inline_keyboard: [[{ text: '« Abrir Menu Principal', callback_data: 'MENU_MAIN' }]] },
         options
       );
     }
 
     // Comandos que exigem usuário já autenticado e vinculado
-    var authInfo = TelegramAuthService.getAuthorizedUserByTelegramId(telegramUserId);
+    var authInfo = null;
+    try {
+      authInfo = TelegramAuthService.getAuthorizedUserByTelegramId(telegramUserId);
+    } catch (eAuth) {
+      return sendTelegramReply(
+        telegramChatId,
+        '⚠️ Seu Telegram ainda não está vinculado ao Finanças Inteligentes.\n\n' +
+        'Acesse o sistema web, gere seu código temporário e envie aqui (exemplo: /start FIN-XXXXXX).',
+        null,
+        options
+      );
+    }
     var user = authInfo.usuario;
+
+    if (cmd === '/menu') {
+      return sendTelegramReply(telegramChatId, formatMainMenu(user), buildMainMenuKeyboard(), options);
+    }
+
+    if (cmd === '/saldo') {
+      return sendTelegramReply(telegramChatId, formatSaldosResponse(user), { inline_keyboard: [[{ text: '« Menu Principal', callback_data: 'MENU_MAIN' }]] }, options);
+    }
+
+    if (cmd === '/faturas' || cmd === '/cartoes' || cmd === '/cartao') {
+      return sendTelegramReply(telegramChatId, formatFaturasResponse(user), { inline_keyboard: [[{ text: '« Menu Principal', callback_data: 'MENU_MAIN' }]] }, options);
+    }
+
+    if (cmd === '/contas' || cmd === '/vencimentos') {
+      return sendTelegramReply(telegramChatId, formatContasResponse(user), { inline_keyboard: [[{ text: '« Menu Principal', callback_data: 'MENU_MAIN' }]] }, options);
+    }
+
+    if (cmd === '/resumo' || cmd === '/mes') {
+      return sendTelegramReply(telegramChatId, formatResumoResponse(user), { inline_keyboard: [[{ text: '« Menu Principal', callback_data: 'MENU_MAIN' }]] }, options);
+    }
+
+    if (cmd === '/metas' || cmd === '/reserva') {
+      return sendTelegramReply(telegramChatId, formatMetasResponse(user), { inline_keyboard: [[{ text: '« Menu Principal', callback_data: 'MENU_MAIN' }]] }, options);
+    }
+
+    if (cmd === '/dividas' || cmd === '/emprestimos') {
+      return sendTelegramReply(telegramChatId, formatDividasResponse(user), { inline_keyboard: [[{ text: '« Menu Principal', callback_data: 'MENU_MAIN' }]] }, options);
+    }
+
+    if (cmd === '/investimentos' || cmd === '/carteira') {
+      return sendTelegramReply(telegramChatId, formatInvestimentosResponse(user), { inline_keyboard: [[{ text: '« Menu Principal', callback_data: 'MENU_MAIN' }]] }, options);
+    }
+
+    if (cmd === '/extrato' || cmd === '/lancamentos') {
+      return sendTelegramReply(telegramChatId, formatExtratoResponse(user), { inline_keyboard: [[{ text: '« Menu Principal', callback_data: 'MENU_MAIN' }]] }, options);
+    }
+
+    if (cmd === '/oraculo') {
+      sendChatAction(telegramChatId, 'typing', options);
+      var queryPrompt = trimmed.replace(/^\/oraculo(@\w+)?\s*/i, '').trim();
+      return sendTelegramReply(telegramChatId, formatOraculoResponse(user, queryPrompt), { inline_keyboard: [[{ text: '« Menu Principal', callback_data: 'MENU_MAIN' }]] }, options);
+    }
 
     if (cmd === '/desvincular') {
       TelegramAuthService.revokeTelegramLink(user);
@@ -430,22 +900,44 @@ var TelegramWebhookService = (function () {
         answerCallbackQuery(queryId, 'Confirmando lançamento...', false, options);
       }
       var confirmed = TelegramLaunchService.confirmProposal(user, procId, extraParam);
-      var isPrevisto = (confirmed.lancamento.situacao === 'PREVISTO' || confirmed.lancamento.situacao === 'PENDENTE');
-      var statusHeader = isPrevisto
-        ? '⏳ Conta a vencer registrada com sucesso!\n'
-        : '✅ Lançamento confirmado e gravado com sucesso!\n';
+      var l = confirmed.lancamento;
+      var isPrevisto = (l.situacao === 'PREVISTO' || l.situacao === 'PENDENTE');
+      var tipoIcon = l.tipo === 'ENTRADA' ? '🟢 Receita' : '🔴 Despesa';
+      var sitLabel = isPrevisto ? '⏳ Previsto (A vencer)' : '✅ Confirmado (Baixa no saldo)';
+      var accName = '';
+      try {
+        var acc = SpreadsheetRepository.findById('CONTAS_BANCARIAS', l.conta_bancaria_id, user.grupo_id);
+        if (acc) accName = acc.nome_identificacao;
+      } catch (eAcc) {}
+
+      var receiptText = [
+        '🧾 *COMPROVANTE DE LANÇAMENTO*',
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━',
+        '✅ *Lançamento Registrado com Sucesso!*',
+        '• *ID:* `' + l.id + '`',
+        '• *Descrição:* ' + (l.descricao || 'Sem descrição'),
+        '• *Valor:* ' + ValidationService.formatCentavosToBrl(l.valor_centavos) + '.',
+        '• *Classificação:* ' + tipoIcon,
+        '• *Data:* ' + ValidationService.formatDateBr(l.data_lancamento),
+        '• *Conta:* ' + (accName || 'Padrão do Sistema'),
+        '• *Situação:* ' + sitLabel,
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━',
+        '✨ _Saldo bancário e relatórios atualizados automaticamente._'
+      ].join('\n');
+
+      var respConfirm = null;
+      if (messageId && chatId) {
+        respConfirm = editTelegramMessage(chatId, messageId, receiptText, null, options);
+      }
+      if (!respConfirm) {
+        respConfirm = sendTelegramReply(chatId, receiptText, null, options);
+      }
+
       return {
         status: 'CONFIRMADO',
         idempotente_ja_confirmado: confirmed.idempotente_ja_confirmado,
         lancamento: confirmed.lancamento,
-        resposta_bot: sendTelegramReply(
-          chatId,
-          statusHeader +
-          'ID: ' + confirmed.lancamento.id + '\n' +
-          'Valor: ' + ValidationService.formatCentavosToBrl(confirmed.lancamento.valor_centavos),
-          null,
-          options
-        )
+        resposta_bot: respConfirm
       };
     }
 
@@ -454,11 +946,138 @@ var TelegramWebhookService = (function () {
         answerCallbackQuery(queryId, 'Proposta cancelada.', false, options);
       }
       var canceled = TelegramLaunchService.cancelProposal(user, procId);
+      var cancelText = '❌ *LANÇAMENTO CANCELADO*\n━━━━━━━━━━━━━━━━━━━━━━━━━━\nEsta proposta de lançamento foi descartada e nenhum dado foi gravado na planilha.';
+      var respCancel = null;
+      if (messageId && chatId) {
+        respCancel = editTelegramMessage(chatId, messageId, cancelText, null, options);
+      }
+      if (!respCancel) {
+        respCancel = sendTelegramReply(chatId, cancelText, null, options);
+      }
       return {
         status: 'CANCELADO',
         processamento: canceled,
-        resposta_bot: sendTelegramReply(chatId, '❌ Proposta de lançamento cancelada. Nenhum dado foi gravado.', null, options)
+        resposta_bot: respCancel
       };
+    }
+
+    if (action === 'MENU_MAIN') {
+      if (queryId) answerCallbackQuery(queryId, 'Menu principal', false, options);
+      var mText = formatMainMenu(user);
+      var mKb = buildMainMenuKeyboard();
+      var respM = (messageId && chatId)
+        ? editTelegramMessage(chatId, messageId, mText, mKb, options)
+        : sendTelegramReply(chatId, mText, mKb, options);
+      return { status: 'MENU_EXIBIDO', resposta_bot: respM };
+    }
+
+    if (action === 'MENU_SALDO') {
+      if (queryId) answerCallbackQuery(queryId, 'Carregando saldos...', false, options);
+      var sText = formatSaldosResponse(user);
+      var backKbS = { inline_keyboard: [[{ text: '« Voltar ao Menu Principal', callback_data: 'MENU_MAIN' }]] };
+      var respS = (messageId && chatId)
+        ? editTelegramMessage(chatId, messageId, sText, backKbS, options)
+        : sendTelegramReply(chatId, sText, backKbS, options);
+      return { status: 'CONSULTA_PROCESSADA', tipo_consulta: 'SALDO', resposta_bot: respS };
+    }
+
+    if (action === 'MENU_FATURAS') {
+      if (queryId) answerCallbackQuery(queryId, 'Carregando cartões...', false, options);
+      var fText = formatFaturasResponse(user);
+      var backKbF = { inline_keyboard: [[{ text: '« Voltar ao Menu Principal', callback_data: 'MENU_MAIN' }]] };
+      var respF = (messageId && chatId)
+        ? editTelegramMessage(chatId, messageId, fText, backKbF, options)
+        : sendTelegramReply(chatId, fText, backKbF, options);
+      return { status: 'CONSULTA_PROCESSADA', tipo_consulta: 'FATURAS', resposta_bot: respF };
+    }
+
+    if (action === 'MENU_CONTAS') {
+      if (queryId) answerCallbackQuery(queryId, 'Carregando contas...', false, options);
+      var cText = formatContasResponse(user);
+      var backKbC = { inline_keyboard: [[{ text: '« Voltar ao Menu Principal', callback_data: 'MENU_MAIN' }]] };
+      var respC = (messageId && chatId)
+        ? editTelegramMessage(chatId, messageId, cText, backKbC, options)
+        : sendTelegramReply(chatId, cText, backKbC, options);
+      return { status: 'CONSULTA_PROCESSADA', tipo_consulta: 'CONTAS', resposta_bot: respC };
+    }
+
+    if (action === 'MENU_RESUMO') {
+      if (queryId) answerCallbackQuery(queryId, 'Carregando balanço...', false, options);
+      var rText = formatResumoResponse(user);
+      var backKbR = { inline_keyboard: [[{ text: '« Voltar ao Menu Principal', callback_data: 'MENU_MAIN' }]] };
+      var respR = (messageId && chatId)
+        ? editTelegramMessage(chatId, messageId, rText, backKbR, options)
+        : sendTelegramReply(chatId, rText, backKbR, options);
+      return { status: 'CONSULTA_PROCESSADA', tipo_consulta: 'RESUMO', resposta_bot: respR };
+    }
+
+    if (action === 'MENU_METAS') {
+      if (queryId) answerCallbackQuery(queryId, 'Carregando metas...', false, options);
+      var gText = formatMetasResponse(user);
+      var backKbG = { inline_keyboard: [[{ text: '« Voltar ao Menu Principal', callback_data: 'MENU_MAIN' }]] };
+      var respG = (messageId && chatId)
+        ? editTelegramMessage(chatId, messageId, gText, backKbG, options)
+        : sendTelegramReply(chatId, gText, backKbG, options);
+      return { status: 'CONSULTA_PROCESSADA', tipo_consulta: 'METAS', resposta_bot: respG };
+    }
+
+    if (action === 'MENU_DIVIDAS') {
+      if (queryId) answerCallbackQuery(queryId, 'Carregando dívidas...', false, options);
+      var dText = formatDividasResponse(user);
+      var backKbD = { inline_keyboard: [[{ text: '« Voltar ao Menu Principal', callback_data: 'MENU_MAIN' }]] };
+      var respD = (messageId && chatId)
+        ? editTelegramMessage(chatId, messageId, dText, backKbD, options)
+        : sendTelegramReply(chatId, dText, backKbD, options);
+      return { status: 'CONSULTA_PROCESSADA', tipo_consulta: 'DIVIDAS', resposta_bot: respD };
+    }
+
+    if (action === 'MENU_INVEST') {
+      if (queryId) answerCallbackQuery(queryId, 'Carregando investimentos...', false, options);
+      var iText = formatInvestimentosResponse(user);
+      var backKbI = { inline_keyboard: [[{ text: '« Voltar ao Menu Principal', callback_data: 'MENU_MAIN' }]] };
+      var respI = (messageId && chatId)
+        ? editTelegramMessage(chatId, messageId, iText, backKbI, options)
+        : sendTelegramReply(chatId, iText, backKbI, options);
+      return { status: 'CONSULTA_PROCESSADA', tipo_consulta: 'INVESTIMENTOS', resposta_bot: respI };
+    }
+
+    if (action === 'MENU_EXTRATO') {
+      if (queryId) answerCallbackQuery(queryId, 'Carregando extrato...', false, options);
+      var eText = formatExtratoResponse(user);
+      var backKbE = { inline_keyboard: [[{ text: '« Voltar ao Menu Principal', callback_data: 'MENU_MAIN' }]] };
+      var respE = (messageId && chatId)
+        ? editTelegramMessage(chatId, messageId, eText, backKbE, options)
+        : sendTelegramReply(chatId, eText, backKbE, options);
+      return { status: 'CONSULTA_PROCESSADA', tipo_consulta: 'EXTRATO', resposta_bot: respE };
+    }
+
+    if (action === 'MENU_ORACULO') {
+      if (queryId) answerCallbackQuery(queryId, 'Consultando Oráculo IA...', false, options);
+      var oText = formatOraculoResponse(user);
+      var backKbO = { inline_keyboard: [[{ text: '« Voltar ao Menu Principal', callback_data: 'MENU_MAIN' }]] };
+      var respO = (messageId && chatId)
+        ? editTelegramMessage(chatId, messageId, oText, backKbO, options)
+        : sendTelegramReply(chatId, oText, backKbO, options);
+      return { status: 'CONSULTA_PROCESSADA', tipo_consulta: 'ORACULO', resposta_bot: respO };
+    }
+
+    if (action === 'MENU_AJUDA') {
+      if (queryId) answerCallbackQuery(queryId, 'Central de ajuda', false, options);
+      var hText = [
+        '✨ *CENTRAL DE AJUDA — FINANÇAS INTELIGENTES*',
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━',
+        '💡 *Dicas de Uso:*',
+        '• Envie mensagens rápidas para registrar despesas: _"Farmácia 45 no Pix"_',
+        '• Envie áudios para registrar lançamentos falados.',
+        '• Tire fotos de comprovantes fiscais ou recibos.',
+        '• Use os botões do menu ou comandos como /saldo, /faturas, /contas, /resumo, /metas, /oraculo.',
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━'
+      ].join('\n');
+      var backKbH = { inline_keyboard: [[{ text: '« Voltar ao Menu Principal', callback_data: 'MENU_MAIN' }]] };
+      var respH = (messageId && chatId)
+        ? editTelegramMessage(chatId, messageId, hText, backKbH, options)
+        : sendTelegramReply(chatId, hText, backKbH, options);
+      return { status: 'AJUDA_EXIBIDA', resposta_bot: respH };
     }
 
     if (action === 'SETACC') {
@@ -706,6 +1325,90 @@ var TelegramWebhookService = (function () {
 
     // 5. Processa mensagem de texto em linguagem natural
     if (msg.text) {
+      var lower = String(msg.text).toLowerCase().trim();
+      var backKb = { inline_keyboard: [[{ text: '« Menu Principal', callback_data: 'MENU_MAIN' }]] };
+
+      // Identifica consultas conversacionais (evita tentar criar lançamentos para dúvidas de saldo, faturas, etc.)
+      if (/^(qual|ver|consultar|meu)?\s*sald(o|os)\??$/i.test(lower) || lower === 'quanto tenho' || lower === 'saldo' || /^qual\s+(é\s+|e\s+)?o\s+meu\s+saldo\??$/i.test(lower)) {
+        return {
+          status: 'CONSULTA_PROCESSADA',
+          tipo_consulta: 'SALDO',
+          resposta_bot: sendTelegramReply(telegramChatId, formatSaldosResponse(user), backKb, opts)
+        };
+      }
+
+      if (/^(minhas?\s+)?faturas?\??$/i.test(lower) || /^(meus?\s+)?cart(o|õ)es\??$/i.test(lower) || /^(qual|ver|consultar)?\s*fatura\??$/i.test(lower) || /^limite\s+(do\s+)?cart(a|ã)o\??$/i.test(lower) || /^melhor\s+dia(\s+de\s+compra)?\??$/i.test(lower)) {
+        return {
+          status: 'CONSULTA_PROCESSADA',
+          tipo_consulta: 'FATURAS',
+          resposta_bot: sendTelegramReply(telegramChatId, formatFaturasResponse(user), backKb, opts)
+        };
+      }
+
+      if (/^contas?\s*(a\s*vencer|vencid|para\s*pagar|d(a|e)\s*semana)\??$/i.test(lower) || /^pr(o|ó)ximas?\s*contas?\??$/i.test(lower) || lower === 'contas' || lower === 'contas?' || /^o\s+que\s+tenho\s+(a|para)\s+pagar\??$/i.test(lower)) {
+        return {
+          status: 'CONSULTA_PROCESSADA',
+          tipo_consulta: 'CONTAS',
+          resposta_bot: sendTelegramReply(telegramChatId, formatContasResponse(user), backKb, opts)
+        };
+      }
+
+      if (/^quanto\s*(eu\s*)?gastei(\s+este\s+m(e|ê)s)?\??$/i.test(lower) || /^balan(c|ç)o(\s+do\s+m(e|ê)s)?\??$/i.test(lower) || /^resumo(\s+do\s+m(e|ê)s)?\??$/i.test(lower)) {
+        return {
+          status: 'CONSULTA_PROCESSADA',
+          tipo_consulta: 'RESUMO',
+          resposta_bot: sendTelegramReply(telegramChatId, formatResumoResponse(user), backKb, opts)
+        };
+      }
+
+      if (/^(minhas?\s+)?metas?\??$/i.test(lower) || /^(minha\s+)?reserva(\s+de\s+emerg(e|ê)ncia)?\??$/i.test(lower)) {
+        return {
+          status: 'CONSULTA_PROCESSADA',
+          tipo_consulta: 'METAS',
+          resposta_bot: sendTelegramReply(telegramChatId, formatMetasResponse(user), backKb, opts)
+        };
+      }
+
+      if (/^consultar\s*d(i|í)vida|^(minhas?\s+)?d(i|í)vidas?\??$/i.test(lower) || /^(meus?\s+)?empr(e|é)stimos?\??$/i.test(lower)) {
+        return {
+          status: 'CONSULTA_PROCESSADA',
+          tipo_consulta: 'DIVIDAS',
+          resposta_bot: sendTelegramReply(telegramChatId, formatDividasResponse(user), backKb, opts)
+        };
+      }
+
+      if (/^consultar\s*investimento|^(meus?\s+)?investimentos?\??$/i.test(lower) || /^(minha\s+)?carteira\??$/i.test(lower)) {
+        return {
+          status: 'CONSULTA_PROCESSADA',
+          tipo_consulta: 'INVESTIMENTOS',
+          resposta_bot: sendTelegramReply(telegramChatId, formatInvestimentosResponse(user), backKb, opts)
+        };
+      }
+
+      if (/^extrato\??$/i.test(lower) || /^(u|ú)ltimos?\s*lan(c|ç)amentos?\??$/i.test(lower)) {
+        return {
+          status: 'CONSULTA_PROCESSADA',
+          tipo_consulta: 'EXTRATO',
+          resposta_bot: sendTelegramReply(telegramChatId, formatExtratoResponse(user), backKb, opts)
+        };
+      }
+
+      if (/^menu$/i.test(lower) || /^painel$/i.test(lower) || /^iniciar$/i.test(lower)) {
+        return {
+          status: 'MENU_EXIBIDO',
+          resposta_bot: sendTelegramReply(telegramChatId, formatMainMenu(user), buildMainMenuKeyboard(), opts)
+        };
+      }
+
+      if (/^or(a|á)culo/i.test(lower) || /^posso\s*(comprar|gastar)/i.test(lower) || /^como\s*est(a|ã)o\s*minhas\s*finan(c|ç)as\??$/i.test(lower)) {
+        sendChatAction(telegramChatId, 'typing', opts);
+        return {
+          status: 'CONSULTA_PROCESSADA',
+          tipo_consulta: 'ORACULO',
+          resposta_bot: sendTelegramReply(telegramChatId, formatOraculoResponse(user, msg.text), backKb, opts)
+        };
+      }
+
       try {
         var extracted = TelegramParserService.parseNaturalLanguageLaunch(user, msg.text, {
           referenceDateIso: opts.referenceDateIso
@@ -730,6 +1433,111 @@ var TelegramWebhookService = (function () {
         };
       } catch (textErr) {
         var tMsg = textErr && textErr.message ? textErr.message : String(textErr);
+        var errCode = textErr.code || 'PARSE_ERROR';
+
+        // Mantém bloqueio estrito de segurança quando o usuário tenta criar entidades proibidas via Telegram
+        if (errCode === 'FORBIDDEN_SCOPE') {
+          AuditService.log({
+            grupo_id: user.grupo_id,
+            usuario_id: user.id,
+            acao: 'TELEGRAM_MENSAGEM_RECUSADA',
+            entidade: 'TELEGRAM_PROCESSAMENTOS',
+            entidade_id: String(updateId),
+            origem: 'TELEGRAM',
+            detalhes: { motivo: tMsg, codigo: errCode }
+          });
+          return {
+            status: 'RECUSADO',
+            codigo: errCode,
+            erro: tMsg,
+            resposta_bot: sendTelegramReply(telegramChatId, '🚫 ' + tMsg, null, opts)
+          };
+        }
+
+        // Reconhecimento de consultas em linguagem natural (perguntas e comandos falados)
+        var lower = msg.text.toLowerCase().trim();
+        var backKb = { inline_keyboard: [[{ text: '« Menu Principal', callback_data: 'MENU_MAIN' }]] };
+
+        if (/^(qual|ver|consultar|meu)?\s*sald(o|os)/i.test(lower) || lower === 'quanto tenho' || lower === 'saldo') {
+          return {
+            status: 'CONSULTA_PROCESSADA',
+            tipo_consulta: 'SALDO',
+            resposta_bot: sendTelegramReply(telegramChatId, formatSaldosResponse(user), backKb, opts)
+          };
+        }
+
+        if (/fatura|cart(a|ã)o|limite|melhor dia/i.test(lower)) {
+          return {
+            status: 'CONSULTA_PROCESSADA',
+            tipo_consulta: 'FATURAS',
+            resposta_bot: sendTelegramReply(telegramChatId, formatFaturasResponse(user), backKb, opts)
+          };
+        }
+
+        if (/conta(s)?\s*(a\s*vencer|vencid|para\s*pagar|d(a|e)\s*semana)/i.test(lower) || /pr(o|ó)ximas?\s*contas?/i.test(lower) || lower === 'contas') {
+          return {
+            status: 'CONSULTA_PROCESSADA',
+            tipo_consulta: 'CONTAS',
+            resposta_bot: sendTelegramReply(telegramChatId, formatContasResponse(user), backKb, opts)
+          };
+        }
+
+        if (/quanto\s*(eu\s*)?gastei|balan(c|ç)o|resumo(\s*do\s*m(e|ê)s)?/i.test(lower)) {
+          return {
+            status: 'CONSULTA_PROCESSADA',
+            tipo_consulta: 'RESUMO',
+            resposta_bot: sendTelegramReply(telegramChatId, formatResumoResponse(user), backKb, opts)
+          };
+        }
+
+        if (/meta(s)?|reserva/i.test(lower)) {
+          return {
+            status: 'CONSULTA_PROCESSADA',
+            tipo_consulta: 'METAS',
+            resposta_bot: sendTelegramReply(telegramChatId, formatMetasResponse(user), backKb, opts)
+          };
+        }
+
+        if (/consultar\s*d(i|í)vida|minhas\s*d(i|í)vidas|meus\s*empr(e|é)stimos/i.test(lower)) {
+          return {
+            status: 'CONSULTA_PROCESSADA',
+            tipo_consulta: 'DIVIDAS',
+            resposta_bot: sendTelegramReply(telegramChatId, formatDividasResponse(user), backKb, opts)
+          };
+        }
+
+        if (/consultar\s*investimento|meus\s*investimentos|minha\s*carteira/i.test(lower)) {
+          return {
+            status: 'CONSULTA_PROCESSADA',
+            tipo_consulta: 'INVESTIMENTOS',
+            resposta_bot: sendTelegramReply(telegramChatId, formatInvestimentosResponse(user), backKb, opts)
+          };
+        }
+
+        if (/extrato|(u|ú)ltimos?\s*lan(c|ç)amento(s)?/i.test(lower)) {
+          return {
+            status: 'CONSULTA_PROCESSADA',
+            tipo_consulta: 'EXTRATO',
+            resposta_bot: sendTelegramReply(telegramChatId, formatExtratoResponse(user), backKb, opts)
+          };
+        }
+
+        if (/^menu$/i.test(lower) || /^iniciar$/i.test(lower) || /^painel$/i.test(lower)) {
+          return {
+            status: 'MENU_EXIBIDO',
+            resposta_bot: sendTelegramReply(telegramChatId, formatMainMenu(user), buildMainMenuKeyboard(), opts)
+          };
+        }
+
+        if (/^or(a|á)culo/i.test(lower) || /posso\s*(comprar|gastar)/i.test(lower) || /como\s*est(a|ã)o\s*minhas\s*finan(c|ç)as/i.test(lower)) {
+          sendChatAction(telegramChatId, 'typing', opts);
+          return {
+            status: 'CONSULTA_PROCESSADA',
+            tipo_consulta: 'ORACULO',
+            resposta_bot: sendTelegramReply(telegramChatId, formatOraculoResponse(user, msg.text), backKb, opts)
+          };
+        }
+
         AuditService.log({
           grupo_id: user.grupo_id,
           usuario_id: user.id,
@@ -737,13 +1545,13 @@ var TelegramWebhookService = (function () {
           entidade: 'TELEGRAM_PROCESSAMENTOS',
           entidade_id: String(updateId),
           origem: 'TELEGRAM',
-          detalhes: { motivo: tMsg, codigo: textErr.code || 'PARSE_ERROR' }
+          detalhes: { motivo: tMsg, codigo: errCode }
         });
         return {
           status: 'RECUSADO',
-          codigo: textErr.code || 'PARSE_ERROR',
+          codigo: errCode,
           erro: tMsg,
-          resposta_bot: sendTelegramReply(telegramChatId, '🚫 ' + tMsg, null, opts)
+          resposta_bot: sendTelegramReply(telegramChatId, '🚫 ' + tMsg + '\n\n💡 _Dica: Digite /menu para acessar o painel de consultas ou /ajuda para ver exemplos._', null, opts)
         };
       }
     }
@@ -756,7 +1564,20 @@ var TelegramWebhookService = (function () {
 
   return {
     handleWebhookUpdate: handleWebhookUpdate,
+    handleCommand: handleCommand,
+    handleCallbackQuery: handleCallbackQuery,
     buildInlineKeyboardForProposal: buildInlineKeyboardForProposal,
+    buildMainMenuKeyboard: buildMainMenuKeyboard,
+    formatMainMenu: formatMainMenu,
+    formatSaldosResponse: formatSaldosResponse,
+    formatFaturasResponse: formatFaturasResponse,
+    formatContasResponse: formatContasResponse,
+    formatResumoResponse: formatResumoResponse,
+    formatMetasResponse: formatMetasResponse,
+    formatDividasResponse: formatDividasResponse,
+    formatInvestimentosResponse: formatInvestimentosResponse,
+    formatExtratoResponse: formatExtratoResponse,
+    formatOraculoResponse: formatOraculoResponse,
     notifyChat: function (chatId, text) {
       return sendTelegramReply(chatId, text, null, { sendRealTelegramMessages: true });
     }
