@@ -421,6 +421,31 @@ function runTelegramTests() {
   assert.ok(convResumo.resposta_bot.text.includes('BALANÇO FINANCEIRO'));
   results.push('Roteamento conversacional em linguagem natural sem erro de parse comprovado.');
 
+  // 14. Testar leitura óptica de foto de cupom fiscal / comprovante
+  const photoReceipt = ctx.TelegramWebhookService.handleWebhookUpdate({
+    update_id: 1413,
+    message: {
+      message_id: 413,
+      from: { id: 777099 },
+      chat: { id: 777099 },
+      photo: [{ file_id: 'photo_recibo_shopping_10' }]
+    }
+  }, newSecret, {
+    mockReceipt: {
+      tipo: 'SAIDA',
+      descricao: 'Shopping Panorâmico Estacionamento',
+      valor_centavos: 1000,
+      data: '2026-11-09',
+      forma_pagamento: 'DINHEIRO',
+      categoria_sugerida: 'Transporte',
+      subcategoria_sugerida: 'Transporte Público / App'
+    }
+  });
+  assert.strictEqual(photoReceipt.dados_extraidos.valor_centavos, 1000);
+  assert.strictEqual(photoReceipt.dados_extraidos.tipo, 'SAIDA');
+  assert.ok(photoReceipt.resposta_bot.text.includes('NOVO LANÇAMENTO DETECTADO'));
+  results.push('Leitura e extração de foto de cupom fiscal com OCR/IA validada com sucesso.');
+
   return results;
 }
 

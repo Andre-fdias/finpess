@@ -1241,6 +1241,7 @@ var TelegramWebhookService = (function () {
 
     // 4. Processa foto de cupom fiscal / recibo / comprovante
     if ((msg.photo && msg.photo.length > 0) || (msg.document && msg.document.mime_type && msg.document.mime_type.indexOf('image/') === 0)) {
+      sendChatAction(telegramChatId, 'typing', opts);
       try {
         var photoMeta = (msg.photo && msg.photo.length > 0)
           ? msg.photo[msg.photo.length - 1]

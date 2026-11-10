@@ -502,6 +502,12 @@ var TelegramParserService = (function () {
     detectForbiddenScope: detectForbiddenScope,
     parsePortugueseWordsChunk: parsePortugueseWordsChunk,
     extractAmountInCentavos: extractAmountInCentavos,
+    detectLaunchType: detectLaunchType,
+    detectPaymentMethod: detectPaymentMethod,
+    extractDateIso: extractDateIso,
+    detectLaunchStatus: detectLaunchStatus,
+    suggestCategoryAndDescription: suggestCategoryAndDescription,
+    matchBankAccount: matchBankAccount,
     parseNaturalLanguageLaunch: parseNaturalLanguageLaunch
   };
 })();
