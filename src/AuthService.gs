@@ -658,7 +658,7 @@ var AuthService = (function () {
    * Valida que o usuário pertence ao grupo financeiro do recurso solicitado.
    */
   function assertGroupAccess(user, resourceGrupoId) {
-    if (!user || user.status !== 'APROVADO') {
+    if (!user || (user.status !== 'APROVADO' && user.status !== 'ATIVO')) {
       throw new Error('ACCESS_DENIED: Usuário não autorizado.');
     }
     if (!resourceGrupoId || user.grupo_id !== resourceGrupoId) {

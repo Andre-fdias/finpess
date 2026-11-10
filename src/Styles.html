@@ -4382,12 +4382,103 @@
     letter-spacing: 0.2px;
   }
 
-  /* Subabas de Configurações */
+  /* Subabas de Configurações - Grid Executivo e Perfeita Distribuição */
+  .settings-subtabs-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+    background: var(--bg-surface);
+    padding: 0.65rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+  }
+  @media (max-width: 1200px) {
+    .settings-subtabs-grid {
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    }
+  }
+  @media (max-width: 680px) {
+    .settings-subtabs-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
   .settings-subtab-btn {
     border-radius: 8px;
     font-weight: 600;
     transition: all 0.18s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.82rem;
+    white-space: nowrap;
+    width: 100%;
+    border: 1px solid transparent;
   }
+  .settings-subtab-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Cards de Parâmetros Financeiros & Contábeis (Alta Clareza e Contraste) */
+  .param-card-tile {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1.15rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .param-card-tile:focus-within,
+  .param-card-tile:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.12);
+  }
+  .param-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .param-card-title {
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+  }
+  .param-card-desc {
+    font-size: 0.81rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin: 0;
+  }
+  .param-card-select-wrap {
+    margin-top: 0.35rem;
+  }
+  .param-card-select-wrap select {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    padding: 0.6rem 0.85rem;
+    color: var(--text-primary) !important;
+    width: 100%;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .param-card-select-wrap select:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important;
+    outline: none;
+  }
+
   .settings-subtab-content {
     animation: fadeInTab 0.2s ease-out;
   }

@@ -17,9 +17,9 @@
     </div>
   </div>
 
-  <!-- Navegação por Subabas (10 Subabas Modulares) -->
-  <div class="tabs-nav-container" style="margin-bottom:1.25rem;">
-    <div style="display:flex; gap:0.4rem; flex-wrap:wrap; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
+  <!-- Navegação por Subabas (10 Subabas Perfeitamente Distribuídas) -->
+  <div class="tabs-nav-container" style="margin-bottom:1.5rem;">
+    <div class="settings-subtabs-grid">
       <button type="button" class="btn btn-sm btn-primary settings-subtab-btn" data-stab="geral" onclick="App.switchSettingsTab('geral')">
         🏢 Geral
       </button>
@@ -324,101 +324,179 @@
       <div class="card-header">
         <div>
           <h2 class="card-title" style="font-size:1.15rem;">Regras e Parâmetros Contábeis</h2>
-          <small style="color:var(--text-secondary);">Defina a moeda padrão, regras de precisão, regime contábil e passivos. Todos os parâmetros são padronizados em opções selecionáveis.</small>
+          <small style="color:var(--text-secondary);">Defina a moeda padrão, regras de precisão, regime contábil e passivos. Todos os parâmetros são padronizados em opções selecionáveis com alto contraste e clareza visual.</small>
         </div>
         <span class="badge badge-confirmado">Controle Determinístico</span>
       </div>
 
       <form id="form-financial-params" onsubmit="App.submitFinancialParameters(event)">
-        <div style="display:grid; grid-template-columns:1fr; gap:1.15rem; margin-top:0.5rem;">
+        <!-- Grid Executivo de Parâmetros Contábeis (2 Colunas com Alta Legibilidade) -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1.1rem; margin-top:0.75rem;">
           
-          <!-- Moeda Padrão -->
-          <div class="form-group" style="margin-bottom:0;">
-            <label for="param-moeda-padrao"><strong>Moeda Padrão do Sistema:</strong></label>
-            <select id="param-moeda-padrao" class="form-control" style="font-weight:600; max-width:100%;">
-              <option value="BRL">🇧🇷 Real Brasileiro (BRL / R$)</option>
-              <option value="USD">🇺🇸 Dólar Americano (USD / $)</option>
-              <option value="EUR">🇪🇺 Euro (EUR / €)</option>
-              <option value="GBP">🇬🇧 Libra Esterlina (GBP / £)</option>
-              <option value="ARS">🇦🇷 Peso Argentino (ARS / $)</option>
-              <option value="JPY">🇯🇵 Iene Japonês (JPY / ¥)</option>
-              <option value="CHF">🇨🇭 Franco Suíço (CHF / Fr)</option>
-              <option value="CAD">🇨🇦 Dólar Canadense (CAD / C$)</option>
-              <option value="AUD">🇦🇺 Dólar Australiano (AUD / A$)</option>
-              <option value="CLP">🇨🇱 Peso Chileno (CLP / $)</option>
-              <option value="UYU">🇺🇾 Peso Uruguaio (UYU / $U)</option>
-              <option value="CNY">🇨🇳 Yuan Chinês (CNY / ¥)</option>
-              <option value="BTC">₿ Bitcoin (BTC / ₿)</option>
-              <option value="ETH">Ξ Ethereum (ETH / Ξ)</option>
-            </select>
-            <small style="color:var(--text-secondary);">Moeda de referência para demonstrativos, balanços patrimoniais, relatórios e painéis.</small>
-          </div>
-
-          <!-- Precisão Monetária -->
-          <div class="form-group" style="margin-bottom:0;">
-            <label for="param-precisao-monetaria"><strong>Precisão Monetária:</strong></label>
-            <select id="param-precisao-monetaria" class="form-control">
-              <option value="CENTAVOS_INTEIROS">Centavos Inteiros Fixos (Sem ponto flutuante, prevenindo erros de arredondamento) [Padrão Recomendado]</option>
-              <option value="DUAS_CASAS_DECIMAIS">2 Casas Decimais (Padrão Bancário Comercial)</option>
-              <option value="UNIDADE_INTEIRA">Unidades Inteiras (Sem centavos, arredondamento padrão)</option>
-            </select>
-            <small style="color:var(--text-secondary);">Garante que cálculos de receitas e despesas preservem exatidão aritmética contábil sem perdas decimais.</small>
-          </div>
-
-          <!-- Regime Contábil -->
-          <div class="form-group" style="margin-bottom:0;">
-            <label for="param-regime-contabil"><strong>Regime Contábil:</strong></label>
-            <select id="param-regime-contabil" class="form-control">
-              <option value="HIBRIDO">Regime de Caixa para Saldo Bancário Efetivo e Competência Mensal para Planejamento [Padrão Recomendado]</option>
-              <option value="CAIXA_PURO">Regime de Caixa Estrito (Considera apenas lançamentos confirmados e liquidados na conta bancária)</option>
-              <option value="COMPETENCIA">Regime de Competência (Reconhece receitas e despesas na data de competência / fato gerador)</option>
-            </select>
-            <small style="color:var(--text-secondary);">Define a regra contábil aplicada aos saldos das contas e às projeções orçamentárias.</small>
-          </div>
-
-          <!-- Tratamento de Consignados -->
-          <div class="form-group" style="margin-bottom:0;">
-            <label for="param-tratamento-consignados"><strong>Tratamento de Consignados:</strong></label>
-            <select id="param-tratamento-consignados" class="form-control">
-              <option value="ISOLADO_INFORMATIVO">Isolado estritamente como informativo salarial, sem dupla dedução de caixa [Padrão Recomendado]</option>
-              <option value="DEDUCAO_AUTOMATICA">Deduzir do Saldo Operacional (Aplicável caso o salário seja lançado na planilha pelo valor bruto total)</option>
-              <option value="APENAS_CONTROLE">Apenas Controle no Módulo de Empréstimos (Ocultar de fluxo de caixa e calendário)</option>
-            </select>
-            <small style="color:var(--text-secondary);">Impede a dupla contagem de parcelas descontadas diretamente em folha salarial.</small>
-          </div>
-
-          <!-- Dívidas Antigas sem Acordo -->
-          <div class="form-group" style="margin-bottom:0;">
-            <label for="param-dividas-antigas"><strong>Dívidas Antigas sem Acordo:</strong></label>
-            <select id="param-dividas-antigas" class="form-control">
-              <option value="ISOLADAS_FLUXO">Isoladas do fluxo de caixa operacional diário até que haja acordo formal ativo [Padrão Recomendado]</option>
-              <option value="INCLUIR_PROVISAO">Incluir como Provisão de Passivo no Orçamento do Mês Corrente</option>
-              <option value="SUSPENSAS">Totalmente Suspensas de Projeções e Avisos até Negociação</option>
-            </select>
-            <small style="color:var(--text-secondary);">Mantém o orçamento mensal protegido de passivos pendentes de renegociação.</small>
-          </div>
-
-          <!-- Parâmetros Adicionais Contábeis -->
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; margin-top:0.25rem;">
-            <div class="form-group" style="margin-bottom:0;">
-              <label for="param-primeiro-dia-semana"><strong>Primeiro Dia da Semana:</strong></label>
-              <select id="param-primeiro-dia-semana" class="form-control">
-                <option value="DOMINGO">Domingo</option>
-                <option value="SEGUNDA">Segunda-feira</option>
+          <!-- 1. Moeda Padrão -->
+          <div class="param-card-tile">
+            <div class="param-card-header">
+              <h3 class="param-card-title">
+                <span>🌐</span> Moeda Padrão do Sistema
+              </h3>
+              <span class="badge badge-info" style="font-size:0.72rem;">Global</span>
+            </div>
+            <p class="param-card-desc">
+              Moeda base de referência para demonstrativos, balanços patrimoniais, relatórios executivos e painéis.
+            </p>
+            <div class="param-card-select-wrap">
+              <select id="param-moeda-padrao" class="form-control" aria-label="Moeda Padrão do Sistema">
+                <option value="BRL">🇧🇷 Real Brasileiro (BRL / R$)</option>
+                <option value="USD">🇺🇸 Dólar Americano (USD / $)</option>
+                <option value="EUR">🇪🇺 Euro (EUR / €)</option>
+                <option value="GBP">🇬🇧 Libra Esterlina (GBP / £)</option>
+                <option value="ARS">🇦🇷 Peso Argentino (ARS / $)</option>
+                <option value="JPY">🇯🇵 Iene Japonês (JPY / ¥)</option>
+                <option value="CHF">🇨🇭 Franco Suíço (CHF / Fr)</option>
+                <option value="CAD">🇨🇦 Dólar Canadense (CAD / C$)</option>
+                <option value="AUD">🇦🇺 Dólar Australiano (AUD / A$)</option>
+                <option value="CLP">🇨🇱 Peso Chileno (CLP / $)</option>
+                <option value="UYU">🇺🇾 Peso Uruguaio (UYU / $U)</option>
+                <option value="CNY">🇨🇳 Yuan Chinês (CNY / ¥)</option>
+                <option value="BTC">₿ Bitcoin (BTC / ₿)</option>
+                <option value="ETH">Ξ Ethereum (ETH / Ξ)</option>
               </select>
             </div>
-            <div class="form-group" style="margin-bottom:0;">
-              <label for="param-fechamento-mes"><strong>Fechamento Contábil de Mês:</strong></label>
-              <select id="param-fechamento-mes" class="form-control">
-                <option value="ULTIMO_DIA">Último Dia do Mês Calendário (Dia 30/31)</option>
+          </div>
+
+          <!-- 2. Precisão Monetária -->
+          <div class="param-card-tile">
+            <div class="param-card-header">
+              <h3 class="param-card-title">
+                <span>🔢</span> Precisão Monetária Contábil
+              </h3>
+              <span class="badge badge-confirmado" style="font-size:0.72rem;">Aritmética</span>
+            </div>
+            <p class="param-card-desc">
+              Garante cálculos exatos de receitas e despesas em centavos inteiros sem perdas decimais ou erros de float.
+            </p>
+            <div class="param-card-select-wrap">
+              <select id="param-precisao-monetaria" class="form-control" aria-label="Precisão Monetária Contábil">
+                <option value="CENTAVOS_INTEIROS">Centavos Inteiros Fixos (Sem ponto flutuante, prevenindo arredondamentos) [Padrão Recomendado]</option>
+                <option value="DUAS_CASAS_DECIMAIS">2 Casas Decimais (Padrão Bancário Comercial)</option>
+                <option value="UNIDADE_INTEIRA">Unidades Inteiras (Sem centavos, arredondamento padrão)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 3. Regime Contábil -->
+          <div class="param-card-tile">
+            <div class="param-card-header">
+              <h3 class="param-card-title">
+                <span>⚖️</span> Regime Contábil (DRE & Caixa)
+              </h3>
+              <span class="badge badge-confirmado" style="font-size:0.72rem;">DRE & Caixa</span>
+            </div>
+            <p class="param-card-desc">
+              Define a regra contábil aplicada aos saldos efetivos de contas e às projeções mensais de planejamento.
+            </p>
+            <div class="param-card-select-wrap">
+              <select id="param-regime-contabil" class="form-control" aria-label="Regime Contábil">
+                <option value="HIBRIDO">Regime de Caixa para Saldo Efetivo e Competência para Planejamento [Recomendado]</option>
+                <option value="CAIXA_PURO">Regime de Caixa Estrito (Apenas lançamentos confirmados e liquidados)</option>
+                <option value="COMPETENCIA">Regime de Competência (Reconhece no fato gerador do mês de referência)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 4. Tratamento de Consignados -->
+          <div class="param-card-tile">
+            <div class="param-card-header">
+              <h3 class="param-card-title">
+                <span>🛡️</span> Tratamento de Consignados
+              </h3>
+              <span class="badge badge-info" style="font-size:0.72rem;">Folha de Pagamento</span>
+            </div>
+            <p class="param-card-desc">
+              Impede a dupla contagem de parcelas descontadas diretamente em folha salarial antes de cair na conta bancária.
+            </p>
+            <div class="param-card-select-wrap">
+              <select id="param-tratamento-consignados" class="form-control" aria-label="Tratamento de Consignados">
+                <option value="ISOLADO_INFORMATIVO">Isolado estritamente como informativo salarial, sem dupla dedução de caixa [Recomendado]</option>
+                <option value="DEDUCAO_AUTOMATICA">Deduzir do Saldo Operacional (Aplicável se salário for lançado pelo valor bruto total)</option>
+                <option value="APENAS_CONTROLE">Apenas Controle no Módulo de Empréstimos (Ocultar do fluxo diário)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 5. Dívidas Antigas sem Acordo -->
+          <div class="param-card-tile">
+            <div class="param-card-header">
+              <h3 class="param-card-title">
+                <span>💼</span> Dívidas Antigas sem Acordo
+              </h3>
+              <span class="badge badge-pendente" style="font-size:0.72rem;">Passivos</span>
+            </div>
+            <p class="param-card-desc">
+              Mantém o orçamento mensal protegido de passivos antigos até que haja acordo formal de quitação parcelada.
+            </p>
+            <div class="param-card-select-wrap">
+              <select id="param-dividas-antigas" class="form-control" aria-label="Dívidas Antigas sem Acordo">
+                <option value="ISOLADAS_FLUXO">Isoladas do fluxo de caixa diário até que haja acordo formal ativo [Recomendado]</option>
+                <option value="INCLUIR_PROVISAO">Incluir como Provisão de Passivo no Orçamento do Mês Corrente</option>
+                <option value="SUSPENSAS">Totalmente Suspensas de Projeções e Avisos até Negociação</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 6. Primeiro Dia da Semana -->
+          <div class="param-card-tile">
+            <div class="param-card-header">
+              <h3 class="param-card-title">
+                <span>📅</span> Primeiro Dia da Semana
+              </h3>
+              <span class="badge badge-info" style="font-size:0.72rem;">Calendário</span>
+            </div>
+            <p class="param-card-desc">
+              Define o dia de abertura semanal para a visualização gráfica da agenda e do calendário de vencimentos.
+            </p>
+            <div class="param-card-select-wrap">
+              <select id="param-primeiro-dia-semana" class="form-control" aria-label="Primeiro Dia da Semana">
+                <option value="DOMINGO">Domingo (Padrão Calendário Internacional)</option>
+                <option value="SEGUNDA">Segunda-feira (Padrão Semana Útil / Corporativa)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 7. Fechamento Contábil de Mês -->
+          <div class="param-card-tile">
+            <div class="param-card-header">
+              <h3 class="param-card-title">
+                <span>🗓️</span> Fechamento Contábil de Mês
+              </h3>
+              <span class="badge badge-info" style="font-size:0.72rem;">Ciclo Mensal</span>
+            </div>
+            <p class="param-card-desc">
+              Data de corte mensal para apuração de resultados, virada de ciclo de despesas e geração de demonstrativos DRE.
+            </p>
+            <div class="param-card-select-wrap">
+              <select id="param-fechamento-mes" class="form-control" aria-label="Fechamento Contábil de Mês">
+                <option value="ULTIMO_DIA">Último Dia do Mês Calendário (Dia 30/31) [Padrão]</option>
                 <option value="DIA_25">Dia 25 (Virada de Folha Salarial / Fatura)</option>
                 <option value="DIA_20">Dia 20</option>
                 <option value="DIA_1">Primeiro Dia do Mês Seguinte</option>
               </select>
             </div>
-            <div class="form-group" style="margin-bottom:0;">
-              <label for="param-formato-data"><strong>Formato de Exibição de Data:</strong></label>
-              <select id="param-formato-data" class="form-control">
+          </div>
+
+          <!-- 8. Formato de Exibição de Data -->
+          <div class="param-card-tile">
+            <div class="param-card-header">
+              <h3 class="param-card-title">
+                <span>🕒</span> Formato de Exibição de Data
+              </h3>
+              <span class="badge badge-info" style="font-size:0.72rem;">Formatação</span>
+            </div>
+            <p class="param-card-desc">
+              Padrão regional aplicado na formatação de todas as datas de lançamentos, faturas, extratos e relatórios.
+            </p>
+            <div class="param-card-select-wrap">
+              <select id="param-formato-data" class="form-control" aria-label="Formato de Exibição de Data">
                 <option value="DD_MM_AAAA">DD/MM/AAAA (Padrão Brasileiro 25/12/2026)</option>
                 <option value="AAAA_MM_DD">AAAA-MM-DD (Padrão ISO 2026-12-25)</option>
                 <option value="MM_DD_AAAA">MM/DD/AAAA (Padrão Americano 12/25/2026)</option>
@@ -430,7 +508,7 @@
 
         <div style="margin-top:1.5rem; display:flex; justify-content:flex-end; align-items:center; gap:0.75rem;">
           <span id="financial-params-status" style="font-size:0.82rem; color:var(--text-secondary);"></span>
-          <button type="submit" class="btn btn-primary">
+          <button type="submit" class="btn btn-primary" style="padding:0.65rem 1.25rem;">
             💾 Salvar Parâmetros Contábeis
           </button>
         </div>
@@ -795,21 +873,43 @@
     <!-- Card de Ações Manuais e Diagnóstico de Fila -->
     <div class="card">
       <div class="card-header">
-        <h2 class="card-title" style="font-size:1.15rem;">Resumo Matinal Unificado e Fila de E-mails</h2>
-        <span class="badge badge-confirmado">E-mail Único Diário</span>
+        <h2 class="card-title" style="font-size:1.15rem;">Resumo Matinal Unificado & Novidades do App</h2>
+        <span class="badge badge-confirmado">E-mail Diário Automático</span>
       </div>
+
+      <!-- Status em Tempo Real do Gatilho do Apps Script -->
+      <div id="morning-trigger-status-box" style="margin-bottom:1.15rem; padding:12px 16px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-surface); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+        <div style="display:flex; align-items:center; gap:0.65rem;">
+          <span style="font-size:1.35rem;">⏰</span>
+          <div>
+            <div style="font-size:0.9rem; font-weight:700; color:var(--text-primary);">
+              Gatilho Diário do Google Apps Script (07:00h às 08:00h)
+            </div>
+            <small id="morning-trigger-status-desc" style="color:var(--text-secondary); font-size:0.8rem;">
+              Verificando status do gatilho no projeto do Apps Script...
+            </small>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <span id="morning-trigger-badge" class="badge badge-confirmado" style="font-size:0.78rem;">Verificando...</span>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.checkOrEnsureMorningTrigger(false)" style="font-size:0.75rem; padding:4px 10px;">
+            🔄 Sincronizar Gatilho
+          </button>
+        </div>
+      </div>
+
       <div style="background:rgba(37,99,235,0.08); border:1px solid rgba(37,99,235,0.25); border-radius:8px; padding:12px; margin-bottom:1rem; font-size:0.85rem; color:var(--text-primary); line-height:1.5;">
-        <strong>☕ Regra Matinal Inteligente:</strong> O sistema consolida todas as contas vencidas e a vencer (3 dias, 2 dias, 1 dia antes e hoje) em <strong>um único e-mail diário</strong> enviado automaticamente pela manhã (às 07:00h). Contas atrasadas continuam sendo notificadas até a marcação como pagas.
+        <strong>☕ Regra Matinal Inteligente:</strong> O sistema consolida diariamente suas contas a vencer (hoje e nos próximos 3 dias), contas em atraso, saldo bancário geral e as <strong>novidades e atualizações da plataforma</strong> em <strong>um único e-mail diário</strong> enviado pontualmente às 07:00h. Se todas as contas estiverem em dia, você recebe a confirmação de segurança e o panorama matinal.
       </div>
       <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:1rem;">
-        Todas as notificações são enviadas com idempotência e link direto funcional para este painel. Contas confirmadas ou canceladas são retiradas automaticamente.
+        Todas as notificações são enviadas com idempotência (máximo 1 e-mail diário) e link direto funcional para este painel.
       </p>
 
       <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
         <button type="button" class="btn btn-primary btn-sm" onclick="App.sendMorningDigestNow()" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);">
           ☕ Enviar Resumo Matinal Agora (Teste Imediato)
         </button>
-        <button type="button" class="btn btn-secondary btn-sm" onclick="App.checkOrEnsureMorningTrigger()">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.checkOrEnsureMorningTrigger(false)">
           ⏰ Ativar / Verificar Gatilho Automático (07:00h)
         </button>
         <button type="button" class="btn btn-secondary btn-sm" onclick="App.scanDueNotifications()">

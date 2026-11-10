@@ -919,9 +919,37 @@ var NotificationService = (function () {
     var totalContas = vencidas.length + vencemHoje.length + proximas.length +
                       faturasVencidas.length + faturasHoje.length + faturasProximas.length;
 
+    // Indicadores Gerais do Usuário (Saldo de Contas e Investimentos Ativos)
+    var totalSaldoBancarioCentavos = 0;
+    try {
+      var activeAccounts = SpreadsheetRepository.findByGrupo('CONTAS_BANCARIAS', user.grupo_id, function (a) {
+        return a.status !== 'INATIVO';
+      });
+      for (var sa = 0; sa < activeAccounts.length; sa++) {
+        totalSaldoBancarioCentavos += Number(activeAccounts[sa].saldo_atual_centavos || 0);
+      }
+    } catch (eAcc) {}
+
+    var totalInvestimentosCentavos = 0;
+    try {
+      var invs = SpreadsheetRepository.findByGrupo('INVESTIMENTOS', user.grupo_id, function (iv) {
+        return iv.status !== 'INATIVO' && iv.status !== 'RESGATADO';
+      });
+      for (var si = 0; si < invs.length; si++) {
+        totalInvestimentosCentavos += Number(invs[si].saldo_bruto_centavos || invs[si].valor_total_centavos || 0);
+      }
+    } catch (eInv) {}
+
+    var nomeUsuario = user.nome ? user.nome.split(' ')[0] : 'Investidor';
+
     return {
       hoje: today,
       hoje_br: ValidationService.formatDateBr(today),
+      nome_usuario: nomeUsuario,
+      saldo_bancario_centavos: totalSaldoBancarioCentavos,
+      saldo_bancario_formatado: formatCurrency(totalSaldoBancarioCentavos),
+      investimentos_centavos: totalInvestimentosCentavos,
+      investimentos_formatado: formatCurrency(totalInvestimentosCentavos),
       total_contas: totalContas,
       total_vencido_centavos: totalVencidoCentavos,
       total_vencido_formatado: formatCurrency(totalVencidoCentavos),
@@ -1160,12 +1188,49 @@ var NotificationService = (function () {
       '    </tr>' +
       '  </table>' +
 
+      (data.total_contas === 0
+        ? ('<div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; padding:22px 20px; margin-bottom:24px; text-align:center;">' +
+             '<div style="font-size:32px; margin-bottom:8px;">🎉</div>' +
+             '<h3 style="margin:0 0 6px 0; font-size:17px; color:#166534; font-weight:800;">Suas finanças estão 100% em dia!</h3>' +
+             '<p style="margin:0; font-size:13px; color:#15803d; line-height:1.5;">' +
+               'Você não possui nenhuma conta atrasada nem vencendo nos próximos 3 dias. Seu caixa operacional está equilibrado e seguro.' +
+             '</p>' +
+           '</div>')
+        : '') +
+
       secVencidas +
       secFatVencidas +
       secHoje +
       secFatHoje +
       secProximas +
       secFatProximas +
+
+      '  <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:20px; margin-bottom:24px;">' +
+      '    <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">' +
+      '      <span style="font-size:18px;">✨</span>' +
+      '      <h3 style="margin:0; font-size:14px; font-weight:700; color:#0f172a; text-transform:uppercase; letter-spacing:0.5px;">' +
+      '        Novidades & Recursos da Plataforma' +
+      '      </h3>' +
+      '    </div>' +
+      '    <table style="width:100%; border-collapse:collapse; font-size:13px; line-height:1.55; color:#334155;">' +
+      '      <tr>' +
+      '        <td style="padding:6px 0; vertical-align:top; width:26px;">💡</td>' +
+      '        <td style="padding:6px 0;"><strong>Explicadores Interativos & Manuais:</strong> Popovers explicativos e botões de "Manual de Uso" integrados em todos os 12 módulos do sistema.</td>' +
+      '      </tr>' +
+      '      <tr>' +
+      '        <td style="padding:6px 0; vertical-align:top; width:26px;">📈</td>' +
+      '        <td style="padding:6px 0;"><strong>Central de Investimentos:</strong> Cotações online em tempo real, Radar rotativo de mercado, Suitability e comparador de ativos.</td>' +
+      '      </tr>' +
+      '      <tr>' +
+      '        <td style="padding:6px 0; vertical-align:top; width:26px;">🤖</td>' +
+      '        <td style="padding:6px 0;"><strong>Oráculo IA 2.0:</strong> Diagnóstico de saúde financeira (0-100), detector proativo de gargalos e simulações de cenários hipotéticos.</td>' +
+      '      </tr>' +
+      '      <tr>' +
+      '        <td style="padding:6px 0; vertical-align:top; width:26px;">📅</td>' +
+      '        <td style="padding:6px 0;"><strong>Planejamento 12M & Orçamentos:</strong> Projeção de fluxo de caixa futuro de 12 meses e limites por categoria com prevenção de déficits.</td>' +
+      '      </tr>' +
+      '    </table>' +
+      '  </div>' +
 
       '  <div style="margin:28px 0 16px 0; text-align:center; background:#f8fafc; border-radius:12px; padding:24px 16px; border:1px solid #e2e8f0;">' +
       '    <h4 style="margin:0 0 6px 0; font-size:15px; color:#0f172a; font-weight:600;">Deseja registrar baixas ou conferir seu saldo?</h4>' +
@@ -1206,9 +1271,6 @@ var NotificationService = (function () {
     }
 
     var data = collectMorningDigestData(user, today);
-    if (data.total_contas === 0 && !force) {
-      return { ok: true, enviado: false, motivo: 'SEM_CONTAS_PENDENTES', data: data };
-    }
 
     var recipientEmail = AuthService.normalizeEmail(opts.destinatario_email || user.email);
     if (!recipientEmail || recipientEmail.indexOf('@') === -1) {
@@ -1233,11 +1295,18 @@ var NotificationService = (function () {
 
     var subject = totalOverdue > 0
       ? '🚨 [Atenção] Resumo Matinal: ' + totalOverdue + ' conta(s) vencida(s) e ' + totalUpcoming + ' a vencer — Finanças Inteligentes'
-      : '📅 Resumo Matinal: ' + totalUpcoming + ' compromisso(s) a vencer nos próximos 3 dias — Finanças Inteligentes';
+      : (totalUpcoming > 0
+        ? '📅 Resumo Matinal: ' + totalUpcoming + ' compromisso(s) a vencer nos próximos 3 dias — Finanças Inteligentes'
+        : '☕ Resumo Matinal: Contas em Dia & Novidades do App — Finanças Inteligentes');
 
     var textSummary = 'Resumo Matinal Finanças Inteligentes (' + data.hoje_br + '):\n' +
-      'Total Vencido: ' + data.total_vencido_formatado + ' (' + totalOverdue + ' contas)\n' +
-      'Vencem Hoje: ' + data.total_hoje_formatado + '\n' +
+      (data.total_contas === 0
+        ? '🎉 Parabéns! Suas finanças estão 100% em dia. Nenhuma conta pendente hoje ou nos próximos 3 dias.\n'
+        : 'Total Vencido: ' + data.total_vencido_formatado + ' (' + totalOverdue + ' contas)\n' +
+          'Vencem Hoje: ' + data.total_hoje_formatado + '\n' +
+          'Próximos 3 Dias: ' + data.total_proximos_formatado + '\n\n') +
+      'Novidades do App: Popovers explicativos, Central de Investimentos com Cotações Online e Oráculo IA 2.0 ativos.\n\n' +
+      'Acesse seu painel financeiro: ' + webAppUrl;
       'Próximos 3 Dias: ' + data.total_proximos_formatado + '\n\n' +
       'Acesse seu painel financeiro para dar baixa: ' + webAppUrl;
 

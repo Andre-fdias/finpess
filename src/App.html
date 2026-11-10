@@ -10211,7 +10211,29 @@
       );
     }
 
-    function checkOrEnsureMorningTrigger() {
+    function checkOrEnsureMorningTrigger(isCheckOnly) {
+      if (isCheckOnly) {
+        callServer('notifications.getTriggerStatus', {}, function (trigRes) {
+          var tData = trigRes && trigRes.data ? trigRes.data : {};
+          var badge = document.getElementById('morning-trigger-badge');
+          var desc = document.getElementById('morning-trigger-status-desc');
+          if (tData.configurado) {
+            if (badge) {
+              badge.className = 'badge badge-confirmado';
+              badge.textContent = '🟢 ATIVO (07:00h)';
+            }
+            if (desc) desc.textContent = 'Gatilho matinal instalado e operando no Apps Script (07:00h às 08:00h).';
+          } else {
+            if (badge) {
+              badge.className = 'badge badge-pendente';
+              badge.textContent = '🔴 NÃO ATIVADO';
+            }
+            if (desc) desc.textContent = 'Gatilho não configurado no Apps Script. Clique para ativar.';
+          }
+        }, { quiet: true });
+        return;
+      }
+
       callServer('notifications.ensureTrigger', {}, function (res) {
         if (!res.ok) {
           showToast('Erro ao configurar gatilho matinal: ' + (res.error || 'Permissão necessária'), 'error');
@@ -10219,6 +10241,13 @@
         }
         var msg = res.data && res.data.mensagem ? res.data.mensagem : 'Gatilho matinal das 07:00h configurado com sucesso!';
         showToast(msg, 'success');
+        var badge = document.getElementById('morning-trigger-badge');
+        var desc = document.getElementById('morning-trigger-status-desc');
+        if (badge) {
+          badge.className = 'badge badge-confirmado';
+          badge.textContent = '🟢 ATIVO (07:00h)';
+        }
+        if (desc) desc.textContent = 'Gatilho automático configurado com sucesso para execução diária entre 07:00h e 08:00h.';
       });
     }
 
@@ -10962,6 +10991,8 @@
         setChk('pref-notif-oraculo', p.oraculo_ativo);
         setVal('pref-notif-silencioso-inicio', p.silencioso_inicio || '22:00');
         setVal('pref-notif-silencioso-fim', p.silencioso_fim || '08:00');
+
+        checkOrEnsureMorningTrigger(true);
       }, { quiet: true });
     }
 
