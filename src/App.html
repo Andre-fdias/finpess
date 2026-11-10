@@ -1114,11 +1114,21 @@
             return;
           }
           if (res && res.requirePassword) {
-            showToast(res.error, 'warning');
-            var loginEmailEl = document.getElementById('login-email');
-            var senhaEl = document.getElementById('login-senha');
-            if (loginEmailEl && payload.email) loginEmailEl.value = payload.email;
-            if (senhaEl) { senhaEl.value = ''; senhaEl.focus(); }
+            var pass = prompt('Identificado como Proprietário em janela anônima. Para sua segurança, digite sua senha de acesso do proprietário:');
+            if (pass && pass.trim()) {
+              callServer('auth.login', { email: payload.email, senha: pass.trim() }, function (loginRes) {
+                if (loginRes && loginRes.ok) {
+                  if (loginRes.sessionToken) {
+                    localStorage.setItem('fin_session_token', loginRes.sessionToken);
+                    sessionStorage.setItem('fin_session_token', loginRes.sessionToken);
+                  }
+                  showToast('Identidade de Proprietário confirmada com sucesso!', 'success');
+                  init();
+                } else {
+                  showToast((loginRes && loginRes.error) || 'Senha de proprietário incorreta.', 'error');
+                }
+              }, { blocking: true, message: 'Validando credenciais do proprietário...' });
+            }
             return;
           }
           showToast((res && res.error) || 'Não foi possível conectar com a Conta Google.', 'error');
