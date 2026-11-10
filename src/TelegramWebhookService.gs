@@ -51,7 +51,8 @@ var TelegramWebhookService = (function () {
     var opts = options || {};
     var messagePayload = {
       chat_id: String(chatId),
-      text: text
+      text: text,
+      parse_mode: 'Markdown'
     };
     if (replyMarkup) {
       messagePayload.reply_markup = replyMarkup;
@@ -69,12 +70,81 @@ var TelegramWebhookService = (function () {
             muteHttpExceptions: true
           });
         } catch (sendErr) {
-          // falha de envio não deve derrubar o processamento
+          try {
+            delete messagePayload.parse_mode;
+            UrlFetchApp.fetch('https://api.telegram.org/bot' + botToken + '/sendMessage', {
+              method: 'post',
+              contentType: 'application/json',
+              payload: JSON.stringify(messagePayload),
+              muteHttpExceptions: true
+            });
+          } catch (fallbackErr) {}
         }
       }
     }
 
     return messagePayload;
+  }
+
+  function answerCallbackQuery(callbackQueryId, text, showAlert, options) {
+    var opts = options || {};
+    if (!callbackQueryId) return;
+    if (opts.sendRealTelegramMessages) {
+      var props = typeof PropertiesService !== 'undefined' ? PropertiesService.getScriptProperties() : null;
+      var botToken = props ? props.getProperty('TELEGRAM_BOT_TOKEN') : '';
+      if (botToken && typeof UrlFetchApp !== 'undefined') {
+        try {
+          UrlFetchApp.fetch('https://api.telegram.org/bot' + botToken + '/answerCallbackQuery', {
+            method: 'post',
+            contentType: 'application/json',
+            payload: JSON.stringify({
+              callback_query_id: String(callbackQueryId),
+              text: text || '',
+              show_alert: Boolean(showAlert)
+            }),
+            muteHttpExceptions: true
+          });
+        } catch (e) {}
+      }
+    }
+  }
+
+  function editTelegramMessage(chatId, messageId, text, replyMarkup, options) {
+    var opts = options || {};
+    if (!chatId || !messageId) return;
+    var payload = {
+      chat_id: String(chatId),
+      message_id: messageId,
+      text: text,
+      parse_mode: 'Markdown'
+    };
+    if (replyMarkup) {
+      payload.reply_markup = replyMarkup;
+    }
+    if (opts.sendRealTelegramMessages) {
+      var props = typeof PropertiesService !== 'undefined' ? PropertiesService.getScriptProperties() : null;
+      var botToken = props ? props.getProperty('TELEGRAM_BOT_TOKEN') : '';
+      if (botToken && typeof UrlFetchApp !== 'undefined') {
+        try {
+          UrlFetchApp.fetch('https://api.telegram.org/bot' + botToken + '/editMessageText', {
+            method: 'post',
+            contentType: 'application/json',
+            payload: JSON.stringify(payload),
+            muteHttpExceptions: true
+          });
+        } catch (e) {
+          try {
+            delete payload.parse_mode;
+            UrlFetchApp.fetch('https://api.telegram.org/bot' + botToken + '/editMessageText', {
+              method: 'post',
+              contentType: 'application/json',
+              payload: JSON.stringify(payload),
+              muteHttpExceptions: true
+            });
+          } catch (e2) {}
+        }
+      }
+    }
   }
 
   function extractLinkingToken(input) {
@@ -224,11 +294,32 @@ var TelegramWebhookService = (function () {
   function handleCallbackQuery(callbackQuery, updateId, options) {
     var fromId = callbackQuery.from && callbackQuery.from.id;
     var chatId = callbackQuery.message && callbackQuery.message.chat && callbackQuery.message.chat.id;
+    var messageId = callbackQuery.message && callbackQuery.message.message_id;
+    var queryId = callbackQuery.id;
     var data = String(callbackQuery.data || '');
 
-    var authInfo = TelegramAuthService.getAuthorizedUserByTelegramId(fromId);
-    var user = authInfo.usuario;
+    var authInfo = null;
+    try {
+      authInfo = TelegramAuthService.getAuthorizedUserByTelegramId(fromId);
+    } catch (eAuth) {
+      if (chatId) {
+        try {
+          authInfo = TelegramAuthService.getAuthorizedUserByTelegramId(chatId);
+        } catch (e2) {}
+      }
+    }
 
+    if (!authInfo || !authInfo.usuario) {
+      if (queryId) {
+        answerCallbackQuery(queryId, '⚠️ Usuário não vinculado ao sistema.', true, options);
+      }
+      return {
+        status: 'RECUSADO',
+        resposta_bot: sendTelegramReply(chatId, '⚠️ Sua conta do Telegram não está vinculada a um administrador autorizado.', null, options)
+      };
+    }
+
+    var user = authInfo.usuario;
     var parts = data.split(':');
     var action = parts[0];
     var procId = parts[1];
@@ -236,6 +327,9 @@ var TelegramWebhookService = (function () {
 
     if (action === 'APPROVE_USR') {
       if (!user || (user.papel !== 'OWNER' && user.papel !== 'ADMIN')) {
+        if (queryId) {
+          answerCallbackQuery(queryId, 'Apenas administradores podem aprovar usuários.', true, options);
+        }
         return {
           status: 'RECUSADO',
           resposta_bot: sendTelegramReply(chatId, '⚠️ Apenas administradores podem aprovar novos usuários.', null, options)
@@ -243,53 +337,98 @@ var TelegramWebhookService = (function () {
       }
       var targetUser = SpreadsheetRepository.findById('USUARIOS', procId);
       if (!targetUser) {
+        if (queryId) {
+          answerCallbackQuery(queryId, 'Usuário não encontrado.', true, options);
+        }
         return {
           status: 'ERRO',
           resposta_bot: sendTelegramReply(chatId, '⚠️ Usuário não encontrado na base de dados.', null, options)
         };
       }
-      SpreadsheetRepository.updateById('USUARIOS', procId, {
-        status: 'APROVADO',
-        aprovado_por: user.id
-      });
-      return {
-        status: 'APROVADO',
-        resposta_bot: sendTelegramReply(
+
+      // Executa a aprovação completa com vinculação ao grupo do administrador e disparo de e-mail
+      UserService.changeUserAuthorization(user, targetUser.id, 'APROVADO', 'MEMBRO', user.grupo_id);
+
+      if (queryId) {
+        answerCallbackQuery(queryId, '✅ Acesso liberado para ' + (targetUser.nome || targetUser.email) + '!', false, options);
+      }
+
+      if (messageId && chatId) {
+        editTelegramMessage(
+          chatId,
+          messageId,
+          '✅ *CADASTRO APROVADO COM SUCESSO*\n\n' +
+          '• *Nome:* ' + targetUser.nome + '\n' +
+          '• *E-mail:* `' + targetUser.email + '`\n' +
+          '• *Status:* 🟢 APROVADO por ' + (user.nome || 'Proprietário') + '\n\n' +
+          'O acesso ao painel financeiro já está liberado!',
+          null,
+          options
+        );
+      } else {
+        sendTelegramReply(
           chatId,
           '✅ *Usuário Aprovado com Sucesso!*\n\n' +
           '• *Nome:* ' + targetUser.nome + '\n' +
-          '• *E-mail:* ' + targetUser.email + '\n' +
+          '• *E-mail:* `' + targetUser.email + '`\n\n' +
           'O acesso ao painel web já está liberado.',
           null,
           options
-        )
+        );
+      }
+
+      return {
+        status: 'APROVADO',
+        resposta_bot: 'Aprovado com sucesso'
       };
     }
 
     if (action === 'REJECT_USR') {
       if (!user || (user.papel !== 'OWNER' && user.papel !== 'ADMIN')) {
+        if (queryId) {
+          answerCallbackQuery(queryId, 'Apenas administradores podem gerenciar usuários.', true, options);
+        }
         return {
           status: 'RECUSADO',
           resposta_bot: sendTelegramReply(chatId, '⚠️ Apenas administradores podem gerenciar usuários.', null, options)
         };
       }
       var targetUserToBlock = SpreadsheetRepository.findById('USUARIOS', procId);
-      SpreadsheetRepository.updateById('USUARIOS', procId, {
-        status: 'BLOQUEADO',
-        aprovado_por: user.id
-      });
-      return {
-        status: 'BLOQUEADO',
-        resposta_bot: sendTelegramReply(
+      if (targetUserToBlock) {
+        UserService.changeUserAuthorization(user, targetUserToBlock.id, 'BLOQUEADO', targetUserToBlock.papel, user.grupo_id);
+      }
+      if (queryId) {
+        answerCallbackQuery(queryId, '❌ Solicitação recusada.', false, options);
+      }
+      if (messageId && chatId) {
+        editTelegramMessage(
           chatId,
-          '❌ *Solicitação de Acesso Recusada.*\n\nO usuário `' + (targetUserToBlock ? targetUserToBlock.email : procId) + '` foi marcado como BLOQUEADO.',
+          messageId,
+          '❌ *SOLICITAÇÃO DE ACESSO RECUSADA*\n\n' +
+          '• *Nome:* ' + (targetUserToBlock ? targetUserToBlock.nome : '') + '\n' +
+          '• *E-mail:* `' + (targetUserToBlock ? targetUserToBlock.email : '') + '`\n' +
+          '• *Status:* 🔴 BLOQUEADO por ' + (user.nome || 'Proprietário'),
           null,
           options
-        )
+        );
+      } else {
+        sendTelegramReply(
+          chatId,
+          '❌ *Solicitação Recusada.*\n\nO usuário `' + (targetUserToBlock ? targetUserToBlock.email : procId) + '` foi marcado como BLOQUEADO.',
+          null,
+          options
+        );
+      }
+      return {
+        status: 'BLOQUEADO',
+        resposta_bot: 'Recusado com sucesso'
       };
     }
 
     if (action === 'CONFIRM') {
+      if (queryId) {
+        answerCallbackQuery(queryId, 'Confirmando lançamento...', false, options);
+      }
       var confirmed = TelegramLaunchService.confirmProposal(user, procId, extraParam);
       var isPrevisto = (confirmed.lancamento.situacao === 'PREVISTO' || confirmed.lancamento.situacao === 'PENDENTE');
       var statusHeader = isPrevisto
@@ -311,6 +450,9 @@ var TelegramWebhookService = (function () {
     }
 
     if (action === 'CANCEL') {
+      if (queryId) {
+        answerCallbackQuery(queryId, 'Proposta cancelada.', false, options);
+      }
       var canceled = TelegramLaunchService.cancelProposal(user, procId);
       return {
         status: 'CANCELADO',
