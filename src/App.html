@@ -1089,49 +1089,49 @@
     }
 
     function loginWithGoogle(emailOverride) {
-      var btn1 = document.getElementById('btn-auth-google-login');
-      var btn2 = document.getElementById('btn-auth-google-reg');
-      if (btn1) { btn1.disabled = true; btn1.style.opacity = '0.7'; }
-      if (btn2) { btn2.disabled = true; btn2.style.opacity = '0.7'; }
+      var emailInp = document.getElementById('google-auth-email');
+      var secretInp = document.getElementById('owner-auth-secret');
+      var btn = document.getElementById('btn-auth-google-login');
+      var btnText = document.getElementById('btn-auth-google-text');
 
-      var payload = {};
-      if (emailOverride && typeof emailOverride === 'string') {
-        payload.email = emailOverride.trim().toLowerCase();
+      var email = (emailOverride && typeof emailOverride === 'string')
+        ? emailOverride.trim().toLowerCase()
+        : (emailInp && emailInp.value ? emailInp.value.trim().toLowerCase() : '');
+
+      if (!email) {
+        if (emailInp) {
+          emailInp.focus();
+        }
+        showToast('Por favor, informe seu e-mail do Google para prosseguir.', 'warning');
+        return;
       }
 
-      callServer('auth.googleLogin', payload, function (res) {
-        if (btn1) { btn1.disabled = false; btn1.style.opacity = '1'; }
-        if (btn2) { btn2.disabled = false; btn2.style.opacity = '1'; }
+      var payload = { email: email };
+      if (secretInp && secretInp.value) {
+        payload.senha = secretInp.value.trim();
+      }
 
-        if (!res || !res.ok) {
-          if (res && res.needEmailInput) {
-            var typed = prompt('Por favor, informe seu e-mail do Google (ex: davisdias2811@gmail.com):');
-            if (typed && typed.trim() && typed.indexOf('@') !== -1) {
-              loginWithGoogle(typed.trim().toLowerCase());
-            } else if (typed !== null) {
-              showToast('E-mail do Google inválido.', 'error');
+      if (btn) { btn.disabled = true; btn.style.opacity = '0.7'; }
+      if (btnText) { btnText.textContent = 'Conectando...'; }
+
+      callServer('auth.googleLogin', payload, function (res) {
+        if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+        if (btnText) { btnText.textContent = 'Conectar com Conta Google'; }
+
+        if (!res) {
+          showToast('Não foi possível conectar com a Conta Google.', 'error');
+          return;
+        }
+
+        if (res.requirePassword) {
+          var container = document.getElementById('owner-secret-container');
+          if (container) {
+            container.style.display = 'block';
+            if (secretInp) {
+              secretInp.focus();
             }
-            return;
           }
-          if (res && res.requirePassword) {
-            var pass = prompt('Identificado como Proprietário em janela anônima. Para sua segurança, digite sua senha de acesso do proprietário:');
-            if (pass && pass.trim()) {
-              callServer('auth.login', { email: payload.email, senha: pass.trim() }, function (loginRes) {
-                if (loginRes && loginRes.ok) {
-                  if (loginRes.sessionToken) {
-                    localStorage.setItem('fin_session_token', loginRes.sessionToken);
-                    sessionStorage.setItem('fin_session_token', loginRes.sessionToken);
-                  }
-                  showToast('Identidade de Proprietário confirmada com sucesso!', 'success');
-                  init();
-                } else {
-                  showToast((loginRes && loginRes.error) || 'Senha de proprietário incorreta.', 'error');
-                }
-              }, { blocking: true, message: 'Validando credenciais do proprietário...' });
-            }
-            return;
-          }
-          showToast((res && res.error) || 'Não foi possível conectar com a Conta Google.', 'error');
+          showToast(res.message || 'Identificado como Proprietário em janela anônima. Digite sua senha de segurança.', 'warning');
           return;
         }
 
@@ -1145,14 +1145,14 @@
             lockBox.style.display = 'block';
             var elEmail = document.getElementById('lock-user-email');
             var elStatus = document.getElementById('lock-user-status');
-            if (elEmail) elEmail.textContent = (res.user && res.user.email) || '';
+            if (elEmail) elEmail.textContent = (res.user && res.user.email) || email;
             if (elStatus) elStatus.textContent = 'PENDENTE';
           }
           if (res.sessionToken) {
             localStorage.setItem('fin_session_token', res.sessionToken);
             sessionStorage.setItem('fin_session_token', res.sessionToken);
           }
-          showToast(res.message || 'Cadastro realizado com Conta Google! Aguarde a aprovação do proprietário.', 'info');
+          showToast(res.message || 'Solicitação enviada com sucesso! Aguarde a aprovação do proprietário.', 'info');
           return;
         }
 
@@ -1160,9 +1160,16 @@
           localStorage.setItem('fin_session_token', res.sessionToken);
           sessionStorage.setItem('fin_session_token', res.sessionToken);
         }
-        showToast(res.message || 'Login com Conta Google realizado com sucesso!', 'success');
+        showToast(res.message || 'Conexão realizada com sucesso!', 'success');
         init();
-      }, { blocking: true, message: 'Autenticando com Conta Google...' });
+      }, {
+        blocking: true,
+        message: 'Autenticando com Conta Google...',
+        onError: function (err) {
+          if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+          if (btnText) { btnText.textContent = 'Conectar com Conta Google'; }
+        }
+      });
     }
 
     function submitLogin(event) {
@@ -1347,16 +1354,11 @@
       showToast('Verificando status de aprovação...', 'info');
       callServer('auth.checkApproval', { email: email }, function (res) {
         if (res && res.ok && res.status === 'APROVADO') {
-          showToast('🎉 Parabéns! Seu acesso foi aprovado pelo administrador! Redirecionando para login...', 'success');
+          showToast('🎉 Parabéns! Seu acesso foi aprovado pelo administrador! Carregando painel...', 'success');
           setTimeout(function () {
             var lockBox = document.getElementById('unauthorized-lock-screen');
-            var authBox = document.getElementById('auth-screen-container');
             if (lockBox) lockBox.style.display = 'none';
-            if (authBox) authBox.style.display = 'flex';
-            var loginEmailEl = document.getElementById('login-email');
-            if (loginEmailEl) loginEmailEl.value = email;
-            var senhaEl = document.getElementById('login-senha');
-            if (senhaEl) { senhaEl.value = ''; senhaEl.focus(); }
+            init();
           }, 1200);
         } else if (res && res.ok && res.status === 'BLOQUEADO') {
           showToast('Seu acesso foi bloqueado pelo administrador.', 'error');

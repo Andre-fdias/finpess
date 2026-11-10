@@ -1079,7 +1079,7 @@ var AuthService = (function () {
     return { ok: true, id: target.id, status: 'REVOGADO' };
   }
 
-  function loginWithGoogle(providedEmail, idToken) {
+  function loginWithGoogle(providedEmail, idToken, ownerPassword) {
     SpreadsheetRepository.ensureSchema();
     var googleEmail = '';
 
@@ -1110,7 +1110,7 @@ var AuthService = (function () {
       googleEmail = activeEmail;
     }
 
-    // 3. E-mail fornecido pelo usuário no prompt / formulário
+    // 3. E-mail fornecido pelo usuário no formulário / prompt
     if (!googleEmail && providedEmail) {
       var normProv = normalizeEmail(providedEmail);
       if (normProv && normProv.includes('@')) {
@@ -1122,7 +1122,7 @@ var AuthService = (function () {
       return {
         ok: false,
         needEmailInput: true,
-        error: 'GOOGLE_EMAIL_PROMPT: O Google não compartilhou seu e-mail automaticamente neste navegador anônimo. Por favor, digite seu e-mail Google para prosseguir.'
+        error: 'Por favor, informe seu e-mail da Conta Google para prosseguir.'
       };
     }
 
@@ -1169,11 +1169,18 @@ var AuthService = (function () {
           message: 'Acesso do Proprietário (Conta Google) confirmado com sucesso!'
         };
       } else {
-        // Se estiver em janela anônima e informou o e-mail do proprietário, exige a senha para impedir invasão
+        // Se estiver em janela anônima e informou o e-mail do proprietário:
+        if (ownerPassword && String(ownerPassword).trim()) {
+          var authAttempt = loginWithCredentials(ownerEmail, ownerPassword);
+          if (authAttempt.ok) {
+            authAttempt.message = 'Acesso do Proprietário autenticado com sucesso!';
+          }
+          return authAttempt;
+        }
         return {
-          ok: false,
+          ok: true,
           requirePassword: true,
-          error: 'OWNER_PASSWORD_REQUIRED: Por segurança, o acesso à conta de Proprietário em navegador anônimo exige sua senha de acesso.'
+          message: 'Conta de Proprietário identificada em janela anônima. Digite sua senha de segurança para confirmar.'
         };
       }
     }
