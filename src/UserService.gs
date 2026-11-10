@@ -463,6 +463,19 @@ var UserService = (function () {
 
     var updated = SpreadsheetRepository.updateById('USUARIOS', target.id, updatePayload);
 
+    // Notifica o usuário por e-mail quando seu acesso for aprovado pelo proprietário
+    if (validStatus === 'APROVADO' && target.status !== 'APROVADO') {
+      try {
+        if (typeof MailApp !== 'undefined' && target.email) {
+          MailApp.sendEmail({
+            to: target.email,
+            subject: '✅ Seu acesso ao Finanças Inteligentes foi aprovado!',
+            body: 'Olá ' + (target.nome || '') + '!\n\nSeu cadastro no sistema Finanças Inteligentes foi aprovado pelo administrador.\nVocê já pode acessar o painel financeiro normalmente com seu e-mail e senha cadastrados.\n\nAtenciosamente,\nFinanças Inteligentes'
+          });
+        }
+      } catch (eMail) {}
+    }
+
     AuditService.log({
       grupo_id: adminUser.grupo_id,
       usuario_id: adminUser.id,

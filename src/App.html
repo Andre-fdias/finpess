@@ -113,9 +113,9 @@
       var isBlocking = Boolean(options && options.blocking);
       if (!isQuiet) showLoading(options && options.message, isBlocking);
 
-      var token = (typeof window !== 'undefined' && window.__INITIAL_SESSION_TOKEN__) ||
-                  localStorage.getItem('fin_session_token') ||
+      var token = localStorage.getItem('fin_session_token') ||
                   sessionStorage.getItem('fin_session_token') ||
+                  (typeof window !== 'undefined' && window.__INITIAL_SESSION_TOKEN__) ||
                   '';
       var authCtx = {
         sessionToken: token,
@@ -1001,17 +1001,23 @@
 
       initDefaultDates();
 
-      if (typeof window !== 'undefined' && window.__INITIAL_SESSION_TOKEN__) {
-        try {
-          localStorage.setItem('fin_session_token', window.__INITIAL_SESSION_TOKEN__);
-          sessionStorage.setItem('fin_session_token', window.__INITIAL_SESSION_TOKEN__);
-        } catch (eStorage) {}
+      var storedToken = localStorage.getItem('fin_session_token') ||
+                        sessionStorage.getItem('fin_session_token') ||
+                        '';
+
+      var authBox = document.getElementById('auth-screen-container');
+      var mainBox = document.getElementById('main-authorized-content');
+      var lockBox = document.getElementById('unauthorized-lock-screen');
+
+      // Se não há token gravado no navegador, exibe a tela de login imediatamente sem requisição inútil
+      if (!storedToken) {
+        if (mainBox) mainBox.style.display = 'none';
+        if (lockBox) lockBox.style.display = 'none';
+        if (authBox) authBox.style.display = 'flex';
+        return;
       }
 
       callServer('session.getBootstrap', {}, function (res) {
-        var authBox = document.getElementById('auth-screen-container');
-        var mainBox = document.getElementById('main-authorized-content');
-        var lockBox = document.getElementById('unauthorized-lock-screen');
 
         if (res.authenticated === false) {
           if (mainBox) mainBox.style.display = 'none';
@@ -1106,11 +1112,28 @@
           btn.innerHTML = '<span>Acessar Painel Financeiro</span>';
         }
         if (!res || !res.ok) {
+          if (res && res.status === 'PENDENTE') {
+            var authBox = document.getElementById('auth-screen-container');
+            var mainBox = document.getElementById('main-authorized-content');
+            var lockBox = document.getElementById('unauthorized-lock-screen');
+            if (mainBox) mainBox.style.display = 'none';
+            if (authBox) authBox.style.display = 'none';
+            if (lockBox) {
+              lockBox.style.display = 'block';
+              var elEmail = document.getElementById('lock-user-email');
+              var elStatus = document.getElementById('lock-user-status');
+              if (elEmail) elEmail.textContent = email;
+              if (elStatus) elStatus.textContent = 'PENDENTE';
+            }
+            showToast('Acesso aguardando aprovação do proprietário da planilha.', 'warning');
+            return;
+          }
           showToast((res && res.error) || 'Falha ao autenticar.', 'error');
           return;
         }
         if (res.sessionToken) {
           localStorage.setItem('fin_session_token', res.sessionToken);
+          sessionStorage.setItem('fin_session_token', res.sessionToken);
         }
         showToast('Login realizado com sucesso! Bem-vindo(a).', 'success');
         init();
@@ -1146,8 +1169,25 @@
           showToast((res && res.error) || 'Falha no cadastro.', 'error');
           return;
         }
+        if (res.status === 'PENDENTE') {
+          var authBox = document.getElementById('auth-screen-container');
+          var mainBox = document.getElementById('main-authorized-content');
+          var lockBox = document.getElementById('unauthorized-lock-screen');
+          if (mainBox) mainBox.style.display = 'none';
+          if (authBox) authBox.style.display = 'none';
+          if (lockBox) {
+            lockBox.style.display = 'block';
+            var elEmail = document.getElementById('lock-user-email');
+            var elStatus = document.getElementById('lock-user-status');
+            if (elEmail) elEmail.textContent = email;
+            if (elStatus) elStatus.textContent = 'PENDENTE';
+          }
+          showToast(res.message || 'Cadastro realizado com sucesso! Aguarde a aprovação do proprietário.', 'info');
+          return;
+        }
         if (res.sessionToken) {
           localStorage.setItem('fin_session_token', res.sessionToken);
+          sessionStorage.setItem('fin_session_token', res.sessionToken);
         }
         showToast(res.message || 'Cadastro solicitado com sucesso!', 'success');
         init();
@@ -1221,17 +1261,51 @@
     }
 
     function checkApprovalAgain() {
-      showToast('Checando autorização da conta...', 'info');
-      init();
+      var emailEl = document.getElementById('lock-user-email');
+      var email = emailEl ? emailEl.textContent.trim().toLowerCase() : '';
+      if (!email) {
+        init();
+        return;
+      }
+      showToast('Verificando status de aprovação...', 'info');
+      callServer('auth.checkApproval', { email: email }, function (res) {
+        if (res && res.ok && res.status === 'APROVADO') {
+          showToast('🎉 Parabéns! Seu acesso foi aprovado pelo administrador! Redirecionando para login...', 'success');
+          setTimeout(function () {
+            var lockBox = document.getElementById('unauthorized-lock-screen');
+            var authBox = document.getElementById('auth-screen-container');
+            if (lockBox) lockBox.style.display = 'none';
+            if (authBox) authBox.style.display = 'flex';
+            var loginEmailEl = document.getElementById('login-email');
+            if (loginEmailEl) loginEmailEl.value = email;
+            var senhaEl = document.getElementById('login-senha');
+            if (senhaEl) { senhaEl.value = ''; senhaEl.focus(); }
+          }, 1200);
+        } else if (res && res.ok && res.status === 'BLOQUEADO') {
+          showToast('Seu acesso foi bloqueado pelo administrador.', 'error');
+          var elStatus = document.getElementById('lock-user-status');
+          if (elStatus) elStatus.textContent = 'BLOQUEADO';
+        } else {
+          showToast('Seu cadastro ainda está com status PENDENTE de aprovação pelo proprietário.', 'warning');
+        }
+      });
     }
 
     function logout() {
       callServer('auth.logout', {}, function () {
         try {
           localStorage.removeItem('fin_session_token');
+          sessionStorage.removeItem('fin_session_token');
+          if (typeof window !== 'undefined') window.__INITIAL_SESSION_TOKEN__ = '';
         } catch (e) {}
+        state.user = null;
+        var authBox = document.getElementById('auth-screen-container');
+        var mainBox = document.getElementById('main-authorized-content');
+        var lockBox = document.getElementById('unauthorized-lock-screen');
+        if (mainBox) mainBox.style.display = 'none';
+        if (lockBox) lockBox.style.display = 'none';
+        if (authBox) authBox.style.display = 'flex';
         showToast('Você saiu do sistema com segurança.', 'info');
-        init();
       });
     }
 
@@ -9360,6 +9434,17 @@
         return;
       }
 
+      var pendingCount = users.filter(function (u) { return u.status === 'PENDENTE'; }).length;
+      var alertBanner = '';
+      if (pendingCount > 0) {
+        alertBanner = '<div style="background:rgba(234, 179, 8, 0.12); border:1px solid rgba(234, 179, 8, 0.4); border-radius:8px; padding:0.85rem 1.15rem; margin-bottom:1rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">' +
+          '<div style="color:var(--text-primary); font-size:0.9rem;">' +
+            '<strong>⏳ ' + pendingCount + ' Solicitaç' + (pendingCount > 1 ? 'ões' : 'ão') + ' de Acesso Pendente' + (pendingCount > 1 ? 's' : '') + ':</strong> ' +
+            'Novos usuários cadastrados só conseguem visualizar a planilha após sua aprovação formal.' +
+          '</div>' +
+        '</div>';
+      }
+
       var rows = users.map(function (u) {
         var isOwner = u.papel === 'OWNER';
         var roleVal = (u.papel === 'USUARIO' || u.papel === 'MEMBRO') ? 'MEMBRO' : u.papel;
@@ -9384,6 +9469,11 @@
           '</select>';
 
         var actionsHtml = '<div style="display:flex; gap:0.35rem; align-items:center; flex-wrap:wrap;">';
+
+        if (!isOwner && u.status === 'PENDENTE') {
+          actionsHtml += '<button type="button" class="btn btn-success btn-sm" onclick="App.changeUserStatus(\'' + UIHelpers.escapeHtml(u.id) + '\', \'APROVADO\')" title="Aprovar e liberar acesso completo" style="padding:0.3rem 0.65rem; font-size:0.75rem; font-weight:700; background:#059669; border-color:#059669; color:#fff;">✅ Aprovar</button>';
+        }
+
         // Botão Visualizar Cadastro & Logs (Para todos)
         actionsHtml += '<button type="button" class="btn btn-secondary btn-sm" onclick="App.viewUserDetails(\'' + UIHelpers.escapeHtml(u.id) + '\')" title="Visualizar ficha cadastral e histórico de acessos" style="padding:0.25rem 0.5rem; font-size:0.75rem;">👁️ Ver</button>';
 
@@ -9392,8 +9482,8 @@
 
         if (!isOwner) {
           // Ações Rápidas de Ativação / Bloqueio
-          if (u.status === 'PENDENTE' || u.status === 'BLOQUEADO' || u.status === 'REVOGADO') {
-            actionsHtml += '<button type="button" class="btn btn-success btn-sm" onclick="App.changeUserStatus(\'' + UIHelpers.escapeHtml(u.id) + '\', \'APROVADO\')" title="Aprovar e ativar acesso" style="padding:0.25rem 0.5rem; font-size:0.75rem;">Ativar</button>';
+          if (u.status === 'BLOQUEADO' || u.status === 'REVOGADO') {
+            actionsHtml += '<button type="button" class="btn btn-success btn-sm" onclick="App.changeUserStatus(\'' + UIHelpers.escapeHtml(u.id) + '\', \'APROVADO\')" title="Reativar acesso" style="padding:0.25rem 0.5rem; font-size:0.75rem;">Reativar</button>';
           } else if (u.status === 'APROVADO') {
             actionsHtml += '<button type="button" class="btn btn-danger btn-sm" onclick="App.changeUserStatus(\'' + UIHelpers.escapeHtml(u.id) + '\', \'BLOQUEADO\')" title="Bloquear acesso temporariamente" style="padding:0.25rem 0.5rem; font-size:0.75rem;">Bloquear</button>';
           }
@@ -9406,10 +9496,13 @@
         actionsHtml += '</div>';
 
         var dtAcesso = u.ultimo_acesso ? String(u.ultimo_acesso).substring(0, 19).replace('T', ' ') : 'Nunca';
+        var rowStyle = (u.status === 'PENDENTE') ? ' style="background:rgba(234, 179, 8, 0.06);"' : '';
 
         return (
-          '<tr>' +
-            '<td><strong>' + UIHelpers.escapeHtml(u.nome) + '</strong><br><small style="color:var(--text-secondary);">' + UIHelpers.escapeHtml(u.email) + '</small></td>' +
+          '<tr' + rowStyle + '>' +
+            '<td><strong>' + UIHelpers.escapeHtml(u.nome) + '</strong>' +
+              (u.status === 'PENDENTE' ? ' <span class="badge badge-pendente" style="font-size:0.65rem; padding:0.1rem 0.4rem; margin-left:4px;">Aguardando Aprovação</span>' : '') +
+              '<br><small style="color:var(--text-secondary);">' + UIHelpers.escapeHtml(u.email) + '</small></td>' +
             '<td>' + roleSelectHtml + '</td>' +
             '<td>' + statusSelectHtml + '</td>' +
             '<td><span style="font-size:0.8rem; color:var(--text-secondary);">' + UIHelpers.escapeHtml(dtAcesso) + '</span></td>' +
@@ -9419,6 +9512,7 @@
       }).join('');
 
       container.innerHTML =
+        alertBanner +
         '<table class="data-table"><thead><tr>' +
           '<th>Usuário</th>' +
           '<th>Papel / Nível</th>' +

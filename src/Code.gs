@@ -41,14 +41,13 @@ function doGet(e) {
   try {
     var ownerEmail = AuthService.resolveOwnerEmail();
     if (ownerEmail) {
-      var owner = AuthService.bootstrapOwnerAndGroup(ownerEmail);
-      template.initialSessionToken = (owner && owner.token_sessao) || '';
-    } else {
-      template.initialSessionToken = '';
+      AuthService.bootstrapOwnerAndGroup(ownerEmail);
     }
-  } catch (err) {
-    template.initialSessionToken = '';
-  }
+  } catch (err) {}
+
+  // Isolamento estrito de segurança: nunca injeta token do proprietário no HTML globalmente.
+  // Cada visitante/navegador deve possuir sua própria sessão isolada ou se autenticar.
+  template.initialSessionToken = '';
 
   return template
     .evaluate()
