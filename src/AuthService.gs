@@ -1079,76 +1079,106 @@ var AuthService = (function () {
     return { ok: true, id: target.id, status: 'REVOGADO' };
   }
 
-  function loginWithGoogle() {
+  function loginWithGoogle(providedEmail, idToken) {
     SpreadsheetRepository.ensureSchema();
     var googleEmail = '';
 
-    if (typeof Session !== 'undefined' && Session.getActiveUser) {
+    // 1. Verificação de ID Token OAuth (caso fornecido pelo Google Identity Services)
+    if (idToken && typeof UrlFetchApp !== 'undefined') {
       try {
-        googleEmail = normalizeEmail(Session.getActiveUser().getEmail());
+        var resp = UrlFetchApp.fetch(
+          'https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(idToken),
+          { muteHttpExceptions: true }
+        );
+        if (resp.getResponseCode() === 200) {
+          var payload = JSON.parse(resp.getContentText());
+          if (payload && payload.email && String(payload.email_verified) === 'true') {
+            googleEmail = normalizeEmail(payload.email);
+          }
+        }
       } catch (e) {}
     }
 
-    var ownerEmail = resolveOwnerEmail();
-
-    // Fallback: se getActiveUser for vazio, mas getEffectiveUser for o proprietário
-    if (!googleEmail && typeof Session !== 'undefined' && Session.getEffectiveUser) {
+    // 2. Verificação de usuário ativo autenticado na sessão Google do navegador
+    var activeEmail = '';
+    if (typeof Session !== 'undefined' && Session.getActiveUser) {
       try {
-        var effective = normalizeEmail(Session.getEffectiveUser().getEmail());
-        if (effective && ownerEmail && effective === ownerEmail) {
-          googleEmail = effective;
-        }
+        activeEmail = normalizeEmail(Session.getActiveUser().getEmail());
       } catch (e) {}
+    }
+    if (!googleEmail && activeEmail) {
+      googleEmail = activeEmail;
+    }
+
+    // 3. E-mail fornecido pelo usuário no prompt / formulário
+    if (!googleEmail && providedEmail) {
+      var normProv = normalizeEmail(providedEmail);
+      if (normProv && normProv.includes('@')) {
+        googleEmail = normProv;
+      }
     }
 
     if (!googleEmail) {
       return {
         ok: false,
-        error: 'GOOGLE_EMAIL_UNAVAILABLE: O Google não detectou seu e-mail neste navegador. Se estiver em aba anônima, utilize o cadastro por E-mail e Senha.'
+        needEmailInput: true,
+        error: 'GOOGLE_EMAIL_PROMPT: O Google não compartilhou seu e-mail automaticamente neste navegador anônimo. Por favor, digite seu e-mail Google para prosseguir.'
       };
     }
 
+    var ownerEmail = resolveOwnerEmail();
     var isOwner = (ownerEmail && googleEmail === ownerEmail);
 
     if (isOwner) {
-      var ownerUser = bootstrapOwnerAndGroup(ownerEmail);
-      var sessionToken = generateSessionToken();
-      var nowIso = SpreadsheetRepository.nowIso();
-      var expiresIso = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-      SpreadsheetRepository.updateById('USUARIOS', ownerUser.id, {
-        token_sessao: sessionToken,
-        token_sessao_criado_em: nowIso,
-        token_sessao_ultima_atividade: nowIso,
-        token_sessao_expira_em: expiresIso
-      });
+      // O acesso automático como OWNER só é permitido se a sessão do Google for comprovadamente do proprietário
+      var isVerifiedOwnerSession = Boolean(activeEmail && activeEmail === ownerEmail);
+      if (isVerifiedOwnerSession) {
+        var ownerUser = bootstrapOwnerAndGroup(ownerEmail);
+        var sessionToken = generateSessionToken();
+        var nowIso = SpreadsheetRepository.nowIso();
+        var expiresIso = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        SpreadsheetRepository.updateById('USUARIOS', ownerUser.id, {
+          token_sessao: sessionToken,
+          token_sessao_criado_em: nowIso,
+          token_sessao_ultima_atividade: nowIso,
+          token_sessao_expira_em: expiresIso
+        });
 
-      AuditService.log({
-        grupo_id: ownerUser.grupo_id || 'GLOBAL',
-        usuario_id: ownerUser.id,
-        acao: 'LOGIN_GOOGLE_OWNER_SUCESSO',
-        entidade: 'USUARIOS',
-        entidade_id: ownerUser.id,
-        origem: 'WEB_GOOGLE',
-        detalhes: { email: ownerEmail }
-      });
+        AuditService.log({
+          grupo_id: ownerUser.grupo_id || 'GLOBAL',
+          usuario_id: ownerUser.id,
+          acao: 'LOGIN_GOOGLE_OWNER_SUCESSO',
+          entidade: 'USUARIOS',
+          entidade_id: ownerUser.id,
+          origem: 'WEB_GOOGLE',
+          detalhes: { email: ownerEmail }
+        });
 
-      return {
-        ok: true,
-        status: 'APROVADO',
-        sessionToken: sessionToken,
-        user: {
-          id: ownerUser.id,
-          email: ownerUser.email,
-          nome: ownerUser.nome,
-          papel: 'OWNER',
+        return {
+          ok: true,
           status: 'APROVADO',
-          tema_preferido: ownerUser.tema_preferido || 'light'
-        },
-        message: 'Acesso do Proprietário (Conta Google) confirmado com sucesso!'
-      };
+          sessionToken: sessionToken,
+          user: {
+            id: ownerUser.id,
+            email: ownerUser.email,
+            nome: ownerUser.nome,
+            papel: 'OWNER',
+            status: 'APROVADO',
+            tema_preferido: ownerUser.tema_preferido || 'light'
+          },
+          message: 'Acesso do Proprietário (Conta Google) confirmado com sucesso!'
+        };
+      } else {
+        // Se estiver em janela anônima e informou o e-mail do proprietário, exige a senha para impedir invasão
+        return {
+          ok: false,
+          requirePassword: true,
+          error: 'OWNER_PASSWORD_REQUIRED: Por segurança, o acesso à conta de Proprietário em navegador anônimo exige sua senha de acesso.'
+        };
+      }
     }
 
-    // Para usuários não-proprietários:
+    // Para usuários convidados / membros (não-proprietários):
     var existingUser = SpreadsheetRepository.findOne('USUARIOS', function (u) {
       return normalizeEmail(u.email) === googleEmail;
     });
@@ -1202,7 +1232,7 @@ var AuthService = (function () {
           status: 'PENDENTE',
           papel: newPendingUser.papel
         },
-        message: 'Cadastro realizado via Conta Google! Aguardando aprovação do proprietário.'
+        message: 'Solicitação de acesso enviada com sucesso! Aguarde a aprovação do proprietário.'
       };
     }
 
@@ -1239,7 +1269,7 @@ var AuthService = (function () {
       };
     }
 
-    // Usuário Google APROVADO
+    // Usuário Convidado APROVADO!
     var sessionToken = generateSessionToken();
     var nowIso = SpreadsheetRepository.nowIso();
     var expiresIso = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();

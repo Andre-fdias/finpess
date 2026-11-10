@@ -1088,17 +1088,39 @@
       }, { blocking: true, message: 'Inicializando o Finpess...' });
     }
 
-    function loginWithGoogle() {
+    function loginWithGoogle(emailOverride) {
       var btn1 = document.getElementById('btn-auth-google-login');
       var btn2 = document.getElementById('btn-auth-google-reg');
       if (btn1) { btn1.disabled = true; btn1.style.opacity = '0.7'; }
       if (btn2) { btn2.disabled = true; btn2.style.opacity = '0.7'; }
 
-      callServer('auth.googleLogin', {}, function (res) {
+      var payload = {};
+      if (emailOverride && typeof emailOverride === 'string') {
+        payload.email = emailOverride.trim().toLowerCase();
+      }
+
+      callServer('auth.googleLogin', payload, function (res) {
         if (btn1) { btn1.disabled = false; btn1.style.opacity = '1'; }
         if (btn2) { btn2.disabled = false; btn2.style.opacity = '1'; }
 
         if (!res || !res.ok) {
+          if (res && res.needEmailInput) {
+            var typed = prompt('Por favor, informe seu e-mail do Google (ex: davisdias2811@gmail.com):');
+            if (typed && typed.trim() && typed.indexOf('@') !== -1) {
+              loginWithGoogle(typed.trim().toLowerCase());
+            } else if (typed !== null) {
+              showToast('E-mail do Google inválido.', 'error');
+            }
+            return;
+          }
+          if (res && res.requirePassword) {
+            showToast(res.error, 'warning');
+            var loginEmailEl = document.getElementById('login-email');
+            var senhaEl = document.getElementById('login-senha');
+            if (loginEmailEl && payload.email) loginEmailEl.value = payload.email;
+            if (senhaEl) { senhaEl.value = ''; senhaEl.focus(); }
+            return;
+          }
           showToast((res && res.error) || 'Não foi possível conectar com a Conta Google.', 'error');
           return;
         }
