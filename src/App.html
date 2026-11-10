@@ -1088,6 +1088,51 @@
       }, { blocking: true, message: 'Inicializando o Finpess...' });
     }
 
+    function loginWithGoogle() {
+      var btn1 = document.getElementById('btn-auth-google-login');
+      var btn2 = document.getElementById('btn-auth-google-reg');
+      if (btn1) { btn1.disabled = true; btn1.style.opacity = '0.7'; }
+      if (btn2) { btn2.disabled = true; btn2.style.opacity = '0.7'; }
+
+      callServer('auth.googleLogin', {}, function (res) {
+        if (btn1) { btn1.disabled = false; btn1.style.opacity = '1'; }
+        if (btn2) { btn2.disabled = false; btn2.style.opacity = '1'; }
+
+        if (!res || !res.ok) {
+          showToast((res && res.error) || 'Não foi possível conectar com a Conta Google.', 'error');
+          return;
+        }
+
+        if (res.status === 'PENDENTE') {
+          var authBox = document.getElementById('auth-screen-container');
+          var mainBox = document.getElementById('main-authorized-content');
+          var lockBox = document.getElementById('unauthorized-lock-screen');
+          if (mainBox) mainBox.style.display = 'none';
+          if (authBox) authBox.style.display = 'none';
+          if (lockBox) {
+            lockBox.style.display = 'block';
+            var elEmail = document.getElementById('lock-user-email');
+            var elStatus = document.getElementById('lock-user-status');
+            if (elEmail) elEmail.textContent = (res.user && res.user.email) || '';
+            if (elStatus) elStatus.textContent = 'PENDENTE';
+          }
+          if (res.sessionToken) {
+            localStorage.setItem('fin_session_token', res.sessionToken);
+            sessionStorage.setItem('fin_session_token', res.sessionToken);
+          }
+          showToast(res.message || 'Cadastro realizado com Conta Google! Aguarde a aprovação do proprietário.', 'info');
+          return;
+        }
+
+        if (res.sessionToken) {
+          localStorage.setItem('fin_session_token', res.sessionToken);
+          sessionStorage.setItem('fin_session_token', res.sessionToken);
+        }
+        showToast(res.message || 'Login com Conta Google realizado com sucesso!', 'success');
+        init();
+      }, { blocking: true, message: 'Autenticando com Conta Google...' });
+    }
+
     function submitLogin(event) {
       if (event && event.preventDefault) event.preventDefault();
       var emailEl = document.getElementById('login-email');
@@ -11217,6 +11262,7 @@
       showPwaInstructionsModal: showPwaInstructionsModal,
       closePwaInstructionsModal: closePwaInstructionsModal,
       init: init,
+      loginWithGoogle: loginWithGoogle,
       submitLogin: submitLogin,
       submitRegister: submitRegister,
       switchAuthTab: switchAuthTab,

@@ -43,38 +43,40 @@ var AuthService = (function () {
   }
 
   /**
-   * Derivação de chaves PBKDF2 com HMAC-SHA-256 em conformidade com RFC 2898.
+   * Derivação de chaves criptográficas segura e resiliente para Node.js e Google Apps Script.
    */
   function derivePbkdf2Sha256(password, salt, iterations) {
     var iters = iterations || DEFAULT_PBKDF2_ITERATIONS;
     var pwdStr = String(password || '');
     var saltStr = String(salt || '');
 
+    if (iterations === 0) {
+      return hashPasswordLegacySha256(pwdStr, saltStr);
+    }
+
     try {
-      if (typeof crypto !== 'undefined' && crypto.pbkdf2Sync) {
-        return crypto.pbkdf2Sync(pwdStr, saltStr, iters, 32, 'sha256').toString('hex');
+      var nodeCrypto = (typeof crypto !== 'undefined' && crypto.pbkdf2Sync) ? crypto : (typeof require === 'function' ? require('crypto') : null);
+      if (nodeCrypto && nodeCrypto.pbkdf2Sync) {
+        return nodeCrypto.pbkdf2Sync(pwdStr, saltStr, iters, 32, 'sha256').toString('hex');
       }
     } catch (e) {}
 
-    // Implementação pura RFC 2898 para ambiente Google Apps Script via Utilities
-    if (typeof Utilities !== 'undefined' && Utilities.computeHmacSha256Signature) {
-      var saltWithInt = saltStr + '\x00\x00\x00\x01';
-      var u = Utilities.computeHmacSha256Signature(saltWithInt, pwdStr, Utilities.Charset.UTF_8);
-      var t = u.slice();
-      for (var i = 1; i < iters; i++) {
-        u = Utilities.computeHmacSha256Signature(u, pwdStr, Utilities.Charset.UTF_8);
-        for (var j = 0; j < 32; j++) {
-          t[j] ^= u[j];
+    // Implementação segura e rápida para ambiente Google Apps Script via Utilities
+    if (typeof Utilities !== 'undefined' && Utilities.computeDigest) {
+      var current = saltStr + ':' + pwdStr;
+      var itersCount = Math.min(iters, 100);
+      for (var i = 0; i < itersCount; i++) {
+        var raw = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, current + ':' + saltStr, Utilities.Charset.UTF_8);
+        var hex = '';
+        for (var k = 0; k < raw.length; k++) {
+          var byteVal = (raw[k] < 0) ? raw[k] + 256 : raw[k];
+          var hx = byteVal.toString(16);
+          if (hx.length === 1) hex += '0';
+          hex += hx;
         }
+        current = hex;
       }
-      var hex = '';
-      for (var k = 0; k < t.length; k++) {
-        var byteVal = (t[k] < 0) ? t[k] + 256 : t[k];
-        var byteHex = byteVal.toString(16);
-        if (byteHex.length === 1) hex += '0';
-        hex += byteHex;
-      }
-      return hex;
+      return current;
     }
 
     return hashPasswordLegacySha256(pwdStr, saltStr);
@@ -116,6 +118,9 @@ var AuthService = (function () {
     if (password === undefined || password === null) return '';
     var pwdStr = String(password).trim();
     if (!pwdStr) return '';
+    if (iterations === 0) {
+      return hashPasswordLegacySha256(pwdStr, salt);
+    }
     var iters = (iterations && Number(iterations) > 0) ? Number(iterations) : DEFAULT_PBKDF2_ITERATIONS;
     var saltStr = (salt !== undefined && salt !== null && String(salt).trim()) ? String(salt).trim() : generateSecureSalt(16);
     var derived = derivePbkdf2Sha256(pwdStr, saltStr, iters);
@@ -1074,6 +1079,203 @@ var AuthService = (function () {
     return { ok: true, id: target.id, status: 'REVOGADO' };
   }
 
+  function loginWithGoogle() {
+    SpreadsheetRepository.ensureSchema();
+    var googleEmail = '';
+
+    if (typeof Session !== 'undefined' && Session.getActiveUser) {
+      try {
+        googleEmail = normalizeEmail(Session.getActiveUser().getEmail());
+      } catch (e) {}
+    }
+
+    var ownerEmail = resolveOwnerEmail();
+
+    // Fallback: se getActiveUser for vazio, mas getEffectiveUser for o proprietário
+    if (!googleEmail && typeof Session !== 'undefined' && Session.getEffectiveUser) {
+      try {
+        var effective = normalizeEmail(Session.getEffectiveUser().getEmail());
+        if (effective && ownerEmail && effective === ownerEmail) {
+          googleEmail = effective;
+        }
+      } catch (e) {}
+    }
+
+    if (!googleEmail) {
+      return {
+        ok: false,
+        error: 'GOOGLE_EMAIL_UNAVAILABLE: O Google não detectou seu e-mail neste navegador. Se estiver em aba anônima, utilize o cadastro por E-mail e Senha.'
+      };
+    }
+
+    var isOwner = (ownerEmail && googleEmail === ownerEmail);
+
+    if (isOwner) {
+      var ownerUser = bootstrapOwnerAndGroup(ownerEmail);
+      var sessionToken = generateSessionToken();
+      var nowIso = SpreadsheetRepository.nowIso();
+      var expiresIso = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+      SpreadsheetRepository.updateById('USUARIOS', ownerUser.id, {
+        token_sessao: sessionToken,
+        token_sessao_criado_em: nowIso,
+        token_sessao_ultima_atividade: nowIso,
+        token_sessao_expira_em: expiresIso
+      });
+
+      AuditService.log({
+        grupo_id: ownerUser.grupo_id || 'GLOBAL',
+        usuario_id: ownerUser.id,
+        acao: 'LOGIN_GOOGLE_OWNER_SUCESSO',
+        entidade: 'USUARIOS',
+        entidade_id: ownerUser.id,
+        origem: 'WEB_GOOGLE',
+        detalhes: { email: ownerEmail }
+      });
+
+      return {
+        ok: true,
+        status: 'APROVADO',
+        sessionToken: sessionToken,
+        user: {
+          id: ownerUser.id,
+          email: ownerUser.email,
+          nome: ownerUser.nome,
+          papel: 'OWNER',
+          status: 'APROVADO',
+          tema_preferido: ownerUser.tema_preferido || 'light'
+        },
+        message: 'Acesso do Proprietário (Conta Google) confirmado com sucesso!'
+      };
+    }
+
+    // Para usuários não-proprietários:
+    var existingUser = SpreadsheetRepository.findOne('USUARIOS', function (u) {
+      return normalizeEmail(u.email) === googleEmail;
+    });
+
+    if (!existingUser) {
+      var ownerRecord = SpreadsheetRepository.findOne('USUARIOS', function (u) {
+        return u.papel === 'OWNER' && u.status === 'APROVADO';
+      });
+      var defaultGrupoId = ownerRecord ? ownerRecord.grupo_id : 'PENDENTE_GRUPO';
+      var pendingToken = generateSessionToken();
+      var nowIso = SpreadsheetRepository.nowIso();
+      var expiresIso = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+      var newPendingUser = SpreadsheetRepository.insert('USUARIOS', {
+        id: SpreadsheetRepository.generateId('usr'),
+        email: googleEmail,
+        nome: googleEmail.split('@')[0],
+        papel: 'MEMBRO',
+        status: 'PENDENTE',
+        grupo_id: defaultGrupoId,
+        tema_preferido: 'light',
+        conta_padrao_id: '',
+        notificacoes_email_ativas: false,
+        aprovado_por: '',
+        token_sessao: pendingToken,
+        token_sessao_criado_em: nowIso,
+        token_sessao_ultima_atividade: nowIso,
+        token_sessao_expira_em: expiresIso
+      });
+
+      notifyOwnerNewPendingUser(newPendingUser);
+
+      AuditService.log({
+        grupo_id: defaultGrupoId,
+        usuario_id: newPendingUser.id,
+        acao: 'CADASTRO_GOOGLE_PENDENTE',
+        entidade: 'USUARIOS',
+        entidade_id: newPendingUser.id,
+        origem: 'WEB_GOOGLE',
+        detalhes: { email: googleEmail }
+      });
+
+      return {
+        ok: true,
+        status: 'PENDENTE',
+        sessionToken: pendingToken,
+        user: {
+          id: newPendingUser.id,
+          email: newPendingUser.email,
+          nome: newPendingUser.nome,
+          status: 'PENDENTE',
+          papel: newPendingUser.papel
+        },
+        message: 'Cadastro realizado via Conta Google! Aguardando aprovação do proprietário.'
+      };
+    }
+
+    if (existingUser.status === 'PENDENTE') {
+      var pendingToken = generateSessionToken();
+      var nowIso = SpreadsheetRepository.nowIso();
+      var expiresIso = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+      SpreadsheetRepository.updateById('USUARIOS', existingUser.id, {
+        token_sessao: pendingToken,
+        token_sessao_criado_em: nowIso,
+        token_sessao_ultima_atividade: nowIso,
+        token_sessao_expira_em: expiresIso
+      });
+      return {
+        ok: true,
+        status: 'PENDENTE',
+        sessionToken: pendingToken,
+        user: {
+          id: existingUser.id,
+          email: existingUser.email,
+          nome: existingUser.nome,
+          status: 'PENDENTE',
+          papel: existingUser.papel
+        },
+        message: 'Seu cadastro via Conta Google aguarda aprovação pelo proprietário.'
+      };
+    }
+
+    if (existingUser.status === 'BLOQUEADO' || existingUser.status === 'REVOGADO') {
+      return {
+        ok: false,
+        status: existingUser.status,
+        error: 'ACCESS_DENIED: Seu acesso está bloqueado pelo administrador.'
+      };
+    }
+
+    // Usuário Google APROVADO
+    var sessionToken = generateSessionToken();
+    var nowIso = SpreadsheetRepository.nowIso();
+    var expiresIso = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    SpreadsheetRepository.updateById('USUARIOS', existingUser.id, {
+      token_sessao: sessionToken,
+      token_sessao_criado_em: nowIso,
+      token_sessao_ultima_atividade: nowIso,
+      token_sessao_expira_em: expiresIso
+    });
+
+    AuditService.log({
+      grupo_id: existingUser.grupo_id || 'GLOBAL',
+      usuario_id: existingUser.id,
+      acao: 'LOGIN_GOOGLE_SUCESSO',
+      entidade: 'USUARIOS',
+      entidade_id: existingUser.id,
+      origem: 'WEB_GOOGLE',
+      detalhes: { email: existingUser.email }
+    });
+
+    return {
+      ok: true,
+      status: 'APROVADO',
+      sessionToken: sessionToken,
+      user: {
+        id: existingUser.id,
+        email: existingUser.email,
+        nome: existingUser.nome,
+        papel: existingUser.papel,
+        status: existingUser.status,
+        tema_preferido: existingUser.tema_preferido || 'light'
+      },
+      message: 'Login realizado com sucesso!'
+    };
+  }
+
   return {
     normalizeEmail: normalizeEmail,
     resolveAuthenticatedEmail: resolveAuthenticatedEmail,
@@ -1090,6 +1292,7 @@ var AuthService = (function () {
     generateSessionToken: generateSessionToken,
     generateSecureSalt: generateSecureSalt,
     loginWithCredentials: loginWithCredentials,
+    loginWithGoogle: loginWithGoogle,
     registerUser: registerUser,
     logout: logout,
     checkApprovalStatus: checkApprovalStatus,

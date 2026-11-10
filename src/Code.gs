@@ -108,6 +108,9 @@ function apiCall(action, payload, authContext) {
     if (act === 'auth.login') {
       return AuthService.loginWithCredentials(reqPayload.email, reqPayload.senha);
     }
+    if (act === 'auth.googleLogin') {
+      return AuthService.loginWithGoogle();
+    }
     if (act === 'auth.register') {
       return AuthService.registerUser(reqPayload.nome, reqPayload.email, reqPayload.senha);
     }
