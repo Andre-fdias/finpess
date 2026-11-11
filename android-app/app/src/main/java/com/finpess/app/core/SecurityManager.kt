@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.finpess.app.data.model.UserDto
 
 class SecurityManager(context: Context) {
     private val masterKey = MasterKey.Builder(context)
@@ -45,6 +46,19 @@ class SecurityManager(context: Context) {
     fun getUserEmail(): String? = sharedPreferences.getString(Constants.KEY_USER_EMAIL, null)
     fun getUserName(): String? = sharedPreferences.getString(Constants.KEY_USER_NAME, null)
 
+    fun getUser(): UserDto? {
+        val email = getUserEmail() ?: return null
+        val name = getUserName() ?: "Usuário"
+        return UserDto(
+            id = "",
+            email = email,
+            nome = name,
+            papel = "MEMBRO",
+            status = "APROVADO",
+            grupoId = ""
+        )
+    }
+
     fun setBiometricEnabled(enabled: Boolean) {
         sharedPreferences.edit().putBoolean(Constants.KEY_BIOMETRIC_ENABLED, enabled).apply()
     }
@@ -57,4 +71,3 @@ class SecurityManager(context: Context) {
 
     fun isHideValues(): Boolean = sharedPreferences.getBoolean(Constants.KEY_HIDE_VALUES, false)
 }
-

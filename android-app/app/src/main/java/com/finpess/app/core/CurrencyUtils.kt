@@ -15,6 +15,8 @@ object CurrencyUtils {
         return formatter.format(reais)
     }
 
+    fun formatCentavosToBrl(cents: Long): String = formatCentsToBrl(cents)
+
     /**
      * Converte string de entrada digitada (ex: "45,50" ou "45.50") em centavos inteiros (4550L)
      */
@@ -24,5 +26,6 @@ object CurrencyUtils {
         val doubleVal = clean.toDoubleOrNull() ?: 0.0
         return Math.round(doubleVal * 100)
     }
-}
 
+    fun parseBrlToCentavos(input: String): Long = parseInputToCents(input)
+}

@@ -8,6 +8,10 @@ data class ApiResponse<T>(
     @SerializedName("error") val error: String?
 )
 
+data class AuthContextDto(
+    @SerializedName("sessionToken") val sessionToken: String
+)
+
 data class LoginRequest(
     @SerializedName("action") val action: String = "auth.login",
     @SerializedName("email") val email: String,
@@ -27,4 +31,3 @@ data class UserDto(
     @SerializedName("status") val status: String,
     @SerializedName("grupo_id") val grupoId: String
 )
-

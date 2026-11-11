@@ -6,8 +6,11 @@
 /.idea/modules.xml
 /.idea/workspace.xml
 .DS_Store
+build/
+app/build/
 /build
 /captures
 .externalNativeBuild
 .cxx
 local.properties
+
