@@ -1,7 +1,7 @@
 package com.finpess.app.core
 
 object Constants {
-    const val BASE_URL = "https://script.google.com/macros/s/AKfycbyzjzX7GYRl-IGmJ0S8kgoCfA9i3G9zC2AuAzUgXFyEYEmrt_ivlaxE2gyul7TCcaAM7g/"
+    const val BASE_URL = "https://script.google.com/macros/s/AKfycbypdpThB-NNbvVa7XiNy4yr7pOKSKfu6CrTNDqYgAgzlFc_NqWl-IXPe9hy1Gyw3VQ7gg/"
     const val EXEC_PATH = "exec"
 
     const val PREFS_NAME = "finpess_encrypted_prefs"
