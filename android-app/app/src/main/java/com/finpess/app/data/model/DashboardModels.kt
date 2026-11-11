@@ -4,7 +4,13 @@ import com.google.gson.annotations.SerializedName
 
 data class DashboardRequest(
     @SerializedName("action") val action: String = "dashboard.get",
-    @SerializedName("token") val token: String,
+    @SerializedName("payload") val payload: DashboardPayload = DashboardPayload(),
+    @SerializedName("authContext") val authContext: AuthContextDto,
+    @SerializedName("token") val token: String = "",
+    @SerializedName("sessionToken") val sessionToken: String = ""
+)
+
+data class DashboardPayload(
     @SerializedName("mesReferencia") val mesReferencia: String = ""
 )
 

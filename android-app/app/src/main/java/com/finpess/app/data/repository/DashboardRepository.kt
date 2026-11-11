@@ -2,8 +2,7 @@ package com.finpess.app.data.repository
 
 import com.finpess.app.core.Result
 import com.finpess.app.core.SecurityManager
-import com.finpess.app.data.model.DashboardDto
-import com.finpess.app.data.model.DashboardRequest
+import com.finpess.app.data.model.*
 import com.finpess.app.data.remote.ApiClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -18,7 +17,14 @@ class DashboardRepository(private val securityManager: SecurityManager) {
         }
 
         try {
-            val response = api.getDashboard(DashboardRequest(token = token, mesReferencia = mesReferencia))
+            val response = api.getDashboard(
+                DashboardRequest(
+                    payload = DashboardPayload(mesReferencia = mesReferencia),
+                    authContext = AuthContextDto(sessionToken = token),
+                    token = token,
+                    sessionToken = token
+                )
+            )
             if (response.isSuccessful && response.body()?.ok == true) {
                 val data = response.body()!!.data!!
                 Result.Success(data)

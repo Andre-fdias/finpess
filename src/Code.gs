@@ -73,7 +73,12 @@ function doPost(e) {
 
     // Se a requisição contiver 'action', despacha via apiCall para o App Android Nativo / clientes REST
     if (parsed && parsed.action) {
-      var apiResponse = apiCall(parsed.action, parsed.payload, parsed.authContext);
+      var authCtx = parsed.authContext || {};
+      if (!authCtx.sessionToken) {
+        authCtx.sessionToken = parsed.sessionToken || parsed.token || (parsed.payload && (parsed.payload.sessionToken || parsed.payload.token)) || '';
+      }
+      var payloadData = parsed.payload || parsed;
+      var apiResponse = apiCall(parsed.action, payloadData, authCtx);
       return ContentService.createTextOutput(JSON.stringify(apiResponse))
         .setMimeType(ContentService.MimeType.JSON);
     }
