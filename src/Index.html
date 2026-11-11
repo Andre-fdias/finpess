@@ -202,6 +202,12 @@
         </div>
 
         <div class="topbar-actions">
+          <!-- Botão de Instalar App no Android / PWA -->
+          <button type="button" id="btn-pwa-install" class="btn btn-primary btn-sm" onclick="App.installPwaApp()" style="display:none; align-items:center; gap:0.4rem; padding:0.38rem 0.75rem; font-weight:600; font-size:0.78rem; background:linear-gradient(135deg, #059669 0%, #047857 100%); border:none; box-shadow:0 2px 8px rgba(5,150,105,0.35);" title="Instalar aplicativo Finpess no celular ou computador">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+            <span>Instalar App</span>
+          </button>
+
           <!-- Botão do Sino de Notificações com Dropdown da Central -->
           <div id="notifications-bell-container" class="notifications-wrapper" style="position:relative;">
             <button type="button" id="btn-notifications-bell" class="btn btn-secondary btn-sm" onclick="App.toggleNotificationsPanel(event)" title="Central de Notificações e Alertas" style="padding:0.4rem 0.65rem; position:relative; display:inline-flex; align-items:center; justify-content:center;">

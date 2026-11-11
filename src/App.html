@@ -992,10 +992,12 @@
 
       try {
         var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        var btnPwa = document.getElementById('btn-pwa-install');
         if (isStandalone) {
           document.body.classList.add('is-pwa-standalone');
-          var btnPwa = document.getElementById('btn-pwa-install');
           if (btnPwa) btnPwa.style.display = 'none';
+        } else if (btnPwa) {
+          btnPwa.style.display = 'inline-flex';
         }
       } catch (ePwa) {}
 
