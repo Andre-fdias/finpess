@@ -30,3 +30,4 @@ data class BankAccountEntity(
     val corHex: String? = null,
     val updatedAt: Long = System.currentTimeMillis()
 )
+

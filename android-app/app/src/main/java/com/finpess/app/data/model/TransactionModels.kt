@@ -199,3 +199,4 @@ data class CreditCardsListRequest(
     @SerializedName("authContext")
     val authContext: AuthContextDto
 )
+

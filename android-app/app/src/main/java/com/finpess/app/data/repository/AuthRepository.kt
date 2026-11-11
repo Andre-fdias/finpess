@@ -36,3 +36,4 @@ class AuthRepository(private val securityManager: SecurityManager) {
         securityManager.clearSessionToken()
     }
 }
+

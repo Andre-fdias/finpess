@@ -57,3 +57,4 @@ class SecurityManager(context: Context) {
 
     fun isHideValues(): Boolean = sharedPreferences.getBoolean(Constants.KEY_HIDE_VALUES, false)
 }
+

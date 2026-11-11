@@ -104,3 +104,4 @@ data class ResumoBancosDto(
     @SerializedName("saldo_confirmado_centavos") val saldoConfirmadoCentavos: Long = 0,
     @SerializedName("saldo_projetado_centavos") val saldoProjetadoCentavos: Long = 0
 )
+

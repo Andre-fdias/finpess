@@ -50,3 +50,4 @@ class BiometricAuthManager(private val context: Context) {
         prompt.authenticate(promptInfo)
     }
 }
+

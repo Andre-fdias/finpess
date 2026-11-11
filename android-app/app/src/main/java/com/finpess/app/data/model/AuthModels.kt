@@ -27,3 +27,4 @@ data class UserDto(
     @SerializedName("status") val status: String,
     @SerializedName("grupo_id") val grupoId: String
 )
+

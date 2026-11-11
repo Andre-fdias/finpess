@@ -5,3 +5,4 @@ sealed class Result<out T> {
     data class Error(val message: String, val cause: Throwable? = null) : Result<Nothing>()
     object Loading : Result<Nothing>()
 }
+

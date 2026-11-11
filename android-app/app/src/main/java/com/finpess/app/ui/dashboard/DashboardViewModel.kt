@@ -53,3 +53,4 @@ class DashboardViewModel(
         securityManager.setHideValues(newVal)
     }
 }
+

@@ -91,3 +91,4 @@ class QuickConfirmReceiver : BroadcastReceiver() {
         const val EXTRA_FORMA_PAGAMENTO = "extra_forma_pagamento"
     }
 }
+

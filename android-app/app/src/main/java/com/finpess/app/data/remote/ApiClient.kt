@@ -29,3 +29,4 @@ object ApiClient {
 
     val apiService: FinpessApiService = retrofit.create(FinpessApiService::class.java)
 }
+

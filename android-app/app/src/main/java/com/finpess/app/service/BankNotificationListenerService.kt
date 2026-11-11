@@ -101,3 +101,4 @@ class BankNotificationListenerService : NotificationListenerService() {
         notificationManager.notify(notificationId, notification)
     }
 }
+

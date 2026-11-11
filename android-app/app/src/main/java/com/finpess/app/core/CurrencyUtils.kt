@@ -25,3 +25,4 @@ object CurrencyUtils {
         return Math.round(doubleVal * 100)
     }
 }
+

@@ -62,3 +62,4 @@ class AuthViewModel(
         _uiState.value = AuthUiState.Idle
     }
 }
+

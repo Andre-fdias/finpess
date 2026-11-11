@@ -58,3 +58,4 @@ interface BankAccountDao {
     @Query("DELETE FROM bank_accounts")
     suspend fun clearAll()
 }
+

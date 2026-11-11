@@ -11,3 +11,4 @@ object Constants {
     const val KEY_BIOMETRIC_ENABLED = "biometric_enabled"
     const val KEY_HIDE_VALUES = "hide_values"
 }
+
