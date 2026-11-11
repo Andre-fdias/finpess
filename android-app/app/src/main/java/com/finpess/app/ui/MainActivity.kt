@@ -63,6 +63,9 @@ class MainActivity : FragmentActivity() {
                                 onLoginClick = { email, pass ->
                                     authViewModel.login(email, pass)
                                 },
+                                onGoogleLoginClick = { email, pass ->
+                                    authViewModel.loginWithGoogle(email, pass)
+                                },
                                 onBiometricClick = {
                                     triggerBiometricAuth {
                                         authViewModel.checkExistingSession()

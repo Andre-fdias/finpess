@@ -13,6 +13,11 @@ interface FinpessApiService {
     ): Response<ApiResponse<LoginResponse>>
 
     @POST(Constants.EXEC_PATH)
+    suspend fun googleLogin(
+        @Body request: GoogleLoginRequest
+    ): Response<ApiResponse<LoginResponse>>
+
+    @POST(Constants.EXEC_PATH)
     suspend fun getDashboard(
         @Body request: DashboardRequest
     ): Response<ApiResponse<DashboardDto>>

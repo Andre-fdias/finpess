@@ -20,4 +20,5 @@ val SuccessGreen = Color(0xFF10B981)
 val AccentPurple = Color(0xFF7C3AED)
 val AccentBlue = Color(0xFF2563EB)
 val CardBackground = Color(0xFF1E293B)
+val SlateCardDark = Color(0xFF1E293B)
 
