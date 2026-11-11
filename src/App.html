@@ -5528,6 +5528,7 @@
         situacao: document.getElementById('edit-loan-situacao').value,
         tipo_emprestimo: isConsignado ? 'CONSIGNADO' : 'PESSOAL',
         desconto_em_folha: isConsignado,
+        desconto_em_folha_ja_deduzido_salario: isConsignado,
         valor_contratado_centavos: UIHelpers.parseInputToCentavos(document.getElementById('edit-loan-valor-contratado').value),
         numero_parcelas: parseInt(document.getElementById('edit-loan-parcelas').value, 10),
         parcelas_pagas: pagasVal,

@@ -282,38 +282,86 @@ var LoanService = (function () {
    * Sincroniza os lançamentos de empréstimos pagos pelo usuário (não consignados).
    * - Gera lançamentos PREVISTOS para parcelas futuras/em aberto.
    * - Marca lançamentos como CONFIRMADO para parcelas já pagas.
+   * - Limpa/cancela automaticamente lançamentos duplicados.
+   * - Se um empréstimo for consignado (desconto em folha/salário), cancela quaisquer
+   *   lançamentos bancários indevidos vinculados a ele para proteger o saldo de caixa.
    */
   function syncUserPaidLoanLaunches(user) {
     if (!user || !user.grupo_id) return;
 
-    var userPaidLoans = SpreadsheetRepository.findByGrupo('EMPRESTIMOS', user.grupo_id, function (l) {
-      return !l.desconto_em_folha && l.situacao !== 'CANCELADO';
-    });
-    if (userPaidLoans.length === 0) return;
+    var allLoans = SpreadsheetRepository.findByGrupo('EMPRESTIMOS', user.grupo_id);
+    if (allLoans.length === 0) return;
 
     var loanMap = {};
-    for (var i = 0; i < userPaidLoans.length; i++) {
-      loanMap[userPaidLoans[i].id] = userPaidLoans[i];
+    var consignadoOrCanceledLoanIds = {};
+    for (var i = 0; i < allLoans.length; i++) {
+      var l = allLoans[i];
+      if (!l.desconto_em_folha && l.situacao !== 'CANCELADO') {
+        loanMap[l.id] = l;
+      } else {
+        consignadoOrCanceledLoanIds[l.id] = true;
+      }
     }
 
     var allParcelas = SpreadsheetRepository.findByGrupo('PARCELAS', user.grupo_id, function (p) {
-      return p.origem_tipo === 'EMPRESTIMO' && Boolean(loanMap[p.origem_id]) && p.situacao !== 'CANCELADA';
+      return p.origem_tipo === 'EMPRESTIMO';
     });
     if (allParcelas.length === 0) return;
 
-    var existingLaunches = SpreadsheetRepository.findByGrupo('LANCAMENTOS', user.grupo_id, function (l) {
-      return l.origem === 'EMPRESTIMO' || (l.id_origem_externa && String(l.id_origem_externa).indexOf('par_emp_') === 0);
+    var existingLaunches = SpreadsheetRepository.findByGrupo('LANCAMENTOS', user.grupo_id, function (lan) {
+      return lan.origem === 'EMPRESTIMO' || (lan.id_origem_externa && String(lan.id_origem_externa).indexOf('par_emp_') === 0);
     });
 
+    // Mapeia parcelas de empréstimos consignados ou cancelados
+    var consignadoParcelaIds = {};
+    for (var cp = 0; cp < allParcelas.length; cp++) {
+      if (consignadoOrCanceledLoanIds[allParcelas[cp].origem_id] || allParcelas[cp].situacao === 'CANCELADA') {
+        consignadoParcelaIds[allParcelas[cp].id] = true;
+      }
+    }
+
+    // 1. Limpeza de lançamentos bancários indevidos pertencentes a empréstimos consignados (desconto em folha)
+    var lancamentosToCancel = {};
+    for (var elIdx = 0; elIdx < existingLaunches.length; elIdx++) {
+      var lanItem = existingLaunches[elIdx];
+      if (lanItem.situacao === 'CANCELADO') continue;
+
+      var pId = lanItem.referencia_parcela_id;
+      if (!pId && lanItem.id_origem_externa && String(lanItem.id_origem_externa).indexOf('par_emp_') === 0) {
+        pId = String(lanItem.id_origem_externa).replace('par_emp_', '');
+      }
+
+      if (pId && consignadoParcelaIds[pId]) {
+        lancamentosToCancel[lanItem.id] = { situacao: 'CANCELADO' };
+      }
+    }
+
+    // 2. Mapeamento e Deduplicação estrita de lançamentos existentes para empréstimos pagos pelo usuário
     var launchByParcelaId = {};
+    var launchByDescDate = {};
+
     for (var k = 0; k < existingLaunches.length; k++) {
       var it = existingLaunches[k];
-      if (it.referencia_parcela_id) {
-        launchByParcelaId[it.referencia_parcela_id] = it;
-      } else if (it.id_origem_externa && String(it.id_origem_externa).indexOf('par_emp_') === 0) {
-        var pid = String(it.id_origem_externa).replace('par_emp_', '');
-        launchByParcelaId[pid] = it;
+      if (it.situacao === 'CANCELADO' || lancamentosToCancel[it.id]) continue;
+
+      var pid = it.referencia_parcela_id;
+      if (!pid && it.id_origem_externa && String(it.id_origem_externa).indexOf('par_emp_') === 0) {
+        pid = String(it.id_origem_externa).replace('par_emp_', '');
       }
+
+      var dKey = String(it.descricao || '').trim().toLowerCase() + '::' + String(it.data_lancamento || '').trim();
+
+      // Se já existe um lançamento ativo para esta mesma parcela ou mesma descrição+data, marca os extras como duplicados e cancela
+      if ((pid && launchByParcelaId[pid]) || (dKey && launchByDescDate[dKey])) {
+        lancamentosToCancel[it.id] = { situacao: 'CANCELADO' };
+      } else {
+        if (pid) launchByParcelaId[pid] = it;
+        if (dKey) launchByDescDate[dKey] = it;
+      }
+    }
+
+    if (Object.keys(lancamentosToCancel).length > 0) {
+      SpreadsheetRepository.updateBatch('LANCAMENTOS', lancamentosToCancel, user.grupo_id);
     }
 
     var accounts = SpreadsheetRepository.findByGrupo('CONTAS_BANCARIAS', user.grupo_id, function (a) { return a.situacao === 'ATIVA'; });
@@ -328,12 +376,18 @@ var LoanService = (function () {
     }
 
     var toInsert = [];
-    for (var pIdx = 0; pIdx < allParcelas.length; pIdx++) {
-      var par = allParcelas[pIdx];
+    var activeParcelas = allParcelas.filter(function (p) {
+      return Boolean(loanMap[p.origem_id]) && p.situacao !== 'CANCELADA';
+    });
+
+    for (var pIdx = 0; pIdx < activeParcelas.length; pIdx++) {
+      var par = activeParcelas[pIdx];
       var ln = loanMap[par.origem_id];
       if (!ln) continue;
 
-      var existingLan = launchByParcelaId[par.id];
+      var descr = 'Parcela Empréstimo ' + ln.instituicao + ' (' + par.numero_parcela + '/' + par.total_parcelas + ')';
+      var dKeyCheck = descr.toLowerCase() + '::' + par.data_vencimento;
+      var existingLan = launchByParcelaId[par.id] || launchByDescDate[dKeyCheck];
       if (!existingLan) {
         var isPaga = par.situacao === 'PAGA';
         var lanId = SpreadsheetRepository.generateId('lan');
@@ -344,7 +398,7 @@ var LoanService = (function () {
           tipo: 'SAIDA',
           natureza_operacao: 'DESPESA_FIXA',
           transferencia_id: '',
-          descricao: 'Parcela Empréstimo ' + ln.instituicao + ' (' + par.numero_parcela + '/' + par.total_parcelas + ')',
+          descricao: descr,
           valor_centavos: par.valor_centavos,
           data_lancamento: par.data_vencimento,
           data_competencia: par.data_vencimento,
@@ -364,6 +418,8 @@ var LoanService = (function () {
           atualizado_em: SpreadsheetRepository.nowIso(),
           usuario_responsavel_id: user.id
         });
+        launchByParcelaId[par.id] = { id: lanId, situacao: isPaga ? 'CONFIRMADO' : 'PREVISTO' };
+        launchByDescDate[dKeyCheck] = { id: lanId, situacao: isPaga ? 'CONFIRMADO' : 'PREVISTO' };
         if (par.lancamento_id !== lanId) {
           SpreadsheetRepository.updateById('PARCELAS', par.id, { lancamento_id: lanId }, user.grupo_id);
         }
@@ -634,10 +690,8 @@ var LoanService = (function () {
 
     var updated = SpreadsheetRepository.updateById('EMPRESTIMOS', loanId, updateData, user.grupo_id);
 
-    // Sincroniza lançamentos bancários conforme modalidade
-    if (!descontoEmFolha) {
-      syncUserPaidLoanLaunches(user);
-    }
+    // Sincroniza lançamentos bancários conforme modalidade (cria se for pago pelo usuário, limpa/cancela se for consignado em folha)
+    syncUserPaidLoanLaunches(user);
 
     AuditService.log({
       grupo_id: user.grupo_id,
