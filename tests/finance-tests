@@ -448,6 +448,20 @@ function runFinanceTests() {
   assert.ok(ownerAfter, 'O usuário OWNER deve permanecer intacto');
   assert.strictEqual(ownerAfter.hash_senha, ownerHash, 'O hash da senha do OWNER deve ser preservado');
 
+  // Teste de enriquecimento do Dashboard 360° e KPIs modulares
+  const dashData = ctx.FinanceService.getDashboardData(boot.profile.user, '2026-11');
+  assert.ok(dashData, 'getDashboardData deve retornar dados para o mês');
+  assert.ok(dashData.resumo_geral_modulos, 'Dashboard deve conter resumo_geral_modulos com os 8 módulos');
+  assert.ok(dashData.resumo_geral_modulos.cartoes !== undefined, 'Deve conter resumo de cartões');
+  assert.ok(dashData.resumo_geral_modulos.recorrentes !== undefined, 'Deve conter resumo de recorrentes');
+  assert.ok(dashData.resumo_geral_modulos.dividas !== undefined, 'Deve conter resumo de dívidas');
+  assert.ok(dashData.resumo_geral_modulos.emprestimos !== undefined, 'Deve conter resumo de empréstimos');
+  assert.ok(dashData.resumo_geral_modulos.investimentos !== undefined, 'Deve conter resumo de investimentos');
+  assert.ok(dashData.resumo_geral_modulos.metas !== undefined, 'Deve conter resumo de metas');
+  assert.ok(dashData.resumo_geral_modulos.calendario !== undefined, 'Deve conter resumo de calendário');
+  assert.ok(dashData.resumo_geral_modulos.bancos !== undefined, 'Deve conter resumo de bancos');
+  results.push('Visão executiva 360° do Dashboard com cálculo de todos os 8 módulos comprovada.');
+
   results.push('Reset do sistema com backup automático e validação estrita de senha do OWNER comprovados.');
 
   return results;

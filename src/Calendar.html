@@ -93,6 +93,65 @@
     </div>
   </div>
 
+  <!-- Cards de Resumo Executivo / KPIs do Calendário Financeiro -->
+  <div class="filter-summary-cards" id="calendar-kpi-container" style="margin-bottom:1.15rem;">
+    <div class="filter-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>A Receber no Período</span>
+          <span class="info-popover-wrap" data-info-key="cal-kpi-receber"></span>
+        </span>
+        <span class="badge badge-confirmado" style="font-size:0.65rem;">Entradas</span>
+      </div>
+      <strong class="summary-value summary-val-entrada" id="cal-kpi-receber">+R$ 0,00</strong>
+      <small style="color:var(--text-secondary); font-size:0.75rem;">Receitas e proventos agendados</small>
+    </div>
+    <div class="filter-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>A Pagar no Período</span>
+          <span class="info-popover-wrap" data-info-key="cal-kpi-pagar"></span>
+        </span>
+        <span class="badge badge-cancelado" style="font-size:0.65rem;">Saídas Caixa</span>
+      </div>
+      <strong class="summary-value summary-val-saida" id="cal-kpi-pagar">-R$ 0,00</strong>
+      <small style="color:var(--text-secondary); font-size:0.75rem;">Despesas com débito em conta</small>
+    </div>
+    <div class="filter-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>Saldo Líquido Previsto</span>
+          <span class="info-popover-wrap" data-info-key="cal-kpi-saldo"></span>
+        </span>
+        <span class="badge" style="background:rgba(37,99,235,0.12); color:#2563eb; font-size:0.65rem;">Resultado</span>
+      </div>
+      <strong class="summary-value" id="cal-kpi-saldo" style="color:#2563eb;">R$ 0,00</strong>
+      <small style="color:var(--text-secondary); font-size:0.75rem;">Entradas menos saídas de caixa</small>
+    </div>
+    <div class="filter-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>Retido em Folha (Consignados)</span>
+          <span class="info-popover-wrap" data-info-key="cal-kpi-consignados"></span>
+        </span>
+        <span class="badge" style="background:rgba(13,148,136,0.12); color:#0d9488; font-size:0.65rem;">Folha</span>
+      </div>
+      <strong class="summary-value" id="cal-kpi-consignados" style="color:#0d9488;">R$ 0,00</strong>
+      <small style="color:var(--text-secondary); font-size:0.75rem;">Não debita conta corrente</small>
+    </div>
+    <div class="filter-summary-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span class="summary-label" style="display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>Total de Compromissos</span>
+          <span class="info-popover-wrap" data-info-key="cal-kpi-eventos" data-align="right"></span>
+        </span>
+        <span class="badge" style="background:rgba(124,58,237,0.12); color:#7c3aed; font-size:0.65rem;">Agenda</span>
+      </div>
+      <strong class="summary-value" id="cal-kpi-eventos" style="color:#7c3aed;">0 evento(s)</strong>
+      <small id="cal-kpi-atrasadas-desc" style="color:var(--text-secondary); font-size:0.75rem;">0 atrasado(s) no período</small>
+    </div>
+  </div>
+
   <!-- Card do Calendário Interativo Estilo FullCalendar -->
   <div class="card" style="padding:1.15rem;">
     <!-- Toolbar FullCalendar -->

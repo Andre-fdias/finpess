@@ -1594,6 +1594,85 @@
         '<tr><td><strong>(=) Patrimônio Líquido Estimado</strong></td><td>' + UIHelpers.renderBadge('ESTIMADO') + '</td><td class="col-money"><strong>' + UIHelpers.formatBrl(comp.patrimonio_liquido_estimado_centavos) + '</strong></td></tr>' +
         '</tbody></table>';
 
+      // Central Executiva 360° — Resumo de Todos os Módulos do Sistema
+      var rMod = dash.resumo_geral_modulos || {};
+
+      // 1. Cartões de Crédito
+      var rCrd = rMod.cartoes || {};
+      var elCrdBadge = document.getElementById('dash-resumo-cartoes-badge');
+      if (elCrdBadge) elCrdBadge.textContent = (rCrd.total_cartoes || 0) + ' cartões';
+      var elCrdFat = document.getElementById('dash-resumo-cartoes-faturas');
+      if (elCrdFat) elCrdFat.textContent = UIHelpers.formatBrl(rCrd.faturas_abertas_centavos || 0);
+      var elCrdLim = document.getElementById('dash-resumo-cartoes-limite');
+      if (elCrdLim) elCrdLim.textContent = 'Disp: ' + UIHelpers.formatBrl(rCrd.limite_disponivel_centavos || 0) + ' de ' + UIHelpers.formatBrl(rCrd.limite_total_centavos || 0);
+
+      // 2. Contas Recorrentes
+      var rRec = rMod.recorrentes || {};
+      var elRecBadge = document.getElementById('dash-resumo-recorrentes-badge');
+      if (elRecBadge) elRecBadge.textContent = (rRec.total_ativas || 0) + ' ativas';
+      var elRecFixo = document.getElementById('dash-resumo-recorrentes-fixo');
+      if (elRecFixo) elRecFixo.textContent = UIHelpers.formatBrl(rRec.custo_fixo_mensal_centavos || 0);
+      var elRecStat = document.getElementById('dash-resumo-recorrentes-status');
+      if (elRecStat) elRecStat.textContent = 'Pagas: ' + UIHelpers.formatBrl(rRec.pagas_mes_centavos || 0) + ' | Pend: ' + UIHelpers.formatBrl(rRec.pendentes_mes_centavos || 0);
+
+      // 3. Dívidas & Acordos
+      var rDiv = rMod.dividas || {};
+      var elDivBadge = document.getElementById('dash-resumo-dividas-badge');
+      if (elDivBadge) elDivBadge.textContent = (rDiv.total_dividas || 0) + ' dívidas';
+      var elDivDev = document.getElementById('dash-resumo-dividas-devedor');
+      if (elDivDev) elDivDev.textContent = UIHelpers.formatBrl(rDiv.saldo_devedor_total_centavos || 0);
+      var elDivAcordo = document.getElementById('dash-resumo-dividas-acordo');
+      if (elDivAcordo) elDivAcordo.textContent = 'Acordos: ' + UIHelpers.formatBrl(rDiv.em_acordo_centavos || 0) + ' (' + (rDiv.parcelas_pagas || 0) + ' pagas / ' + (rDiv.parcelas_pendentes || 0) + ' pend)';
+
+      // 4. Empréstimos & Consignados
+      var rEmp = rMod.emprestimos || {};
+      var elEmpBadge = document.getElementById('dash-resumo-emprestimos-badge');
+      if (elEmpBadge) elEmpBadge.textContent = (rEmp.total_emprestimos || 0) + ' contratos';
+      var elEmpDev = document.getElementById('dash-resumo-emprestimos-devedor');
+      if (elEmpDev) elEmpDev.textContent = UIHelpers.formatBrl(rEmp.saldo_devedor_total_centavos || 0);
+      var elEmpParc = document.getElementById('dash-resumo-emprestimos-parcela');
+      if (elEmpParc) elEmpParc.textContent = 'Parcelas: ' + UIHelpers.formatBrl(rEmp.parcela_mensal_total_centavos || 0) + ' (Folha: ' + UIHelpers.formatBrl(rEmp.consignado_folha_centavos || 0) + ')';
+
+      // 5. Investimentos
+      var rInv = rMod.investimentos || {};
+      var elInvBadge = document.getElementById('dash-resumo-invest-badge');
+      if (elInvBadge) elInvBadge.textContent = (rInv.total_ativos || 0) + ' ativos';
+      var elInvPat = document.getElementById('dash-resumo-invest-patrimonio');
+      if (elInvPat) elInvPat.textContent = UIHelpers.formatBrl(rInv.patrimonio_total_centavos || 0);
+      var elInvRent = document.getElementById('dash-resumo-invest-rentab');
+      if (elInvRent) {
+        var rentVal = rInv.rentabilidade_total_centavos || 0;
+        var signalRent = rentVal >= 0 ? '+' : '';
+        elInvRent.textContent = 'Retorno: ' + signalRent + UIHelpers.formatBrl(rentVal) + ' (' + (rInv.rentabilidade_pct || 0) + '%)';
+      }
+
+      // 6. Metas & Reserva
+      var rMet = rMod.metas || {};
+      var elMetBadge = document.getElementById('dash-resumo-metas-badge');
+      if (elMetBadge) elMetBadge.textContent = (rMet.total_metas || 0) + ' metas';
+      var elMetAcum = document.getElementById('dash-resumo-metas-acumulado');
+      if (elMetAcum) elMetAcum.textContent = UIHelpers.formatBrl(rMet.total_acumulado_centavos || 0);
+      var elMetProg = document.getElementById('dash-resumo-metas-progresso');
+      if (elMetProg) elMetProg.textContent = 'Alvo: ' + UIHelpers.formatBrl(rMet.total_alvo_centavos || 0) + ' (' + (rMet.percentual_geral || 0) + '%)';
+      var elMetRes = document.getElementById('dash-resumo-metas-reserva');
+      if (elMetRes) elMetRes.textContent = 'Reserva: ' + (rMet.meses_reserva_cobertos || 0) + ' meses cobertos';
+
+      // 7. Calendário & Vencimentos
+      var rCal = rMod.calendario || {};
+      var elCalPag = document.getElementById('dash-resumo-cal-pagar');
+      if (elCalPag) elCalPag.textContent = UIHelpers.formatBrl(rCal.total_pagar_mes_centavos || 0);
+      var elCal7 = document.getElementById('dash-resumo-cal-7dias');
+      if (elCal7) elCal7.textContent = 'Próximos 7 dias: ' + UIHelpers.formatBrl(rCal.proximos_7_dias_centavos || 0) + ' | Vencidas: ' + (rCal.contas_atrasadas_qtd || 0);
+
+      // 8. Contas Bancárias
+      var rBco = rMod.bancos || {};
+      var elBcoBadge = document.getElementById('dash-resumo-bancos-badge');
+      if (elBcoBadge) elBcoBadge.textContent = (rBco.total_contas || 0) + ' contas';
+      var elBcoSal = document.getElementById('dash-resumo-bancos-saldo');
+      if (elBcoSal) elBcoSal.textContent = UIHelpers.formatBrl(rBco.saldo_confirmado_centavos || 0);
+      var elBcoProj = document.getElementById('dash-resumo-bancos-projetado');
+      if (elBcoProj) elBcoProj.textContent = 'Saldo Projetado: ' + UIHelpers.formatBrl(rBco.saldo_projetado_centavos || 0);
+
       if (UIHelpers && UIHelpers.initInfoPopovers) {
         UIHelpers.initInfoPopovers(document.getElementById('sec-dashboard'));
       }
@@ -5056,13 +5135,25 @@
       var totalParcelasGeral = 0;
       var ativosCount = 0;
       var consignadosCount = 0;
+      var totalParcelaMensal = 0;
+      var totalParcelaFolha = 0;
+      var totalParcelaConta = 0;
 
       loansList.forEach(function (l) {
         totalContratado += Number(l.valor_contratado_centavos || 0);
         totalDevedor += Number(l.saldo_devedor_centavos || 0);
         totalPagas += Number(l.parcelas_pagas || 0);
         totalParcelasGeral += Number(l.numero_parcelas || 0);
-        if (l.situacao === 'ATIVO') ativosCount++;
+        var pVal = Number(l.valor_parcela_centavos || 0);
+        if (l.situacao === 'ATIVO') {
+          ativosCount++;
+          totalParcelaMensal += pVal;
+          if (l.desconto_em_folha_ja_deduzido_salario || l.tipo_emprestimo === 'CONSIGNADO') {
+            totalParcelaFolha += pVal;
+          } else {
+            totalParcelaConta += pVal;
+          }
+        }
         if (l.desconto_em_folha_ja_deduzido_salario) consignadosCount++;
       });
 
@@ -5086,6 +5177,12 @@
 
       var elConsDesc = document.getElementById('loans-kpi-consignados-desc');
       if (elConsDesc) elConsDesc.textContent = consignadosCount + ' consignado(s) em folha';
+
+      var elParcMensal = document.getElementById('loans-kpi-parcela-mensal');
+      if (elParcMensal) elParcMensal.textContent = UIHelpers.formatBrl(totalParcelaMensal);
+
+      var elParcDesc = document.getElementById('loans-kpi-parcela-tipo-desc');
+      if (elParcDesc) elParcDesc.textContent = 'Folha: ' + UIHelpers.formatBrl(totalParcelaFolha) + ' | Conta: ' + UIHelpers.formatBrl(totalParcelaConta);
 
       // 2. Renderiza a tabela de contratos de empréstimos
       var rows = loansList.map(function (l) {
@@ -6955,6 +7052,26 @@
               '<span class="fc-summary-value" style="color:var(--predicted);">📊 ' + totalEventosMercado + ' evento(s)</span>' +
             '</div>'
           : '';
+
+        // Atualiza os novos Cards de Resumo Executivo / KPIs do Calendário
+        var elCalRec = document.getElementById('cal-kpi-receber');
+        if (elCalRec) elCalRec.textContent = '+' + UIHelpers.formatBrl(totalEntradas);
+        var elCalPag = document.getElementById('cal-kpi-pagar');
+        if (elCalPag) elCalPag.textContent = '-' + UIHelpers.formatBrl(totalSaidas);
+        var elCalSal = document.getElementById('cal-kpi-saldo');
+        if (elCalSal) {
+          elCalSal.textContent = (saldo >= 0 ? '+' : '') + UIHelpers.formatBrl(saldo);
+          elCalSal.style.color = (saldo >= 0 ? 'var(--success)' : 'var(--danger)');
+        }
+        var elCalCons = document.getElementById('cal-kpi-consignados');
+        if (elCalCons) elCalCons.textContent = UIHelpers.formatBrl(totalConsignado);
+        var elCalEvt = document.getElementById('cal-kpi-eventos');
+        if (elCalEvt) elCalEvt.textContent = (cal.total_eventos || state.calendarEvents.length) + ' evento(s)';
+        var elCalAtrasoDesc = document.getElementById('cal-kpi-atrasadas-desc');
+        if (elCalAtrasoDesc) {
+          var atrasados = state.calendarEvents.filter(function (ev) { return ev.alerta_vencimento === 'VENCIDO'; }).length;
+          elCalAtrasoDesc.textContent = atrasados + ' atrasado(s) no período';
+        }
 
         var elSummary = document.getElementById('calendar-summary-header');
         if (elSummary) {

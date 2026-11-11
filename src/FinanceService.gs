@@ -693,9 +693,226 @@ var FinanceService = (function () {
       return y.total_comprometido_centavos - x.total_comprometido_centavos;
     });
 
+    // ── Resumo Geral de Todos os Módulos (Visão 360° para o Dashboard e KPIs) ──
+    var rawCards = [];
+    try {
+      if (typeof CreditCardService !== 'undefined' && CreditCardService.listCards) {
+        rawCards = CreditCardService.listCards(user);
+      }
+    } catch (eCards) {}
+    var totalLimiteCartoes = 0;
+    var totalComprometidoCartoes = 0;
+    var totalFaturasAbertasCartoes = 0;
+    for (var rcIdx = 0; rcIdx < rawCards.length; rcIdx++) {
+      var rc = rawCards[rcIdx];
+      var lim = Number(rc.limite_total_centavos || 0) + Number(rc.limite_adicional_centavos || 0);
+      var compLim = Number(rc.limite_comprometido_centavos || 0);
+      totalLimiteCartoes += lim;
+      totalComprometidoCartoes += compLim;
+      totalFaturasAbertasCartoes += Number(rc.fatura_atual_centavos || 0);
+    }
+    var resumoCartoes = {
+      total_cartoes: rawCards.length,
+      faturas_abertas_centavos: totalFaturasAbertasCartoes,
+      limite_total_centavos: totalLimiteCartoes,
+      limite_comprometido_centavos: totalComprometidoCartoes,
+      limite_disponivel_centavos: Math.max(0, totalLimiteCartoes - totalComprometidoCartoes)
+    };
+
+    var rawRecorrentes = [];
+    try {
+      if (typeof RecurringAccountService !== 'undefined' && RecurringAccountService.listRecurringAccounts) {
+        rawRecorrentes = RecurringAccountService.listRecurringAccounts(user, targetMonth);
+      }
+    } catch (eRec) {}
+    var custoFixoMensalCentavos = 0;
+    var custoAnualizadoCentavos = 0;
+    var recPagasCentavos = 0;
+    var recPendentesCentavos = 0;
+    var recPagasQtd = 0;
+    var recPendentesQtd = 0;
+    for (var rrIdx = 0; rrIdx < rawRecorrentes.length; rrIdx++) {
+      var rItem = rawRecorrentes[rrIdx];
+      if (rItem.situacao === 'ATIVA' && rItem.tipo === 'SAIDA') {
+        var rVal = Number(rItem.valor_previsto_centavos || 0);
+        var mensVal = rVal;
+        if (rItem.recorrencia === 'ANUAL') mensVal = Math.round(rVal / 12);
+        else if (rItem.recorrencia === 'SEMANAL') mensVal = Math.round(rVal * 4.33);
+        else if (rItem.recorrencia === 'QUINZENAL') mensVal = rVal * 2;
+        custoFixoMensalCentavos += mensVal;
+        custoAnualizadoCentavos += mensVal * 12;
+
+        if (rItem.ocorrencia_mes_atual && rItem.ocorrencia_mes_atual.situacao === 'CONFIRMADO') {
+          recPagasCentavos += Number(rItem.ocorrencia_mes_atual.valor_centavos || rVal);
+          recPagasQtd++;
+        } else {
+          recPendentesCentavos += rVal;
+          recPendentesQtd++;
+        }
+      }
+    }
+    var resumoRecorrentes = {
+      total_ativas: rawRecorrentes.filter(function (r) { return r.situacao === 'ATIVA'; }).length,
+      custo_mensal_fixo_centavos: custoFixoMensalCentavos,
+      custo_anualizado_centavos: custoAnualizadoCentavos,
+      pagas_mes_centavos: recPagasCentavos,
+      pendentes_mes_centavos: recPendentesCentavos,
+      pagas_qtd: recPagasQtd,
+      pendentes_qtd: recPendentesQtd
+    };
+
+    var rawDebts = [];
+    try {
+      if (typeof DebtService !== 'undefined' && DebtService.listDebts) {
+        rawDebts = DebtService.listDebts(user);
+      }
+    } catch (eDebts) {}
+    var totalSaldoDevedorDividas = 0;
+    var totalEmAcordoDividas = 0;
+    var parcelasPagasDividas = 0;
+    var parcelasTotalDividas = 0;
+    var totalEconomiaDescontosDividas = 0;
+    for (var rdIdx = 0; rdIdx < rawDebts.length; rdIdx++) {
+      var dItem = rawDebts[rdIdx];
+      if (dItem.situacao !== 'QUITADA' && dItem.situacao !== 'CANCELADA') {
+        totalSaldoDevedorDividas += Number(dItem.saldo_devedor_centavos || 0);
+        if (dItem.situacao === 'ACORDO_ATIVO' || dItem.parcelas_total > 0) {
+          totalEmAcordoDividas += Number(dItem.saldo_devedor_centavos || 0);
+          parcelasPagasDividas += Number(dItem.parcelas_pagas || 0);
+          parcelasTotalDividas += Number(dItem.parcelas_total || 0);
+        }
+        if (dItem.desconto_obtido_centavos) {
+          totalEconomiaDescontosDividas += Number(dItem.desconto_obtido_centavos || 0);
+        }
+      }
+    }
+    var resumoDividas = {
+      total_dividas: rawDebts.length,
+      saldo_devedor_total_centavos: totalSaldoDevedorDividas,
+      total_em_acordo_centavos: totalEmAcordoDividas,
+      parcelas_pagas: parcelasPagasDividas,
+      parcelas_total: parcelasTotalDividas,
+      economia_descontos_centavos: totalEconomiaDescontosDividas
+    };
+
+    var rawLoans = [];
+    try {
+      if (typeof LoanService !== 'undefined' && LoanService.listLoans) {
+        rawLoans = LoanService.listLoans(user);
+      }
+    } catch (eLoans) {}
+    var totalSaldoDevedorLoans = 0;
+    var parcelaMensalTotalLoans = 0;
+    var consignadoFolhaLoans = 0;
+    var debitoContaLoans = 0;
+    for (var rlIdx = 0; rlIdx < rawLoans.length; rlIdx++) {
+      var lItem = rawLoans[rlIdx];
+      if (lItem.situacao === 'ATIVO') {
+        totalSaldoDevedorLoans += Number(lItem.saldo_devedor_centavos || 0);
+        var pVal = Number(lItem.valor_parcela_centavos || 0);
+        parcelaMensalTotalLoans += pVal;
+        if (lItem.tipo_emprestimo === 'CONSIGNADO' || lItem.debitar_automatico_folha) {
+          consignadoFolhaLoans += pVal;
+        } else {
+          debitoContaLoans += pVal;
+        }
+      }
+    }
+    var resumoEmprestimos = {
+      total_emprestimos: rawLoans.filter(function (l) { return l.situacao === 'ATIVO'; }).length,
+      saldo_devedor_total_centavos: totalSaldoDevedorLoans,
+      parcela_mensal_total_centavos: parcelaMensalTotalLoans,
+      consignado_folha_centavos: consignadoFolhaLoans,
+      debito_conta_centavos: debitoContaLoans
+    };
+
+    var resumoInvestimentos = {
+      patrimonio_total_centavos: totalInvestimentosInformado,
+      total_aplicado_centavos: 0,
+      rentabilidade_total_centavos: 0,
+      rentabilidade_pct: 0,
+      total_ativos: investments.length,
+      proventos_12m_centavos: 0
+    };
+    try {
+      if (typeof InvestmentService !== 'undefined' && InvestmentService.getPortfolioSummary) {
+        var port = InvestmentService.getPortfolioSummary(user);
+        if (port) {
+          var totAplic = Number(port.total_aplicado_centavos || 0);
+          var totMerc = Number(port.total_mercado_centavos || totalInvestimentosInformado);
+          var rent = totMerc - totAplic;
+          var rPct = totAplic > 0 ? Number(((rent / totAplic) * 100).toFixed(2)) : 0;
+          resumoInvestimentos.patrimonio_total_centavos = totMerc;
+          resumoInvestimentos.total_aplicado_centavos = totAplic;
+          resumoInvestimentos.rentabilidade_total_centavos = rent;
+          resumoInvestimentos.rentabilidade_pct = rPct;
+          resumoInvestimentos.total_ativos = (port.posicoes || []).length;
+          resumoInvestimentos.proventos_12m_centavos = Number(port.dividendos_projetados_12m_centavos || 0);
+        }
+      }
+    } catch (eInv) {}
+
+    var rawGoals = [];
+    try {
+      if (typeof GoalService !== 'undefined' && GoalService.listGoals) {
+        rawGoals = GoalService.listGoals(user);
+      }
+    } catch (eGoals) {}
+    var totalAcumuladoMetas = 0;
+    var totalAlvoMetas = 0;
+    for (var rgIdx = 0; rgIdx < rawGoals.length; rgIdx++) {
+      totalAcumuladoMetas += Number(rawGoals[rgIdx].valor_acumulado_centavos || 0);
+      totalAlvoMetas += Number(rawGoals[rgIdx].valor_alvo_centavos || 0);
+    }
+    var pctGeralMetas = totalAlvoMetas > 0 ? Math.round((totalAcumuladoMetas / totalAlvoMetas) * 100) : 0;
+    var mesesReservaCobertos = custoFixoMensalCentavos > 0
+      ? Number((saldoAtualConsolidadoConfirmado / custoFixoMensalCentavos).toFixed(1))
+      : 0;
+    var resumoMetas = {
+      total_metas: rawGoals.length,
+      total_acumulado_centavos: totalAcumuladoMetas,
+      total_alvo_centavos: totalAlvoMetas,
+      percentual_geral: pctGeralMetas,
+      meses_reserva_cobertos: mesesReservaCobertos
+    };
+
+    var proximos7DiasCentavos = 0;
+    var dToday = new Date(today + 'T12:00:00Z');
+    var d7 = new Date(dToday.getTime() + 7 * 86400000);
+    var date7Iso = d7.toISOString().substring(0, 10);
+    for (var caIdx = 0; caIdx < contasAVencer.length; caIdx++) {
+      if (contasAVencer[caIdx].data_lancamento <= date7Iso) {
+        proximos7DiasCentavos += Number(contasAVencer[caIdx].valor_centavos || 0);
+      }
+    }
+    var resumoCalendario = {
+      total_pagar_mes_centavos: despesasConfirmadasMes + despesasPrevistasMes + despesasPendentesMes,
+      total_receber_mes_centavos: receitasConfirmadasMes + receitasPrevistasMes + receitasPendentesMes,
+      proximos_7_dias_centavos: proximos7DiasCentavos,
+      contas_atrasadas_qtd: contasVencidas.length
+    };
+
+    var resumoBancos = {
+      total_contas: accountsWithBalances.length,
+      saldo_confirmado_centavos: saldoAtualConsolidadoConfirmado,
+      saldo_projetado_centavos: saldoProjetadoContas
+    };
+
+    var resumoGeralModulos = {
+      cartoes: resumoCartoes,
+      recorrentes: resumoRecorrentes,
+      dividas: resumoDividas,
+      emprestimos: resumoEmprestimos,
+      investimentos: resumoInvestimentos,
+      metas: resumoMetas,
+      calendario: resumoCalendario,
+      bancos: resumoBancos
+    };
+
     return {
       mes_referencia: targetMonth,
       data_referencia: today,
+      resumo_geral_modulos: resumoGeralModulos,
       // Valores Confirmados (Realizados)
       confirmados: {
         saldo_bancario_consolidado_centavos: saldoAtualConsolidadoConfirmado,
