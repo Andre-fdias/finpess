@@ -990,17 +990,6 @@
         }
       } catch (e) {}
 
-      try {
-        var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-        var btnPwa = document.getElementById('btn-pwa-install');
-        if (isStandalone) {
-          document.body.classList.add('is-pwa-standalone');
-          if (btnPwa) btnPwa.style.display = 'none';
-        } else if (btnPwa) {
-          btnPwa.style.display = 'inline-flex';
-        }
-      } catch (ePwa) {}
-
       initDefaultDates();
 
       var storedToken = localStorage.getItem('fin_session_token') ||
@@ -11356,65 +11345,7 @@
       );
     }
 
-    // PWA & APLICATIVO MÓVEL (ANDROID / CHROME / iOS)
-    var deferredPwaPrompt = null;
-
-    function setDeferredPwaPrompt(promptEvt) {
-      deferredPwaPrompt = promptEvt;
-    }
-
-    function installPwaApp() {
-      if (deferredPwaPrompt) {
-        deferredPwaPrompt.prompt();
-        deferredPwaPrompt.userChoice.then(function (choice) {
-          if (choice && choice.outcome === 'accepted') {
-            UIHelpers.showToast('Instalando o Finpess no seu dispositivo...', 'success');
-          }
-          deferredPwaPrompt = null;
-        });
-      } else {
-        showPwaInstructionsModal();
-      }
-    }
-
-    function installPwaAppDirectly() {
-      if (deferredPwaPrompt) {
-        deferredPwaPrompt.prompt();
-        deferredPwaPrompt.userChoice.then(function (choice) {
-          if (choice && choice.outcome === 'accepted') {
-            UIHelpers.showToast('Instalando o Finpess...', 'success');
-          }
-          deferredPwaPrompt = null;
-          closePwaInstructionsModal();
-        });
-      } else {
-        closePwaInstructionsModal();
-        UIHelpers.showToast('Toque no menu (⋮) do Chrome e selecione "Instalar aplicativo".', 'info');
-      }
-    }
-
-    function showPwaInstructionsModal() {
-      var modal = document.getElementById('modal-pwa-instructions');
-      if (modal) {
-        modal.style.display = 'flex';
-        modal.classList.add('open');
-      }
-    }
-
-    function closePwaInstructionsModal() {
-      var modal = document.getElementById('modal-pwa-instructions');
-      if (modal) {
-        modal.style.display = 'none';
-        modal.classList.remove('open');
-      }
-    }
-
     return {
-      setDeferredPwaPrompt: setDeferredPwaPrompt,
-      installPwaApp: installPwaApp,
-      installPwaAppDirectly: installPwaAppDirectly,
-      showPwaInstructionsModal: showPwaInstructionsModal,
-      closePwaInstructionsModal: closePwaInstructionsModal,
       init: init,
       loginWithGoogle: loginWithGoogle,
       submitLogin: submitLogin,
@@ -11779,24 +11710,6 @@
     var panel = document.getElementById('notifications-dropdown-panel');
     if (panel && (panel.classList.contains('open') || panel.style.display === 'flex' || panel.style.display === 'block')) {
       App.adjustNotificationsPanelPosition();
-    }
-  });
-
-  // Eventos de PWA no Google Chrome Android & Desktop
-  window.addEventListener('beforeinstallprompt', function (e) {
-    e.preventDefault();
-    if (typeof App !== 'undefined' && App.setDeferredPwaPrompt) {
-      App.setDeferredPwaPrompt(e);
-    }
-    var btn = document.getElementById('btn-pwa-install');
-    if (btn) btn.style.display = 'inline-flex';
-  });
-
-  window.addEventListener('appinstalled', function () {
-    var btn = document.getElementById('btn-pwa-install');
-    if (btn) btn.style.display = 'none';
-    if (typeof UIHelpers !== 'undefined') {
-      UIHelpers.showToast('Finpess instalado com sucesso no seu dispositivo!', 'success');
     }
   });
 

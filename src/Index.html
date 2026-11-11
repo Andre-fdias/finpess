@@ -28,12 +28,11 @@
     })();
   </script>
 
-  <!-- PWA Ícones e Manifesto Embutido para Google Chrome & Android -->
+  <!-- Ícones -->
   <link rel="icon" type="image/png" sizes="192x192" href="https://andre-fdias.github.io/finpess/icon-192.png" />
   <link rel="icon" type="image/png" sizes="512x512" href="https://andre-fdias.github.io/finpess/icon-512.png" />
   <link rel="apple-touch-icon" href="https://andre-fdias.github.io/finpess/icon-192.png" />
   <link rel="apple-touch-icon-precomposed" href="https://andre-fdias.github.io/finpess/icon-192.png" />
-  <link rel="manifest" href="https://andre-fdias.github.io/finpess/manifest.json" />
 
   <title>Finanças Inteligentes — Controle Financeiro Pessoal e Familiar</title>
   <?!= include('Styles'); ?>
@@ -202,12 +201,6 @@
         </div>
 
         <div class="topbar-actions">
-          <!-- Botão de Instalar App no Android / PWA -->
-          <button type="button" id="btn-pwa-install" class="btn btn-primary btn-sm" onclick="App.installPwaApp()" style="display:none; align-items:center; gap:0.4rem; padding:0.38rem 0.75rem; font-weight:600; font-size:0.78rem; background:linear-gradient(135deg, #059669 0%, #047857 100%); border:none; box-shadow:0 2px 8px rgba(5,150,105,0.35);" title="Instalar aplicativo Finpess no celular ou computador">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
-            <span>Instalar App</span>
-          </button>
-
           <!-- Botão do Sino de Notificações com Dropdown da Central -->
           <div id="notifications-bell-container" class="notifications-wrapper" style="position:relative;">
             <button type="button" id="btn-notifications-bell" class="btn btn-secondary btn-sm" onclick="App.toggleNotificationsPanel(event)" title="Central de Notificações e Alertas" style="padding:0.4rem 0.65rem; position:relative; display:inline-flex; align-items:center; justify-content:center;">
@@ -461,72 +454,6 @@
           <input type="date" id="snooze-custom-date" class="form-control" style="font-size:0.85rem;" />
           <button type="button" class="btn btn-primary btn-sm" onclick="App.executeSnoozeCustom()">Salvar</button>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL DE INSTRUÇÕES DE INSTALAÇÃO DO APP PWA (ANDROID / CHROME / iOS) -->
-  <div id="modal-pwa-instructions" class="modal-backdrop" role="dialog" aria-modal="true" style="display:none; z-index:10001;">
-    <div class="modal-dialog" style="max-width:480px;">
-      <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
-        <div style="display:flex; align-items:center; gap:0.6rem;">
-          <div style="width:38px; height:38px; border-radius:10px; background:linear-gradient(135deg, #059669, #047857); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow:0 3px 10px rgba(5,150,105,0.25);">
-            📱
-          </div>
-          <div>
-            <h3 class="card-title" style="font-size:1.1rem; margin:0; font-weight:700;">Instalar Aplicativo Finpess</h3>
-            <small style="color:var(--text-secondary); font-size:0.78rem;">Acesse em tela cheia com 1 toque no celular</small>
-          </div>
-        </div>
-        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closePwaInstructionsModal()">✕</button>
-      </div>
-
-      <div style="margin-bottom:1.25rem;">
-        <div style="background:var(--bg-primary); border:1px solid var(--border-color); border-radius:10px; padding:0.9rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.75rem;">
-          <div style="font-size:2rem;">✨</div>
-          <div style="font-size:0.83rem; color:var(--text-secondary); line-height:1.4;">
-            <strong style="color:var(--text-primary); display:block; font-size:0.88rem; margin-bottom:2px;">Aplicativo Leve e Custo Zero</strong>
-            Instale diretamente via Google Chrome. O app funcionará sem a barra do navegador, com abertura rápida e ícone nativo na tela do celular.
-          </div>
-        </div>
-
-        <div style="background:rgba(5,150,105,0.08); border:1px solid rgba(5,150,105,0.25); border-radius:10px; padding:0.85rem; margin-bottom:1rem;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
-            <strong style="font-size:0.85rem; color:#059669; display:flex; align-items:center; gap:0.35rem;">
-              <span>🌐</span> Link do Launcher PWA (Instalação 100% Liberada):
-            </strong>
-          </div>
-          <p style="font-size:0.78rem; color:var(--text-secondary); margin-bottom:0.6rem; line-height:1.4;">
-            Para instalar como WebAPK nativo no Chrome Android sem bloqueios do Google Apps Script, abra o endereço oficial no celular:
-          </p>
-          <div style="display:flex; gap:0.5rem; align-items:center;">
-            <input type="text" readonly value="https://andre-fdias.github.io/finpess/" style="flex:1; font-size:0.8rem; padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary); font-family:monospace;" id="input-pwa-url" />
-            <a href="https://andre-fdias.github.io/finpess/" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;">
-              <span>Abrir</span>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-            </a>
-          </div>
-        </div>
-
-        <h4 style="font-size:0.9rem; margin:0 0 0.6rem 0; color:var(--text-primary);">Como instalar no Google Chrome (Android):</h4>
-        <ol style="font-size:0.84rem; color:var(--text-secondary); padding-left:1.25rem; margin:0 0 1rem 0; line-height:1.6;">
-          <li>Acesse <strong>https://andre-fdias.github.io/finpess/</strong> no Chrome do celular.</li>
-          <li>Toque no botão <strong>"Instalar"</strong> que aparece no rodapé ou no menu de <strong>três pontos (⋮)</strong> e escolha <strong>"Instalar aplicativo"</strong>.</li>
-          <li>Confirme tocando em <strong>"Instalar"</strong>.</li>
-          <li>Pronto! O app Finpess será instalado diretamente no seu Android.</li>
-        </ol>
-
-        <div style="background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.18); border-radius:8px; padding:0.75rem; font-size:0.78rem; color:var(--text-secondary);">
-          🍎 <strong>No iPhone / iPad (Safari):</strong> Toque no botão de compartilhamento (ícone com quadrado e seta para cima) e escolha <em>"Adicionar à Tela de Início"</em>.
-        </div>
-      </div>
-
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; flex-wrap:wrap; border-top:1px solid var(--border-color); padding-top:0.85rem;">
-        <button type="button" class="btn btn-primary" onclick="App.installPwaAppDirectly()" style="flex:1; justify-content:center;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
-          <span>Instalar Agora</span>
-        </button>
-        <button type="button" class="btn btn-secondary" onclick="App.closePwaInstructionsModal()">Fechar</button>
       </div>
     </div>
   </div>
