@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Finpess</string>
+    <string name="app_tagline">Finanças Inteligentes</string>
+    <string name="login_title">Acesse sua Conta</string>
+    <string name="login_email_hint">Seu e-mail</string>
+    <string name="login_password_hint">Sua senha</string>
+    <string name="login_button">Entrar no Finpess</string>
+    <string name="biometric_prompt_title">Desbloquear Finpess</string>
+    <string name="biometric_prompt_subtitle">Use sua impressão digital ou reconhecimento facial</string>
+    <string name="biometric_prompt_cancel">Usar Senha</string>
+</resources>

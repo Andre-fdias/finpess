@@ -62,14 +62,24 @@ function include(filename) {
 }
 
 /**
- * Endpoint HTTP POST exclusivo para o Webhook do Bot do Telegram.
- * Exige o parâmetro ?secret=<TELEGRAM_WEBHOOK_SECRET> validado em tempo constante.
+ * Endpoint HTTP POST:
+ * 1. Chamadas de API REST (App Android Nativo, PWA, integrações externas) quando payload contém `action`.
+ * 2. Webhook do Bot do Telegram quando payload é um Update do Telegram.
  */
 function doPost(e) {
   try {
-    var providedSecret = (e && e.parameter && e.parameter.secret) || '';
     var rawBody = (e && e.postData && e.postData.contents) || '{}';
-    var update = JSON.parse(rawBody);
+    var parsed = JSON.parse(rawBody);
+
+    // Se a requisição contiver 'action', despacha via apiCall para o App Android Nativo / clientes REST
+    if (parsed && parsed.action) {
+      var apiResponse = apiCall(parsed.action, parsed.payload, parsed.authContext);
+      return ContentService.createTextOutput(JSON.stringify(apiResponse))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var providedSecret = (e && e.parameter && e.parameter.secret) || '';
+    var update = parsed;
     var result = TelegramWebhookService.handleWebhookUpdate(update, providedSecret, {
       dryRun: false,
       sendRealTelegramMessages: true

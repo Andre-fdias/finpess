@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:name=".FinpessApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_finpess_logo"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/ic_finpess_logo"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Finpess">
+        
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.Finpess">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Serviço de Leitura de Notificações Bancárias -->
+        <service
+            android:name=".service.BankNotificationListenerService"
+            android:label="Finpess Assistente Bancário"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <!-- Receiver para Confirmação Rápida de Notificação em 1-clique -->
+        <receiver
+            android:name=".service.QuickConfirmReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.finpess.app.ACTION_CONFIRM_TRANSACTION" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>
