@@ -35,6 +35,9 @@
       <button type="button" class="btn btn-sm btn-secondary settings-subtab-btn" data-stab="integracoes" onclick="App.switchSettingsTab('integracoes')">
         ⚡ Integrações (Telegram & IA)
       </button>
+      <button type="button" class="btn btn-sm btn-secondary settings-subtab-btn" data-stab="manual" onclick="App.switchSettingsTab('manual')" style="font-weight:700; color:#7c3aed; border-color:rgba(124,58,237,0.35); background:rgba(124,58,237,0.06);">
+        📖 Manual Passo a Passo
+      </button>
       <button type="button" class="btn btn-sm btn-secondary settings-subtab-btn" data-stab="notificacoes" onclick="App.switchSettingsTab('notificacoes')">
         🔔 Notificações
       </button>
@@ -519,6 +522,27 @@
   <!-- SUBABA 5: INTEGRAÇÕES (SUBABA UNIFICADA TELEGRAM & INTELIGÊNCIA ARTIFICIAL) -->
   <div id="settings-subtab-integracoes" class="settings-subtab-content" style="display:none;">
     
+    <!-- BANNER DIDÁTICO: MANUAL RÁPIDO DO TELEGRAM E GEMINI -->
+    <div style="background:rgba(124,58,237,0.06); border:1px solid rgba(124,58,237,0.25); border-radius:12px; padding:1.1rem 1.25rem; margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+      <div style="display:flex; align-items:center; gap:0.85rem; max-width:850px;">
+        <div style="width:42px; height:42px; border-radius:10px; background:rgba(124,58,237,0.15); color:#7c3aed; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.4rem;">
+          📖
+        </div>
+        <div>
+          <h3 style="margin:0; font-size:1rem; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:0.4rem;">
+            Precisa de ajuda para configurar o Telegram e o Gemini?
+            <span class="badge" style="background:#7c3aed; color:#fff; font-size:0.65rem;">Passo a Passo Leigo</span>
+          </h3>
+          <p style="margin:4px 0 0 0; font-size:0.82rem; color:var(--text-secondary); line-height:1.4;">
+            Preparamos um guia completo, visual e descomplicado explicando como criar seu bot no <strong>@BotFather</strong>, obter a chave gratuita no <strong>Google AI Studio</strong> e publicar o Webhook sem erros.
+          </p>
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary btn-sm" onclick="App.switchSettingsTab('manual')" style="background:#7c3aed; border-color:#7c3aed; padding:0.6rem 1.15rem; font-weight:600; display:inline-flex; align-items:center; gap:0.4rem;">
+        <span>📖 Abrir Manual Passo a Passo</span> <span style="font-size:12px;">→</span>
+      </button>
+    </div>
+
     <!-- CARD 1: STATUS REAL & PAINEL DE TESTES EM TEMPO REAL -->
     <div class="card" style="margin-bottom:1.25rem;">
       <div class="card-header">
@@ -1285,6 +1309,411 @@
         <p style="color:var(--text-muted); text-align:center; padding:1.5rem;">Clique no botão acima para verificar a integridade completa do sistema.</p>
       </div>
     </div>
+  </div>
+
+  <!-- SUBABA 11: MANUAL DE INSTALAÇÃO & SETUP PASSO A PASSO (GUIA PARA USUÁRIOS LEIGOS) -->
+  <div id="settings-subtab-manual" class="settings-subtab-content" style="display:none;">
+    
+    <!-- Cabeçalho do Manual -->
+    <div class="card" style="margin-bottom:1.25rem; background:linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(37,99,235,0.05) 100%); border:1px solid rgba(124,58,237,0.25);">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+        <div style="display:flex; align-items:center; gap:0.9rem;">
+          <div style="width:48px; height:48px; border-radius:12px; background:rgba(124,58,237,0.15); color:#7c3aed; display:flex; align-items:center; justify-content:center; font-size:1.6rem; flex-shrink:0;">
+            📖
+          </div>
+          <div>
+            <h2 style="font-size:1.25rem; font-weight:800; margin:0; color:var(--text-primary); display:flex; align-items:center; gap:0.5rem;">
+              Manual Completo de Instalação, Planilha, Telegram & Gemini IA
+              <span class="badge" style="background:#7c3aed; color:#fff; font-size:0.7rem;">Guia Passo a Passo</span>
+            </h2>
+            <small style="color:var(--text-secondary); font-size:0.84rem; display:block; margin-top:2px;">
+              Tudo o que você precisa saber para configurar o sistema do zero até o uso diário no celular, explicado de forma clara e simples para qualquer usuário.
+            </small>
+          </div>
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.switchSettingsTab('integracoes')">
+            ⚡ Ir para Tela de Integrações
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navegação Rápida entre as Etapas -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.6rem; margin-bottom:1.25rem;">
+      <a href="#manual-etapa-visao" style="text-decoration:none; padding:0.65rem 0.85rem; border-radius:8px; background:var(--bg-surface); border:1px solid var(--border-color); color:var(--text-primary); font-size:0.78rem; font-weight:600; display:flex; align-items:center; gap:0.4rem;">
+        <span>🏗️ Visão Geral</span>
+      </a>
+      <a href="#manual-etapa-planilha" style="text-decoration:none; padding:0.65rem 0.85rem; border-radius:8px; background:var(--bg-surface); border:1px solid var(--border-color); color:var(--text-primary); font-size:0.78rem; font-weight:600; display:flex; align-items:center; gap:0.4rem;">
+        <span>1. Planilha (28 Abas)</span>
+      </a>
+      <a href="#manual-etapa-gemini" style="text-decoration:none; padding:0.65rem 0.85rem; border-radius:8px; background:var(--bg-surface); border:1px solid var(--border-color); color:var(--text-primary); font-size:0.78rem; font-weight:600; display:flex; align-items:center; gap:0.4rem;">
+        <span>2. Chave Gemini IA</span>
+      </a>
+      <a href="#manual-etapa-telegram" style="text-decoration:none; padding:0.65rem 0.85rem; border-radius:8px; background:var(--bg-surface); border:1px solid var(--border-color); color:var(--text-primary); font-size:0.78rem; font-weight:600; display:flex; align-items:center; gap:0.4rem;">
+        <span>3. Bot no Telegram</span>
+      </a>
+      <a href="#manual-etapa-deploy" style="text-decoration:none; padding:0.65rem 0.85rem; border-radius:8px; background:var(--bg-surface); border:1px solid var(--border-color); color:var(--text-primary); font-size:0.78rem; font-weight:600; display:flex; align-items:center; gap:0.4rem;">
+        <span>4. Publicação Web App</span>
+      </a>
+      <a href="#manual-etapa-uso" style="text-decoration:none; padding:0.65rem 0.85rem; border-radius:8px; background:var(--bg-surface); border:1px solid var(--border-color); color:var(--text-primary); font-size:0.78rem; font-weight:600; display:flex; align-items:center; gap:0.4rem;">
+        <span>5. Como Usar no Celular</span>
+      </a>
+    </div>
+
+    <!-- VISÃO GERAL -->
+    <div id="manual-etapa-visao" class="card" style="margin-bottom:1.25rem;">
+      <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin-top:0; margin-bottom:0.75rem; display:flex; align-items:center; gap:0.4rem;">
+        <span>🏗️ Como o Finpess Funciona na Prática?</span>
+      </h3>
+      <p style="font-size:0.86rem; color:var(--text-secondary); line-height:1.55; margin-bottom:1rem;">
+        O <strong>Finpess (Finanças Inteligentes)</strong> é um sistema financeiro moderno que funciona 100% na nuvem da sua própria conta Google, sem mensalidades e com total privacidade dos seus dados bancários. Ele é composto por quatro peças integradas:
+      </p>
+      
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0.85rem;">
+        <div style="padding:0.9rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color);">
+          <div style="font-size:1.2rem; margin-bottom:4px;">📊</div>
+          <strong style="font-size:0.88rem; color:var(--text-primary); display:block;">1. Google Sheets</strong>
+          <small style="font-size:0.78rem; color:var(--text-secondary);">Funciona como o seu <strong>banco de dados privativo</strong>. Todas as 28 abas guardam com segurança seus lançamentos, cartões, dívidas e investimentos.</small>
+        </div>
+
+        <div style="padding:0.9rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color);">
+          <div style="font-size:1.2rem; margin-bottom:4px;">⚙️</div>
+          <strong style="font-size:0.88rem; color:var(--text-primary); display:block;">2. Google Apps Script</strong>
+          <small style="font-size:0.78rem; color:var(--text-secondary);">Funciona como o <strong>servidor de regras do sistema</strong>. Executa os cálculos contábeis, protege senhas, controla limites e serve as telas web 24 horas por dia.</small>
+        </div>
+
+        <div style="padding:0.9rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color);">
+          <div style="font-size:1.2rem; margin-bottom:4px;">🧠</div>
+          <strong style="font-size:0.88rem; color:var(--text-primary); display:block;">3. Google Gemini IA</strong>
+          <small style="font-size:0.78rem; color:var(--text-secondary);">É a <strong>inteligência artificial gratuita</strong>. Ouve seus áudios de voz, lê fotos de cupons fiscais e responde a perguntas financeiras inteligentes no Oráculo.</small>
+        </div>
+
+        <div style="padding:0.9rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color);">
+          <div style="font-size:1.2rem; margin-bottom:4px;">🤖</div>
+          <strong style="font-size:0.88rem; color:var(--text-primary); display:block;">4. Bot do Telegram</strong>
+          <small style="font-size:0.78rem; color:var(--text-secondary);">É o seu <strong>assistente financeiro de bolso</strong>. Permite lançar gastos em segundos pelo celular via texto, áudio ou foto sem precisar abrir o computador.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- ETAPA 1: PLANILHA E BANCO DE DADOS -->
+    <div id="manual-etapa-planilha" class="card" style="margin-bottom:1.25rem;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+        <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin:0; display:flex; align-items:center; gap:0.4rem;">
+          <span style="background:var(--primary); color:#fff; width:24px; height:24px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:0.8rem;">1</span>
+          <span>Etapa 1: Implementação da Planilha Google (28 Abas Relacionais)</span>
+        </h3>
+        <span class="badge badge-confirmado">Estrutura Automática</span>
+      </div>
+
+      <p style="font-size:0.86rem; color:var(--text-secondary); line-height:1.55;">
+        Você não precisa criar nenhuma aba nem colunas manualmente. O sistema possui um instalador automático que cria e formata as 28 abas de tabelas em 1 clique.
+      </p>
+
+      <div style="background:var(--bg-secondary); border-left:4px solid var(--primary); padding:0.9rem 1.1rem; border-radius:0 8px 8px 0; margin-bottom:1rem; font-size:0.84rem; line-height:1.5;">
+        <strong>Como Acionar a Instalação Automática:</strong>
+        <ol style="margin:6px 0 0 1.25rem; padding:0;">
+          <li>Abra a sua planilha do Google vinculada ao projeto.</li>
+          <li>Aguarde 3 segundos até carregar a barra de menus do Google Sheets.</li>
+          <li>No topo da tela, clique no menu exclusivo <strong>"💰 Finanças Inteligentes"</strong>.</li>
+          <li>Selecione a primeira opção: <strong>"🚀 Instalar / Reparar Estrutura das Abas"</strong>.</li>
+          <li>Uma mensagem de confirmação do Google será exibida e todas as 28 abas (como <code>LANCAMENTOS</code>, <code>CARTOES_CREDITO</code>, <code>FATURAS_CARTAO</code>, <code>INVESTIMENTOS</code>, <code>DIVIDAS</code>, <code>NOTIFICACOES</code>, etc.) serão criadas e formatadas instantaneamente com cabeçalhos e congelamento de painel.</li>
+        </ol>
+      </div>
+
+      <div style="padding:0.75rem 1rem; border-radius:8px; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.2); font-size:0.82rem; color:var(--text-secondary);">
+        💡 <strong>Dica de Ouro:</strong> Nunca altere os nomes das abas em maiúsculas nem exclua a linha 1 (cabeçalhos) para manter a integridade dos dados protegida.
+      </div>
+    </div>
+
+    <!-- ETAPA 2: CHAVE GRATUITA DO GEMINI -->
+    <div id="manual-etapa-gemini" class="card" style="margin-bottom:1.25rem;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+        <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin:0; display:flex; align-items:center; gap:0.4rem;">
+          <span style="background:var(--primary); color:#fff; width:24px; height:24px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:0.8rem;">2</span>
+          <span>Etapa 2: Obter a Chave Gratuita da IA (Google Gemini API)</span>
+        </h3>
+        <span class="badge badge-confirmado">Gratuito (Google AI Studio)</span>
+      </div>
+
+      <p style="font-size:0.86rem; color:var(--text-secondary); line-height:1.55;">
+        O Google oferece gratuitamente uma chave de API para o Gemini com quotas amplas para uso pessoal. Siga os passos:
+      </p>
+
+      <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1rem;">
+        <div style="padding:0.85rem 1rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color); display:flex; align-items:flex-start; gap:0.75rem;">
+          <strong style="color:var(--primary); font-size:1.1rem; flex-shrink:0;">2.1</strong>
+          <div style="font-size:0.84rem; line-height:1.5;">
+            Acesse o site oficial do Google AI Studio: <a href="https://aistudio.google.com/" target="_blank" rel="noopener" style="color:var(--primary); font-weight:700;">https://aistudio.google.com/</a> e faça login com sua conta do Google (Gmail).
+          </div>
+        </div>
+
+        <div style="padding:0.85rem 1rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color); display:flex; align-items:flex-start; gap:0.75rem;">
+          <strong style="color:var(--primary); font-size:1.1rem; flex-shrink:0;">2.2</strong>
+          <div style="font-size:0.84rem; line-height:1.5;">
+            No menu lateral esquerdo, clique no botão azul <strong>"Get API key"</strong> (Obter Chave de API).
+          </div>
+        </div>
+
+        <div style="padding:0.85rem 1rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color); display:flex; align-items:flex-start; gap:0.75rem;">
+          <strong style="color:var(--primary); font-size:1.1rem; flex-shrink:0;">2.3</strong>
+          <div style="font-size:0.84rem; line-height:1.5;">
+            Clique no botão <strong>"Create API key"</strong> e selecione a opção <strong>"Create API key in new project"</strong> (Criar chave em novo projeto).
+          </div>
+        </div>
+
+        <div style="padding:0.85rem 1rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color); display:flex; align-items:flex-start; gap:0.75rem;">
+          <strong style="color:var(--primary); font-size:1.1rem; flex-shrink:0;">2.4</strong>
+          <div style="font-size:0.84rem; line-height:1.5;">
+            Uma chave longa será exibida (geralmente começando com <code>AIzaSy...</code>). Clique no botão de cópia ao lado dela.
+          </div>
+        </div>
+
+        <div style="padding:0.85rem 1rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color); display:flex; align-items:flex-start; gap:0.75rem;">
+          <strong style="color:var(--primary); font-size:1.1rem; flex-shrink:0;">2.5</strong>
+          <div style="font-size:0.84rem; line-height:1.5;">
+            Volte aqui no Finpess, abra a subaba <strong>"⚡ Integrações (Telegram & IA)"</strong>, cole a chave no campo <strong>"Chave de API do Gemini"</strong> e clique em <strong>"🧪 Testar Conexão com a IA"</strong>. Se aparecer o selo verde, sua IA está ativa!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ETAPA 3: CRIAÇÃO DO BOT TELEGRAM NO @BOTFATHER -->
+    <div id="manual-etapa-telegram" class="card" style="margin-bottom:1.25rem;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+        <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin:0; display:flex; align-items:center; gap:0.4rem;">
+          <span style="background:var(--primary); color:#fff; width:24px; height:24px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:0.8rem;">3</span>
+          <span>Etapa 3: Criar seu Bot no Telegram com o @BotFather</span>
+        </h3>
+        <span class="badge" style="background:#0284c7; color:#fff;">Oficial Telegram</span>
+      </div>
+
+      <p style="font-size:0.86rem; color:var(--text-secondary); line-height:1.55;">
+        O <strong>@BotFather</strong> é o robô oficial mantido pelo Telegram para criar e administrar bots. É gratuito, instantâneo e leva menos de 1 minuto.
+      </p>
+
+      <div style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:8px; padding:1.1rem; margin-bottom:1rem; font-size:0.84rem; line-height:1.55;">
+        <div style="display:flex; flex-direction:column; gap:0.7rem;">
+          <div>
+            <strong>1. Abrir o @BotFather:</strong> Abra o aplicativo do Telegram no celular ou no computador, digite <code>@BotFather</code> na busca e entre no chat oficial (verifique se ele possui o selo azul de verificado ao lado do nome).
+          </div>
+          <div>
+            <strong>2. Iniciar a conversa:</strong> Clique no botão <strong>Iniciar</strong> ou envie a mensagem:
+            <code style="background:var(--bg-surface); padding:2px 6px; border-radius:4px; font-weight:bold;">/start</code>
+          </div>
+          <div>
+            <strong>3. Criar o novo robô:</strong> Envie o comando:
+            <code style="background:var(--bg-surface); padding:2px 6px; border-radius:4px; font-weight:bold;">/newbot</code>
+          </div>
+          <div>
+            <strong>4. Escolher o Nome de Exibição:</strong> O BotFather perguntará como você quer chamá-lo. Digite o nome que você quiser (ex: <code>Finanças do André</code> ou <code>Meu Assistente Financeiro</code>).
+          </div>
+          <div>
+            <strong>5. Escolher o @username público:</strong> O BotFather pedirá um nome de usuário que <strong>deve obrigatoriamente terminar com a palavra "bot"</strong> (ex: <code>andre_financas_bot</code> ou <code>meu_finpess_bot</code>).
+          </div>
+          <div>
+            <strong>6. Copiar o Token HTTP API:</strong> O BotFather enviará uma mensagem de parabéns com um código em vermelho parecido com este:
+            <div style="margin-top:4px; padding:6px 10px; background:var(--bg-surface); border:1px dashed #0284c7; border-radius:6px; font-family:monospace; font-size:0.8rem; word-break:break-all;">
+              1234567890:ABCdefGhIJKlmNoPQRsTUVwxyZ12345678
+            </div>
+          </div>
+          <div>
+            <strong>7. Colar no Finpess:</strong> Copie esse código token completo, volte à subaba <strong>"⚡ Integrações (Telegram & IA)"</strong> e cole-o no campo <strong>"Token do Bot Telegram"</strong>.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ETAPA 4: PUBLICAÇÃO NO GOOGLE APPS SCRIPT (REGRA DE OURO) -->
+    <div id="manual-etapa-deploy" class="card" style="margin-bottom:1.25rem; border:2px solid #f59e0b;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+        <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin:0; display:flex; align-items:center; gap:0.4rem;">
+          <span style="background:#f59e0b; color:#fff; width:24px; height:24px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:0.8rem;">4</span>
+          <span>Etapa 4: Publicar o Aplicativo da Web (A Regra de Ouro da Conexão)</span>
+        </h3>
+        <span class="badge" style="background:#f59e0b; color:#fff; font-weight:bold;">⚠️ Passo Crucial</span>
+      </div>
+
+      <p style="font-size:0.86rem; color:var(--text-secondary); line-height:1.55;">
+        Para que o Telegram consiga conversar com a sua planilha e enviar as mensagens de volta, o Google Apps Script precisa estar publicado como <strong>Aplicativo da Web</strong> com a permissão correta.
+      </p>
+
+      <div style="background:rgba(245, 158, 11, 0.08); border-left:4px solid #f59e0b; padding:1rem 1.15rem; border-radius:0 8px 8px 0; margin-bottom:1rem; font-size:0.84rem; line-height:1.55;">
+        <strong style="color:#b45309; font-size:0.95rem; display:block; margin-bottom:6px;">Siga exatamente este passo a passo no Editor do Apps Script:</strong>
+        <ol style="margin:0 0 0 1.25rem; padding:0;">
+          <li>No topo da sua planilha do Google Sheets, clique em <strong>Extensões</strong> -> <strong>Apps Script</strong>.</li>
+          <li>No canto superior direito da tela do Apps Script, clique no botão azul <strong>"Implantar"</strong> (ou <em>Deploy</em>) e selecione <strong>"Gerenciar implantações"</strong> (se já existir) ou <strong>"Nova implantação"</strong>.</li>
+          <li>Certifique-se de que o tipo selecionado seja <strong>"Aplicativo da Web"</strong> (ícone de globo azul).</li>
+          <li style="margin-top:6px;">
+            <strong>A REGRA FUNDAMENTAL DAS DUAS PERMISSÕES:</strong>
+            <ul style="margin:4px 0 6px 1rem;">
+              <li><strong>Executar como:</strong> Escolha <code>Eu (seuemail@gmail.com)</code>.</li>
+              <li><strong>Quem tem acesso:</strong> Escolha obrigatoriamente <strong><code>Qualquer pessoa</code></strong> (ou <em>Anyone</em>).</li>
+            </ul>
+            <em style="color:#b45309; font-size:0.8rem;">⚠️ Por que isso é obrigatório? Porque o robô do Telegram não é uma pessoa e não tem conta Google para fazer login. Se você colocar "Apenas eu", o Telegram será barrado com o erro 401 e não responderá às suas mensagens! Seus dados continuam 100% seguros porque o Finpess valida o seu Telegram ID e o seu Token individual em toda mensagem.</em>
+          </li>
+          <li style="margin-top:6px;">Clique em <strong>Implantar</strong> (se o Google pedir para autorizar o acesso à planilha, clique em <em>Avançado</em> -> <em>Acessar Finanças Inteligentes</em>).</li>
+          <li>Copie a <strong>URL do aplicativo da Web</strong> gerada (termina com <code>/exec</code>).</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- ETAPA 5: ATIVAÇÃO EM 1 CLIQUE E VÍNCULO DO CELULAR -->
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+        <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin:0; display:flex; align-items:center; gap:0.4rem;">
+          <span style="background:var(--primary); color:#fff; width:24px; height:24px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:0.8rem;">5</span>
+          <span>Etapa 5: Conexão Automática em 1 Clique & Vínculo com seu Celular</span>
+        </h3>
+        <span class="badge badge-confirmado">Pronto em 10 Segundos</span>
+      </div>
+
+      <p style="font-size:0.86rem; color:var(--text-secondary); line-height:1.55;">
+        Com o token do Telegram e a URL do Web App em mãos, você só precisa dar dois cliques no Finpess:
+      </p>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem; margin-bottom:1rem;">
+        <div style="padding:1rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color);">
+          <strong style="color:var(--primary); display:block; margin-bottom:6px;">1º Clique: Conectar o Webhook</strong>
+          <p style="font-size:0.82rem; color:var(--text-secondary); margin:0 0 8px 0;">
+            Na subaba <strong>"⚡ Integrações (Telegram & IA)"</strong>, cole a URL do Web App e clique no botão:
+          </p>
+          <div style="padding:6px 12px; background:var(--primary); color:#fff; border-radius:6px; font-size:0.8rem; font-weight:bold; display:inline-block;">
+            ⚡ Configuração Automática em 1 Clique
+          </div>
+          <small style="display:block; margin-top:8px; font-size:0.76rem; color:var(--text-muted);">O Finpess configura os webhooks com segredo de criptografia e cadastra a lista oficial de comandos no Telegram.</small>
+        </div>
+
+        <div style="padding:1rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color);">
+          <strong style="color:#7c3aed; display:block; margin-bottom:6px;">2º Clique: Vincular seu Aparelho</strong>
+          <p style="font-size:0.82rem; color:var(--text-secondary); margin:0 0 8px 0;">
+            Logo abaixo, clique no botão:
+          </p>
+          <div style="padding:6px 12px; background:#7c3aed; color:#fff; border-radius:6px; font-size:0.8rem; font-weight:bold; display:inline-block;">
+            🔑 Gerar Novo Código de Vinculação
+          </div>
+          <small style="display:block; margin-top:8px; font-size:0.76rem; color:var(--text-muted);">
+            Um link direto como <code>t.me/seubot?start=FIN-XXXXX</code> será exibido. Clique nele pelo celular ou envie <code>/start FIN-XXXXX</code> no chat do bot.
+          </small>
+        </div>
+      </div>
+
+      <div style="padding:0.75rem 1rem; border-radius:8px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); font-size:0.84rem; color:var(--success);">
+        🎉 <strong>Pronto!</strong> O bot responderá com uma mensagem de boas-vindas com o seu nome e exibirá o teclado com os botões interativos.
+      </div>
+    </div>
+
+    <!-- ETAPA 6: GUIA PRÁTICO DE USO NO CELULAR -->
+    <div id="manual-etapa-uso" class="card" style="margin-bottom:1.25rem;">
+      <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin-top:0; margin-bottom:0.75rem; display:flex; align-items:center; gap:0.4rem;">
+        <span>📱 Como Usar no Dia a Dia (Guia Prático para o Usuário)</span>
+      </h3>
+      <p style="font-size:0.86rem; color:var(--text-secondary); line-height:1.55; margin-bottom:1rem;">
+        Depois de configurado, você nunca mais precisará abrir formulários complexos para registrar suas contas. Veja como é fácil:
+      </p>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:0.9rem;">
+        <!-- Lançamento por Texto -->
+        <div style="padding:1rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color);">
+          <strong style="color:var(--text-primary); font-size:0.9rem; display:flex; align-items:center; gap:0.35rem; margin-bottom:6px;">
+            <span>💬 1. Por Texto Simples</span>
+          </strong>
+          <small style="color:var(--text-secondary); display:block; font-size:0.78rem; margin-bottom:8px;">Basta digitar como você fala com um amigo:</small>
+          <div style="background:var(--bg-surface); padding:8px 10px; border-radius:6px; font-size:0.78rem; font-style:italic; border-left:3px solid var(--primary); margin-bottom:6px;">
+            "Gastei 45 no mercado no débito Itaú"
+          </div>
+          <div style="background:var(--bg-surface); padding:8px 10px; border-radius:6px; font-size:0.78rem; font-style:italic; border-left:3px solid var(--primary);">
+            "Almoço 32,50 no vale refeição"
+          </div>
+        </div>
+
+        <!-- Lançamento por Áudio -->
+        <div style="padding:1rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color);">
+          <strong style="color:var(--text-primary); font-size:0.9rem; display:flex; align-items:center; gap:0.35rem; margin-bottom:6px;">
+            <span>🎙️ 2. Por Mensagem de Voz</span>
+          </strong>
+          <small style="color:var(--text-secondary); display:block; font-size:0.78rem; margin-bottom:8px;">Segure o microfone no Telegram e fale:</small>
+          <div style="background:var(--bg-surface); padding:8px 10px; border-radius:6px; font-size:0.78rem; font-style:italic; border-left:3px solid #7c3aed; margin-bottom:6px;">
+            "Paguei a conta de energia da Enel de 145 reais hoje pelo Nubank"
+          </div>
+          <small style="color:var(--text-muted); font-size:0.72rem;">O Gemini transcreve seu áudio e monta a prévia com valor e categoria!</small>
+        </div>
+
+        <!-- Lançamento por Foto de Cupom -->
+        <div style="padding:1rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color);">
+          <strong style="color:var(--text-primary); font-size:0.9rem; display:flex; align-items:center; gap:0.35rem; margin-bottom:6px;">
+            <span>📸 3. Por Foto de Cupom Fiscal</span>
+          </strong>
+          <small style="color:var(--text-secondary); display:block; font-size:0.78rem; margin-bottom:8px;">Tire foto do recibo da maquininha ou cupom:</small>
+          <div style="background:var(--bg-surface); padding:8px 10px; border-radius:6px; font-size:0.78rem; font-style:italic; border-left:3px solid var(--success); margin-bottom:6px;">
+            Envie a foto do recibo do estacionamento, padaria ou farmácia.
+          </div>
+          <small style="color:var(--text-muted); font-size:0.72rem;">A IA lê o nome da loja, a data e o valor total sem você digitar nada.</small>
+        </div>
+
+        <!-- Consultas Rápidas -->
+        <div style="padding:1rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color);">
+          <strong style="color:var(--text-primary); font-size:0.9rem; display:flex; align-items:center; gap:0.35rem; margin-bottom:6px;">
+            <span>⚡ 4. Consultas Rápidas</span>
+          </strong>
+          <small style="color:var(--text-secondary); display:block; font-size:0.78rem; margin-bottom:8px;">Use comandos ou os botões do menu:</small>
+          <ul style="margin:0 0 0 1rem; padding:0; font-size:0.76rem; color:var(--text-secondary); line-height:1.5;">
+            <li><code>/menu</code>: Abre o painel interativo de botões.</li>
+            <li><code>/saldo</code>: Saldo em cada conta bancária.</li>
+            <li><code>/faturas</code>: Faturas abertas e limites dos cartões.</li>
+            <li><code>/contas</code>: Contas que vencem nos próximos 7 dias.</li>
+            <li><code>/oraculo</code>: Tire dúvidas financeiras com a IA.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ETAPA 7: RESOLUÇÃO DE DÚVIDAS E PROBLEMAS FREQUENTES -->
+    <div class="card" style="margin-bottom:1.25rem;">
+      <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin-top:0; margin-bottom:0.75rem; display:flex; align-items:center; gap:0.4rem;">
+        <span>❓ Perguntas Frequentes & Solução de Dúvidas Comuns</span>
+      </h3>
+      
+      <div style="display:flex; flex-direction:column; gap:0.75rem;">
+        <div style="padding:0.85rem 1rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color);">
+          <strong style="color:var(--text-primary); font-size:0.86rem; display:block; margin-bottom:3px;">
+            1. Enviei uma mensagem para o bot no Telegram e ele não respondeu nada. O que pode ser?
+          </strong>
+          <p style="font-size:0.8rem; color:var(--text-secondary); margin:0; line-height:1.45;">
+            99% das vezes é a configuração de permissão no Google Apps Script. Acesse o editor do Apps Script, clique em <strong>Implantar -> Gerenciar implantações</strong> e confirme se a opção <strong>"Quem tem acesso"</strong> está configurada como <strong>"Qualquer pessoa"</strong> (<em>Anyone</em>). Se estiver como "Apenas eu", o Telegram não consegue entregar as mensagens.
+          </p>
+        </div>
+
+        <div style="padding:0.85rem 1rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color);">
+          <strong style="color:var(--text-primary); font-size:0.86rem; display:block; margin-bottom:3px;">
+            2. Como faço para dar acesso para meu cônjuge, sócio ou familiar usar o mesmo bot?
+          </strong>
+          <p style="font-size:0.8rem; color:var(--text-secondary); margin:0; line-height:1.45;">
+            Vá na aba <strong>Configurações -> Usuários e Acessos</strong>, clique em <strong>+ Cadastrar Novo Usuário</strong> e preencha o nome e e-mail dele com papel <em>USUÁRIO</em> e status <em>APROVADO</em>. Depois, passe para ele o link do bot do Telegram com o comando de vínculo para que o celular dele também fique conectado à mesma conta familiar.
+          </p>
+        </div>
+
+        <div style="padding:0.85rem 1rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color);">
+          <strong style="color:var(--text-primary); font-size:0.86rem; display:block; margin-bottom:3px;">
+            3. O bot grava a despesa direto sem me perguntar?
+          </strong>
+          <p style="font-size:0.8rem; color:var(--text-secondary); margin:0; line-height:1.45;">
+            Não! Por segurança contábil, o Finpess sempre exibe um cartão com a <strong>prévia do lançamento</strong> (valor, categoria, conta sugerida e data) com três botões: <strong>[Confirmar]</strong>, <strong>[Editar]</strong> e <strong>[Cancelar]</strong>. Somente após você clicar em Confirmar é que o valor é lançado na planilha.
+          </p>
+        </div>
+
+        <div style="padding:0.85rem 1rem; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border-color);">
+          <strong style="color:var(--text-primary); font-size:0.86rem; display:block; margin-bottom:3px;">
+            4. Posso usar o Finpess sem o Telegram, apenas pelo navegador?
+          </strong>
+          <p style="font-size:0.8rem; color:var(--text-secondary); margin:0; line-height:1.45;">
+            Sim, com certeza! O painel web completo possui todos os 14 módulos (Dashboard, Lançamentos, Cartões, Recorrentes, Dívidas, Empréstimos, Investimentos, Calendário, Relatórios, etc.). O Telegram é um assistente complementar para quando você estiver na rua e quiser registrar compras rápidas.
+          </p>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- MODAL DE DETALHES DO LOG ESTRUTURADO -->
