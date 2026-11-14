@@ -7,7 +7,7 @@
 
 var SpreadsheetRepository = (function () {
   var SCHEMA_VERSION = '1.3.1';
-  var DEFAULT_SPREADSHEET_ID = '1MLW8MLoAdPG8lYZhwwV0UHrSV5wIn2mHJjXgcYsyw9c';
+  var DEFAULT_SPREADSHEET_ID = '';
 
   /**
    * Definição oficial das 28 abas obrigatórias e seus cabeçalhos estáveis.
@@ -251,27 +251,48 @@ var SpreadsheetRepository = (function () {
     if (cachedSpreadsheet) {
       return cachedSpreadsheet;
     }
+
     var props = typeof PropertiesService !== 'undefined' ? PropertiesService.getScriptProperties() : null;
+
+    // 1. Prioridade máxima: planilha ativa do contexto de execução (container-bound na planilha do cliente)
+    try {
+      if (typeof SpreadsheetApp !== 'undefined' && SpreadsheetApp.getActiveSpreadsheet) {
+        var activeSs = SpreadsheetApp.getActiveSpreadsheet();
+        if (activeSs && typeof activeSs.getId === 'function' && activeSs.getId()) {
+          cachedSpreadsheet = activeSs;
+          var activeId = activeSs.getId();
+          if (props && props.getProperty('SPREADSHEET_ID') !== activeId) {
+            props.setProperty('SPREADSHEET_ID', activeId);
+          }
+          return cachedSpreadsheet;
+        }
+      }
+    } catch (eActive) {
+      // Standalone execution context
+    }
+
+    // 2. Se for execução como Web App autônomo, busca SPREADSHEET_ID das propriedades
     var spreadsheetId = props ? props.getProperty('SPREADSHEET_ID') : null;
     if (spreadsheetId) {
-      cachedSpreadsheet = SpreadsheetApp.openById(spreadsheetId);
-      return cachedSpreadsheet;
-    }
-    try {
-      cachedSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-    } catch (e) {
-      cachedSpreadsheet = null;
-    }
-    if (cachedSpreadsheet) {
-      return cachedSpreadsheet;
-    }
-    if (DEFAULT_SPREADSHEET_ID) {
-      cachedSpreadsheet = SpreadsheetApp.openById(DEFAULT_SPREADSHEET_ID);
-      if (props && cachedSpreadsheet) {
-        props.setProperty('SPREADSHEET_ID', DEFAULT_SPREADSHEET_ID);
+      try {
+        cachedSpreadsheet = SpreadsheetApp.openById(spreadsheetId);
+        return cachedSpreadsheet;
+      } catch (eOpen) {
+        cachedSpreadsheet = null;
       }
-      return cachedSpreadsheet;
     }
+
+    // 3. Fallback somente se DEFAULT_SPREADSHEET_ID configurado
+    if (DEFAULT_SPREADSHEET_ID) {
+      try {
+        cachedSpreadsheet = SpreadsheetApp.openById(DEFAULT_SPREADSHEET_ID);
+        if (props && cachedSpreadsheet) {
+          props.setProperty('SPREADSHEET_ID', DEFAULT_SPREADSHEET_ID);
+        }
+        return cachedSpreadsheet;
+      } catch (eDefault) {}
+    }
+
     throw new Error('Planilha não configurada. Defina a propriedade SPREADSHEET_ID nas Propriedades do Script ou vincule o script a uma planilha Google Sheets.');
   }
 
@@ -289,29 +310,42 @@ var SpreadsheetRepository = (function () {
     if (isLockedLocally) {
       return callback();
     }
-    var wait = timeoutMs || 10000;
+    var baseWait = timeoutMs || 8000;
     var lock = null;
     var acquired = false;
-    try {
-      if (typeof LockService !== 'undefined' && LockService.getScriptLock) {
-        lock = LockService.getScriptLock();
-        acquired = lock.tryLock(wait);
-      }
-    } catch (e) {
-      acquired = false;
-    }
+    var maxAttempts = 3;
+    var attemptDelays = [200, 500, 1000];
 
-    if (!acquired && lock !== null) {
-      // Fallback resiliente usando UserLock se ScriptLock estiver sob contenção
+    for (var attempt = 0; attempt < maxAttempts; attempt++) {
       try {
-        if (LockService.getUserLock) {
-          var userLock = LockService.getUserLock();
-          if (userLock.tryLock(3000)) {
-            lock = userLock;
-            acquired = true;
-          }
+        if (typeof LockService !== 'undefined' && LockService.getScriptLock) {
+          lock = LockService.getScriptLock();
+          acquired = lock.tryLock(baseWait);
+          if (acquired) break;
         }
-      } catch (e2) {}
+      } catch (e) {
+        acquired = false;
+      }
+
+      if (!acquired) {
+        // Fallback resiliente usando UserLock se ScriptLock estiver sob contenção
+        try {
+          if (typeof LockService !== 'undefined' && LockService.getUserLock) {
+            var userLock = LockService.getUserLock();
+            if (userLock.tryLock(3000)) {
+              lock = userLock;
+              acquired = true;
+              break;
+            }
+          }
+        } catch (e2) {}
+      }
+
+      if (attempt < maxAttempts - 1) {
+        if (typeof Utilities !== 'undefined' && Utilities.sleep) {
+          Utilities.sleep(attemptDelays[attempt]);
+        }
+      }
     }
 
     if (!acquired && lock !== null) {

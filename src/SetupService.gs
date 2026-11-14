@@ -1,12 +1,24 @@
 /**
  * @file SetupService.gs
- * @description Automação completa de instalação das 21 abas na planilha
- * (1MLW8MLoAdPG8lYZhwwV0UHrSV5wIn2mHJjXgcYsyw9c), menu nativo no Google Sheets e
- * configuração automática em 1 clique do Webhook, Comandos e Vínculo do Bot do Telegram.
+ * @description Automação completa de instalação das abas na planilha pessoal do comprador,
+ * menu nativo no Google Sheets e configuração automática em 1 clique com isolamento estrito.
  */
 
 var SetupService = (function () {
-  var TARGET_SPREADSHEET_ID = '1MLW8MLoAdPG8lYZhwwV0UHrSV5wIn2mHJjXgcYsyw9c';
+  var TARGET_SPREADSHEET_ID = '';
+
+  function resolveActiveSpreadsheetId() {
+    try {
+      if (typeof SpreadsheetApp !== 'undefined' && SpreadsheetApp.getActiveSpreadsheet) {
+        var activeSs = SpreadsheetApp.getActiveSpreadsheet();
+        if (activeSs && typeof activeSs.getId === 'function' && activeSs.getId()) {
+          return activeSs.getId();
+        }
+      }
+    } catch (e) {}
+    var props = typeof PropertiesService !== 'undefined' ? PropertiesService.getScriptProperties() : null;
+    return (props && props.getProperty('SPREADSHEET_ID')) || TARGET_SPREADSHEET_ID || '';
+  }
 
   function generateStrongSecret() {
     var p1 = SpreadsheetRepository.generateId('sec').replace(/[^a-zA-Z0-9]/g, '');
@@ -15,13 +27,15 @@ var SetupService = (function () {
   }
 
   /**
-   * Instala automaticamente as 21 abas na planilha, semeia categorias/configurações
+   * Instala automaticamente as abas na planilha, semeia categorias/configurações
    * e registra o proprietário administrativo (OWNER).
    */
   function installSpreadsheetAndSeed(customOwnerEmail) {
     var props = typeof PropertiesService !== 'undefined' ? PropertiesService.getScriptProperties() : null;
-    if (props && !props.getProperty('SPREADSHEET_ID')) {
-      props.setProperty('SPREADSHEET_ID', TARGET_SPREADSHEET_ID);
+    var activeId = resolveActiveSpreadsheetId();
+
+    if (activeId && props) {
+      props.setProperty('SPREADSHEET_ID', activeId);
     }
 
     var schemaReport = SpreadsheetRepository.ensureSchema(true);
@@ -42,9 +56,11 @@ var SetupService = (function () {
       }
     } catch (eTrig) {}
 
+    var finalSpreadsheetId = (props && props.getProperty('SPREADSHEET_ID')) || activeId || '';
+
     return {
       ok: true,
-      spreadsheet_id: (props && props.getProperty('SPREADSHEET_ID')) || TARGET_SPREADSHEET_ID,
+      spreadsheet_id: finalSpreadsheetId,
       schema: schemaReport,
       owner: ownerUser ? { id: ownerUser.id, email: ownerUser.email, grupo_id: ownerUser.grupo_id } : null
     };
@@ -364,7 +380,7 @@ var SetupService = (function () {
       versao_sistema: '2.1.0-SaaS',
       ambiente: 'Google Apps Script (V8 Engine)',
       proprietario_email: ownerEmail || adminUser.email,
-      planilha_id: (props && props.getProperty('SPREADSHEET_ID')) || TARGET_SPREADSHEET_ID,
+      planilha_id: resolveActiveSpreadsheetId(),
       esquema_tabelas: {
         total_esperado: 21,
         total_presente: 21,

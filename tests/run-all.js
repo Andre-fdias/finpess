@@ -17,6 +17,7 @@ const { runAudioProcessingTests } = require('./audio-processing-tests');
 const { runIdempotencyTests } = require('./idempotency-tests');
 const { runCreditCardTests } = require('./credit-card-tests');
 const { runPlanningAndGoalsTests } = require('./planning-goals-tests');
+const { runLicensingTests } = require('./licensing-commercial-tests');
 
 function runUiIntegrityChecks() {
   const srcDir = path.join(__dirname, '..', 'src');
@@ -76,7 +77,8 @@ function main() {
     { name: '6. Bot Telegram por Texto e Escopo Restrito (telegram-tests)', fn: runTelegramTests },
     { name: '7. Bot Telegram por Áudio e Transcrição PT-BR (audio-processing-tests)', fn: runAudioProcessingTests },
     { name: '8. Idempotência e Resiliência de Integrações (idempotency-tests)', fn: runIdempotencyTests },
-    { name: '9. Interface Responsiva, Temas e Botões (ui-integrity)', fn: runUiIntegrityChecks }
+    { name: '9. Interface Responsiva, Temas e Botões (ui-integrity)', fn: runUiIntegrityChecks },
+    { name: '10. Licenciamento Comercial, Trial 14D e Anti-Clonagem (licensing-tests)', fn: runLicensingTests }
   ];
 
   let totalAssertionsGroups = 0;

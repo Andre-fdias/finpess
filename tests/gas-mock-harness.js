@@ -85,6 +85,7 @@ function createGasContext(options = {}) {
   }
 
   const activeSpreadsheetMock = {
+    getId: () => 'mock_spreadsheet_id',
     getSheetByName: (name) => sheetsMap[name] || null,
     insertSheet: (name) => {
       sheetsMap[name] = createSheetMock(name);
@@ -350,6 +351,7 @@ function createGasContext(options = {}) {
     'TelegramWebhookService.gs',
     'SearchService.gs',
     'SetupService.gs',
+    'LicenseService.gs',
     'Code.gs'
   ];
 

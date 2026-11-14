@@ -201,7 +201,8 @@ function apiCall(action, payload, authContext) {
         onlineUsers: onlineUsers,
         unreadNotificationsCount: notifOverview.nao_lidas,
         notificationsBadge: notifOverview.badge_text,
-        hasCriticalNotification: notifOverview.has_critical
+        hasCriticalNotification: notifOverview.has_critical,
+        license: typeof LicenseService !== 'undefined' ? LicenseService.getLicenseInfo() : null
       };
     }
 
@@ -252,7 +253,56 @@ function apiCall(action, payload, authContext) {
     // Todas as demais rotas exigem obrigatoriamente usuário autenticado E APROVADO!
     var user = AuthService.requireApprovedUser(authContext);
 
+    // Guardião de Licenciamento Comercial: bloqueia mutações se licença expirada ou inválida
+    var WRITE_ACTIONS = {
+      'launches.create': 'criar lançamento',
+      'launches.update': 'editar lançamento',
+      'launches.confirm': 'confirmar lançamento',
+      'launches.cancel': 'cancelar lançamento',
+      'categories.create': 'criar categoria',
+      'subcategories.create': 'criar subcategoria',
+      'categories.updateBudget': 'atualizar orçamento',
+      'recurring.create': 'cadastrar conta recorrente',
+      'recurring.update': 'editar conta recorrente',
+      'recurring.generateForecasts': 'gerar previsões de contas',
+      'recurring.payOccurrence': 'baixar pagamento de conta',
+      'bankAccounts.create': 'cadastrar conta bancária',
+      'bankAccounts.update': 'editar conta bancária',
+      'bankAccounts.delete': 'excluir conta bancária',
+      'bankAccounts.adjustBalance': 'ajustar saldo bancário',
+      'bankAccounts.transfer': 'realizar transferência entre contas',
+      'cards.create': 'cadastrar cartão de crédito',
+      'cards.update': 'editar cartão de crédito',
+      'cards.delete': 'excluir cartão de crédito',
+      'cards.addPurchase': 'cadastrar compra no cartão',
+      'cards.payInvoice': 'pagar fatura de cartão',
+      'debts.create': 'cadastrar dívida',
+      'debts.update': 'editar dívida',
+      'loans.create': 'cadastrar empréstimo',
+      'loans.update': 'editar empréstimo',
+      'investments.create': 'cadastrar investimento',
+      'investments.update': 'editar investimento',
+      'goals.create': 'cadastrar meta financeira',
+      'goals.update': 'editar meta financeira',
+      'goals.addDeposit': 'aportar em meta financeira'
+    };
+
+    if (WRITE_ACTIONS[act]) {
+      if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+        LicenseService.assertCanWrite(WRITE_ACTIONS[act]);
+      }
+    }
+
     switch (act) {
+      // Licenciamento Comercial e Período de Teste
+      case 'license.getInfo':
+        return { ok: true, data: LicenseService.getLicenseInfo() };
+      case 'license.startTrial':
+        return { ok: true, data: LicenseService.startTrial(reqPayload.email || user.email) };
+      case 'license.activate':
+        var adminAct = AuthService.requireAdminUser(authContext);
+        return { ok: true, data: LicenseService.activateLicense(reqPayload.serial, reqPayload.email || adminAct.email) };
+
       // Preferências do usuário
       case 'user.updatePreferences':
         return { ok: true, data: UserService.updateUserPreferences(user, reqPayload) };
