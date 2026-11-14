@@ -263,6 +263,9 @@ var CreditCardService = (function () {
    */
   function createCard(user, payload) {
     AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('cadastro de cartão de crédito');
+    }
     var p = payload || {};
 
     var nome = ValidationService.sanitizeText(p.nome, 100);
@@ -426,6 +429,9 @@ var CreditCardService = (function () {
    */
   function createPurchase(user, payload) {
     AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('cadastro de compra no cartão de crédito');
+    }
     var p = payload || {};
 
     var card = SpreadsheetRepository.findById('CARTOES_CREDITO', p.cartao_id, user.grupo_id);
@@ -537,6 +543,9 @@ var CreditCardService = (function () {
    */
   function cancelPurchase(user, purchaseId, motivo) {
     AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('cancelamento de compra no cartão de crédito');
+    }
     return SpreadsheetRepository.withLock(function () {
       var purchase = SpreadsheetRepository.findById('COMPRAS_CARTAO', purchaseId, user.grupo_id);
       if (!purchase) throw new Error('Compra no cartão não encontrada.');
@@ -692,6 +701,9 @@ var CreditCardService = (function () {
    */
   function payInvoice(user, invoiceId, payload) {
     AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('pagamento de fatura de cartão de crédito');
+    }
     var p = payload || {};
 
     return SpreadsheetRepository.withLock(function () {

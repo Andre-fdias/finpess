@@ -48,6 +48,9 @@ var LoanService = (function () {
   function createLoan(user, payload, channel) {
     assertWebChannelOnly(channel);
     AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('cadastro de empréstimo');
+    }
     if (!payload || typeof payload !== 'object') {
       throw new Error('Dados do empréstimo não informados.');
     }
@@ -183,6 +186,9 @@ var LoanService = (function () {
   function payLoanInstallment(user, parcelaId, paymentPayload, channel) {
     assertWebChannelOnly(channel);
     AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('pagamento de parcela de empréstimo');
+    }
     var parcela = SpreadsheetRepository.findById('PARCELAS', parcelaId, user.grupo_id);
     if (!parcela || parcela.origem_tipo !== 'EMPRESTIMO') {
       throw new Error('Parcela de empréstimo não encontrada.');

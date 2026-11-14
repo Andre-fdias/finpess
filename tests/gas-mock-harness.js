@@ -110,6 +110,9 @@ function createGasContext(options = {}) {
     isNaN,
     encodeURIComponent,
     decodeURIComponent,
+    BigInt,
+    Buffer,
+    require,
 
     __setActiveUserEmail: (email) => { activeUserEmail = email; },
     __setScriptProperty: (k, v) => { scriptProps[k] = v; },
@@ -185,7 +188,18 @@ function createGasContext(options = {}) {
         const buf = crypto.createHash('sha256').update(String(str), 'utf8').digest();
         return Array.from(buf);
       },
-      base64Encode: (bytes) => Buffer.from(bytes || []).toString('base64')
+      computeRsaSha256Signature: (val, key) => {
+        const sign = crypto.sign('sha256', Buffer.from(val, 'utf8'), key);
+        return Array.from(sign);
+      },
+      base64Encode: (bytes) => Buffer.from(bytes || []).toString('base64'),
+      base64EncodeWebSafe: (str) => Buffer.from(str || '', 'utf8').toString('base64url'),
+      base64Decode: (str) => Array.from(Buffer.from(str || '', 'base64')),
+      base64DecodeWebSafe: (str) => Array.from(Buffer.from(str || '', 'base64url')),
+      newBlob: (bytes) => ({
+        getDataAsString: (_charset) => Buffer.from(bytes || []).toString('utf8'),
+        getBytes: () => bytes
+      })
     },
 
     MailApp: {
@@ -354,6 +368,18 @@ function createGasContext(options = {}) {
     'LicenseService.gs',
     'Code.gs'
   ];
+
+  const commDir = path.join(__dirname, '..', 'commercial-licensing-server');
+  if (fs.existsSync(commDir)) {
+    const commFiles = ['CommercialSchema.gs', 'LicensingServer.gs'];
+    for (const file of commFiles) {
+      const fullPath = path.join(commDir, file);
+      if (fs.existsSync(fullPath)) {
+        const code = fs.readFileSync(fullPath, 'utf8');
+        vm.runInContext(code, sandbox, { filename: file });
+      }
+    }
+  }
 
   const srcDir = path.join(__dirname, '..', 'src');
   for (const file of gsOrder) {

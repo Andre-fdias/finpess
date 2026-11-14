@@ -799,8 +799,12 @@ var NotificationService = (function () {
           return savedUrl;
         }
       }
+      if (typeof ScriptApp !== 'undefined' && ScriptApp.getService) {
+        var svc = ScriptApp.getService().getUrl();
+        if (svc) return svc;
+      }
     } catch (e) {}
-    return 'https://script.google.com/macros/s/AKfycbyzjzX7GYRl-IGmJ0S8kgoCfA9i3G9zC2AuAzUgXFyEYEmrt_ivlaxE2gyul7TCcaAM7g/exec';
+    return '';
   }
 
   function getDayDifference(dateIso, todayIso) {

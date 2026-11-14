@@ -116,6 +116,9 @@ var GoalService = (function () {
 
   function createGoal(user, payload) {
     AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('cadastro de meta financeira');
+    }
     if (!payload) throw new Error('Dados da meta não informados.');
 
     var nome = ValidationService.sanitizeText(payload.nome, 120);
@@ -234,6 +237,9 @@ var GoalService = (function () {
    */
   function contributeToGoal(user, goalId, payload) {
     AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('aporte em meta financeira');
+    }
     var goal = SpreadsheetRepository.findById('METAS_FINANCEIRAS', goalId, user.grupo_id);
     if (!goal) throw new Error('Meta financeira não encontrada.');
 

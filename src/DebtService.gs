@@ -17,6 +17,9 @@ var DebtService = (function () {
   function createDebt(user, payload, channel) {
     assertWebChannelOnly(channel);
     AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('cadastro de dívida');
+    }
     if (!payload || typeof payload !== 'object') {
       throw new Error('Dados da dívida não informados.');
     }
@@ -88,6 +91,9 @@ var DebtService = (function () {
   function approveDebtAgreement(user, debtId, agreementPayload, channel) {
     assertWebChannelOnly(channel);
     AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('aprovação de acordo de dívida');
+    }
     var debt = SpreadsheetRepository.findById('DIVIDAS', debtId, user.grupo_id);
     if (!debt) {
       throw new Error('Dívida não encontrada.');
@@ -181,6 +187,9 @@ var DebtService = (function () {
   function payDebtInstallment(user, parcelaId, paymentPayload, channel) {
     assertWebChannelOnly(channel);
     AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('pagamento de parcela de dívida');
+    }
     var parcela = SpreadsheetRepository.findById('PARCELAS', parcelaId, user.grupo_id);
     if (!parcela || parcela.origem_tipo !== 'DIVIDA') {
       throw new Error('Parcela de dívida não encontrada.');

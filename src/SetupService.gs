@@ -36,9 +36,22 @@ var SetupService = (function () {
 
     if (activeId && props) {
       props.setProperty('SPREADSHEET_ID', activeId);
+      if (!props.getProperty('FINPESS_ORIGINAL_SPREADSHEET_ID')) {
+        props.setProperty('FINPESS_ORIGINAL_SPREADSHEET_ID', activeId);
+      }
     }
 
     var schemaReport = SpreadsheetRepository.ensureSchema(true);
+
+    if (activeId) {
+      try {
+        SpreadsheetRepository.upsertRecord('CONFIGURACOES', {
+          chave: 'FINPESS_ORIGINAL_SPREADSHEET_ID',
+          valor: activeId,
+          descricao: 'ID imutável da planilha de instalação original'
+        }, 'chave');
+      } catch (eConf) {}
+    }
     var ownerEmail = customOwnerEmail || AuthService.resolveOwnerEmail() || AuthService.resolveAuthenticatedEmail({});
     if (ownerEmail && props && !props.getProperty('OWNER_EMAIL')) {
       props.setProperty('OWNER_EMAIL', ownerEmail);

@@ -33,6 +33,9 @@ var RecurringAccountService = (function () {
 
   function createRecurringAccount(user, payload) {
     AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('cadastro de conta recorrente');
+    }
     if (!payload || typeof payload !== 'object') {
       throw new Error('Dados da conta recorrente não informados.');
     }
@@ -274,6 +277,9 @@ var RecurringAccountService = (function () {
    */
   function generateMonthlyForecasts(user, competenciaMes) {
     AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('geração de previsões de contas recorrentes');
+    }
     if (!competenciaMes || !/^\d{4}-\d{2}$/.test(competenciaMes)) {
       throw new Error('Competência mensal inválida (esperado YYYY-MM).');
     }
@@ -376,6 +382,9 @@ var RecurringAccountService = (function () {
    */
   function payRecurringOccurrence(user, recurringId, competenciaMes, paymentDetails) {
     AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('baixa de conta recorrente');
+    }
     var rule = SpreadsheetRepository.findById('CONTAS_RECORRENTES', recurringId, user.grupo_id);
     if (!rule) {
       throw new Error('Conta recorrente não encontrada.');

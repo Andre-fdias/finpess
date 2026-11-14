@@ -63,6 +63,9 @@ var InvestmentService = (function () {
   function createAsset(user, payload, channel) {
     assertWebChannelOnly(channel);
     AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('cadastro de investimento');
+    }
     if (!payload || typeof payload !== 'object') {
       throw new Error('Dados do ativo de investimento não informados.');
     }
@@ -182,6 +185,9 @@ var InvestmentService = (function () {
   function recordInvestmentMovement(user, payload, channel) {
     assertWebChannelOnly(channel);
     AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('movimentação de investimento');
+    }
     if (!payload || !payload.investimento_id) {
       throw new Error('Ativo de investimento é obrigatório.');
     }
@@ -382,6 +388,9 @@ var InvestmentService = (function () {
   function deleteAsset(user, assetId, channel) {
     assertWebChannelOnly(channel);
     AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('exclusão de investimento');
+    }
     if (!assetId) throw new Error('ID do ativo não fornecido.');
 
     var asset = SpreadsheetRepository.findById('INVESTIMENTOS', assetId, user.grupo_id);

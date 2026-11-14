@@ -255,36 +255,76 @@ function apiCall(action, payload, authContext) {
 
     // Guardião de Licenciamento Comercial: bloqueia mutações se licença expirada ou inválida
     var WRITE_ACTIONS = {
+      // Lançamentos
       'launches.create': 'criar lançamento',
       'launches.update': 'editar lançamento',
       'launches.confirm': 'confirmar lançamento',
       'launches.cancel': 'cancelar lançamento',
+
+      // Categorias e Orçamentos
       'categories.create': 'criar categoria',
       'subcategories.create': 'criar subcategoria',
-      'categories.updateBudget': 'atualizar orçamento',
+      'categories.updateBudget': 'atualizar orçamento de categoria',
+
+      // Contas Recorrentes e Assinaturas
       'recurring.create': 'cadastrar conta recorrente',
       'recurring.update': 'editar conta recorrente',
-      'recurring.generateForecasts': 'gerar previsões de contas',
-      'recurring.payOccurrence': 'baixar pagamento de conta',
+      'recurring.generateForecasts': 'gerar previsões de contas recorrentes',
+      'recurring.payOccurrence': 'baixar pagamento de conta recorrente',
+
+      // Contas Bancárias e Transferências
       'bankAccounts.create': 'cadastrar conta bancária',
       'bankAccounts.update': 'editar conta bancária',
       'bankAccounts.delete': 'excluir conta bancária',
       'bankAccounts.adjustBalance': 'ajustar saldo bancário',
       'bankAccounts.transfer': 'realizar transferência entre contas',
+      'bankAccounts.reconcile': 'conciliar saldo bancário',
+
+      // Cartões de Crédito, Faturas e Parcelamentos
+      'creditCards.create': 'cadastrar cartão de crédito',
+      'creditCards.update': 'editar cartão de crédito',
+      'creditCards.delete': 'excluir cartão de crédito',
+      'creditCards.invoices.pay': 'pagar fatura de cartão',
+      'creditCards.purchases.create': 'cadastrar compra parcelada no cartão',
+      'creditCards.purchases.cancel': 'cancelar compra no cartão',
+      'creditCards.adjustments.create': 'ajustar fatura de cartão',
       'cards.create': 'cadastrar cartão de crédito',
       'cards.update': 'editar cartão de crédito',
       'cards.delete': 'excluir cartão de crédito',
       'cards.addPurchase': 'cadastrar compra no cartão',
       'cards.payInvoice': 'pagar fatura de cartão',
-      'debts.create': 'cadastrar dívida',
-      'debts.update': 'editar dívida',
-      'loans.create': 'cadastrar empréstimo',
-      'loans.update': 'editar empréstimo',
-      'investments.create': 'cadastrar investimento',
-      'investments.update': 'editar investimento',
+
+      // Metas Financeiras e Reservas
       'goals.create': 'cadastrar meta financeira',
       'goals.update': 'editar meta financeira',
-      'goals.addDeposit': 'aportar em meta financeira'
+      'goals.delete': 'excluir meta financeira',
+      'goals.contribute': 'aportar em meta financeira',
+      'goals.addDeposit': 'aportar em meta financeira',
+
+      // Dívidas e Acordos
+      'debts.create': 'cadastrar dívida',
+      'debts.update': 'editar dívida',
+      'debts.approveAgreement': 'aprovar acordo de dívida',
+      'debts.payInstallment': 'pagar parcela de dívida',
+
+      // Empréstimos e Consignados
+      'loans.create': 'cadastrar empréstimo',
+      'loans.update': 'editar empréstimo',
+      'loans.payInstallment': 'pagar parcela de empréstimo',
+
+      // Investimentos e Movimentações
+      'investments.createAsset': 'cadastrar ativo de investimento',
+      'investments.updateAsset': 'editar ativo de investimento',
+      'investments.deleteAsset': 'excluir ativo de investimento',
+      'investments.recordMovement': 'registrar movimentação de investimento',
+      'investments.saveSuitability': 'salvar perfil de suitability',
+      'investments.create': 'cadastrar investimento',
+      'investments.update': 'editar investimento',
+
+      // Mutações Administrativas de Base
+      'admin.restoreBackup': 'restaurar backup de dados',
+      'admin.resetData': 'redefinir dados financeiros',
+      'admin.updateConfigs': 'atualizar configurações financeiras'
     };
 
     if (WRITE_ACTIONS[act]) {

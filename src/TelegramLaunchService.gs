@@ -125,7 +125,10 @@ var TelegramLaunchService = (function () {
    * Uma mesma atualização (telegram_update_id) NUNCA gera dois registros ou dois lançamentos.
    */
   function createProposalFromUpdate(user, updateMeta, extractedData) {
-    AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('lançamento financeiro via Telegram');
+    }
+    AuthService.assertGroupAccess(user, user ? user.grupo_id : null);
     if (!updateMeta || !updateMeta.telegram_update_id) {
       throw new Error('telegram_update_id é obrigatório para garantir idempotência.');
     }
@@ -261,7 +264,10 @@ var TelegramLaunchService = (function () {
    * e garante idempotência contra cliques repetidos.
    */
   function confirmProposal(user, processId, providedPreviewHash) {
-    AuthService.assertGroupAccess(user, user.grupo_id);
+    if (typeof LicenseService !== 'undefined' && LicenseService.assertCanWrite) {
+      LicenseService.assertCanWrite('lançamento financeiro via Telegram');
+    }
+    AuthService.assertGroupAccess(user, user ? user.grupo_id : null);
     return SpreadsheetRepository.withLock(function () {
       var proc = SpreadsheetRepository.findById('TELEGRAM_PROCESSAMENTOS', processId, user.grupo_id);
       if (!proc) {
