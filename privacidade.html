@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Política de Privacidade — Finpess</title>
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card: #111827;
+      --border: rgba(255, 255, 255, 0.08);
+      --primary: #10b981;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      line-height: 1.7;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 840px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+    }
+    a.back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    h1 { font-size: 2rem; margin-bottom: 8px; color: #fff; }
+    .subtitle { color: var(--muted); margin-bottom: 24px; font-size: 0.95rem; }
+    h2 { font-size: 1.3rem; margin-top: 32px; margin-bottom: 12px; color: var(--primary); }
+    p, li { color: #cbd5e1; margin-bottom: 14px; font-size: 1rem; }
+    ul { padding-left: 24px; }
+    .alert-box {
+      background: rgba(16, 185, 129, 0.1);
+      border-left: 4px solid var(--primary);
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      color: #e2e8f0;
+    }
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-btn">← Voltar para a Página Principal</a>
+    <h1>Política de Privacidade e Proteção de Dados (LGPD)</h1>
+    <p class="subtitle"><strong>Sistema Finpess — Finanças Pessoais e Familiares</strong><br>Última Atualização: 14 de Novembro de 2026 | Conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018)</p>
+
+    <div class="alert-box">
+      <strong>Princípio Fundamental:</strong> O Finpess opera em arquitetura descentralizada (Client-Side Storage). Seus dados financeiros residem exclusivamente no seu próprio Google Drive pessoal. Nós <strong>NÃO</strong> temos acesso aos seus extratos, saldos, contas ou faturas.
+    </div>
+
+    <h2>1. O Princípio Fundamental da Arquitetura Finpess</h2>
+    <p>Diferente de aplicativos tradicionais que concentram extratos e senhas em servidores de terceiros, o Finpess adota soberania digital:</p>
+    <ul>
+      <li><strong>Seus Dados pertencem a você:</strong> Todos os registros e lançamentos ficam na sua planilha privada Google Sheets dentro da sua conta Google.</li>
+      <li><strong>Zero Visibilidade Externa:</strong> O desenvolvedor do Finpess não possui permissão técnica para visualizar saldos ou extratos bancários.</li>
+    </ul>
+
+    <h2>2. Dados Tratados pelo Servidor Comercial de Licenciamento</h2>
+    <p>Para emissão e validação da licença de uso, tratamos exclusivamente metadados técnicos e comerciais:</p>
+    <ul>
+      <li><strong>Identificação Comercial:</strong> Nome e e-mail informados na plataforma de pagamento (Hotmart / Kiwify / Mercado Pago);</li>
+      <li><strong>Identificadores Técnicos:</strong> Código único da instalação (Installation ID) e status da licença (Trial, Ativa, Expirada);</li>
+      <li><strong>Proteção Anti-Clonagem:</strong> Verificação de vinculação do serial à planilha autorizada.</li>
+    </ul>
+    <p><em>Garantia Explícita: O servidor comercial JAMAIS recebe ou armazena números de contas bancárias, valores monetários ou dados de despesas.</em></p>
+
+    <h2>3. Integrações Opcionais</h2>
+    <ul>
+      <li><strong>Google Gemini (IA):</strong> Usado para interpretação de texto e leitura de comprovantes (OCR) sob demanda explícita do usuário.</li>
+      <li><strong>Telegram Bot:</strong> Mensagens trafegam criptografadas diretamente para a sua planilha via webhook seguro.</li>
+      <li><strong>Cotações de Mercado:</strong> Consultas públicas de moedas e índices através de APIs abertas oficiais.</li>
+    </ul>
+
+    <h2>4. Direitos do Titular (Artigo 18 da LGPD)</h2>
+    <p>Você pode a qualquer momento exportar seus dados em CSV, criar cópias de segurança locais ou excluir permanentemente a planilha e todos os dados associados diretamente do seu Google Drive.</p>
+
+    <footer>
+      Finpess © 2026. Todos os direitos reservados.
+    </footer>
+  </div>
+</body>
+</html>
