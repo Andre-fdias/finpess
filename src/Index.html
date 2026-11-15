@@ -480,7 +480,7 @@
   </div>
 
   <script>
-    window.__INITIAL_SESSION_TOKEN__ = "<?= initialSessionToken ?>";
+    window.__INITIAL_SESSION_TOKEN__ = "<?= typeof initialSessionToken !== 'undefined' ? initialSessionToken : '' ?>";
   </script>
   <?!= include('Components'); ?>
   <?!= include('App'); ?>

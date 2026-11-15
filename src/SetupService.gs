@@ -989,7 +989,10 @@ function instalarTudoNaPlanilha() {
  */
 function abrirPainelNaPlanilha() {
   SetupService.installSpreadsheetAndSeed();
-  var html = HtmlService.createTemplateFromFile('Index')
+  var template = HtmlService.createTemplateFromFile('Index');
+  template.initialParamsJson = JSON.stringify({});
+  template.initialSessionToken = '';
+  var html = template
     .evaluate()
     .setWidth(1280)
     .setHeight(820)
