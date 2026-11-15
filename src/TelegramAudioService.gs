@@ -50,14 +50,26 @@ var TelegramAudioService = (function () {
 
     var props = typeof PropertiesService !== 'undefined' ? PropertiesService.getScriptProperties() : null;
     var botToken = props ? props.getProperty('TELEGRAM_BOT_TOKEN') : '';
+    botToken = String(botToken || '').replace(/^bot/i, '').trim();
     if (!botToken || typeof UrlFetchApp === 'undefined') {
       throw new Error('TELEGRAM_TOKEN_MISSING: Token do bot não configurado para download de áudio.');
     }
 
-    var getFileUrl = 'https://api.telegram.org/bot' + botToken + '/getFile?file_id=' + encodeURIComponent(fileId);
-    var metaResp = UrlFetchApp.fetch(getFileUrl, { muteHttpExceptions: true });
+    var metaResp = UrlFetchApp.fetch('https://api.telegram.org/bot' + botToken + '/getFile', {
+      method: 'post',
+      contentType: 'application/json',
+      payload: JSON.stringify({ file_id: String(fileId) }),
+      muteHttpExceptions: true
+    });
     if (metaResp.getResponseCode() !== 200) {
-      throw new Error('TELEGRAM_GETFILE_ERROR: Não foi possível consultar o arquivo de áudio no Telegram.');
+      var aErr = '';
+      try {
+        var aJson = JSON.parse(metaResp.getContentText() || '{}');
+        aErr = aJson.description || metaResp.getContentText();
+      } catch (e) {
+        aErr = metaResp.getContentText();
+      }
+      throw new Error('TELEGRAM_GETFILE_ERROR: Não foi possível consultar o áudio no Telegram' + (aErr ? ' (' + aErr + ')' : '') + '.');
     }
     var metaJson = JSON.parse(metaResp.getContentText());
     if (!metaJson || !metaJson.ok || !metaJson.result || !metaJson.result.file_path) {
@@ -67,7 +79,7 @@ var TelegramAudioService = (function () {
     var fileUrl = 'https://api.telegram.org/file/bot' + botToken + '/' + metaJson.result.file_path;
     var fileResp = UrlFetchApp.fetch(fileUrl, { muteHttpExceptions: true });
     if (fileResp.getResponseCode() !== 200) {
-      throw new Error('TELEGRAM_DOWNLOAD_ERROR: Falha ao baixar o conteúdo do áudio.');
+      throw new Error('TELEGRAM_DOWNLOAD_ERROR: Falha ao baixar o conteúdo do áudio (HTTP ' + fileResp.getResponseCode() + ').');
     }
 
     var bytes = fileResp.getContent();
@@ -95,16 +107,28 @@ var TelegramAudioService = (function () {
 
     var props = typeof PropertiesService !== 'undefined' ? PropertiesService.getScriptProperties() : null;
     var botToken = props ? props.getProperty('TELEGRAM_BOT_TOKEN') : '';
+    botToken = String(botToken || '').replace(/^bot/i, '').trim();
     if (!botToken || typeof UrlFetchApp === 'undefined') {
       throw new Error('TELEGRAM_TOKEN_MISSING: Token do bot não configurado para download de arquivo.');
     }
 
-    var getFileUrl = 'https://api.telegram.org/bot' + botToken + '/getFile?file_id=' + encodeURIComponent(fileId);
-    var metaResp = UrlFetchApp.fetch(getFileUrl, { muteHttpExceptions: true });
-    if (metaResp.getResponseCode() !== 200) {
-      throw new Error('TELEGRAM_GETFILE_ERROR: Não foi possível consultar o arquivo no Telegram.');
+    var getFileResp = UrlFetchApp.fetch('https://api.telegram.org/bot' + botToken + '/getFile', {
+      method: 'post',
+      contentType: 'application/json',
+      payload: JSON.stringify({ file_id: String(fileId) }),
+      muteHttpExceptions: true
+    });
+    if (getFileResp.getResponseCode() !== 200) {
+      var fErr = '';
+      try {
+        var fJson = JSON.parse(getFileResp.getContentText() || '{}');
+        fErr = fJson.description || getFileResp.getContentText();
+      } catch (e) {
+        fErr = getFileResp.getContentText();
+      }
+      throw new Error('TELEGRAM_GETFILE_ERROR: Não foi possível consultar o arquivo no Telegram' + (fErr ? ' (' + fErr + ')' : '') + '.');
     }
-    var metaJson = JSON.parse(metaResp.getContentText());
+    var metaJson = JSON.parse(getFileResp.getContentText());
     if (!metaJson || !metaJson.ok || !metaJson.result || !metaJson.result.file_path) {
       throw new Error('TELEGRAM_FILE_PATH_MISSING: Caminho do arquivo indisponível.');
     }
@@ -119,7 +143,7 @@ var TelegramAudioService = (function () {
     var fileUrl = 'https://api.telegram.org/file/bot' + botToken + '/' + filePath;
     var fileResp = UrlFetchApp.fetch(fileUrl, { muteHttpExceptions: true });
     if (fileResp.getResponseCode() !== 200) {
-      throw new Error('TELEGRAM_DOWNLOAD_ERROR: Falha ao baixar o arquivo.');
+      throw new Error('TELEGRAM_DOWNLOAD_ERROR: Falha ao baixar o arquivo do Telegram (HTTP ' + fileResp.getResponseCode() + ').');
     }
 
     var bytes = fileResp.getContent();

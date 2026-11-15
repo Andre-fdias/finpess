@@ -61,14 +61,26 @@ var TelegramWebhookService = (function () {
     if (opts.sendRealTelegramMessages) {
       var props = typeof PropertiesService !== 'undefined' ? PropertiesService.getScriptProperties() : null;
       var botToken = props ? props.getProperty('TELEGRAM_BOT_TOKEN') : '';
+      botToken = String(botToken || '').replace(/^bot/i, '').trim();
       if (botToken && typeof UrlFetchApp !== 'undefined') {
         try {
-          UrlFetchApp.fetch('https://api.telegram.org/bot' + botToken + '/sendMessage', {
+          var resp = UrlFetchApp.fetch('https://api.telegram.org/bot' + botToken + '/sendMessage', {
             method: 'post',
             contentType: 'application/json',
             payload: JSON.stringify(messagePayload),
             muteHttpExceptions: true
           });
+          var code = resp ? resp.getResponseCode() : 0;
+          if (code !== 200) {
+            // Se falhou (especialmente HTTP 400 por erro de entidades Markdown), remove parse_mode e reenvia garantindo entrega
+            delete messagePayload.parse_mode;
+            UrlFetchApp.fetch('https://api.telegram.org/bot' + botToken + '/sendMessage', {
+              method: 'post',
+              contentType: 'application/json',
+              payload: JSON.stringify(messagePayload),
+              muteHttpExceptions: true
+            });
+          }
         } catch (sendErr) {
           try {
             delete messagePayload.parse_mode;
@@ -124,14 +136,24 @@ var TelegramWebhookService = (function () {
     if (opts.sendRealTelegramMessages) {
       var props = typeof PropertiesService !== 'undefined' ? PropertiesService.getScriptProperties() : null;
       var botToken = props ? props.getProperty('TELEGRAM_BOT_TOKEN') : '';
+      botToken = String(botToken || '').replace(/^bot/i, '').trim();
       if (botToken && typeof UrlFetchApp !== 'undefined') {
         try {
-          UrlFetchApp.fetch('https://api.telegram.org/bot' + botToken + '/editMessageText', {
+          var editResp = UrlFetchApp.fetch('https://api.telegram.org/bot' + botToken + '/editMessageText', {
             method: 'post',
             contentType: 'application/json',
             payload: JSON.stringify(payload),
             muteHttpExceptions: true
           });
+          if (editResp && editResp.getResponseCode() !== 200) {
+            delete payload.parse_mode;
+            UrlFetchApp.fetch('https://api.telegram.org/bot' + botToken + '/editMessageText', {
+              method: 'post',
+              contentType: 'application/json',
+              payload: JSON.stringify(payload),
+              muteHttpExceptions: true
+            });
+          }
         } catch (e) {
           try {
             delete payload.parse_mode;
@@ -206,18 +228,19 @@ var TelegramWebhookService = (function () {
   }
 
   function formatMainMenu(user) {
-    var firstName = (user.nome || 'Usuário').split(' ')[0];
+    var rawName = String((user && user.nome) || 'Usuário').trim();
+    var firstName = rawName.split(' ')[0].replace(/[_*[\]()~`>#+=|{}.!-]/g, '');
     return [
-      '👋 *Olá, ' + firstName + '!*',
+      '👋 *Olá, ' + (firstName || 'Usuário') + '!*',
       'Seja bem-vindo ao seu *Assistente Financeiro Inteligente*.',
       '━━━━━━━━━━━━━━━━━━━━━━━━━━',
       'Aqui você pode consultar seus saldos, faturas, metas, investimentos e obter análises do Oráculo IA.',
       '',
       '💡 *O que deseja consultar agora?*',
       'Toque em um dos botões abaixo ou envie mensagens como:',
-      '• _"Almoço 38,50 no débito"_ (para registrar)',
-      '• _"Qual o meu saldo?"_ ou _"/saldo"_',
-      '• _"Quais contas vencem essa semana?"_'
+      '• "Almoço 38,50 no débito" (para registrar)',
+      '• "Qual o meu saldo?" ou "/saldo"',
+      '• "Quais contas vencem essa semana?"'
     ].join('\n');
   }
 
@@ -1243,13 +1266,35 @@ var TelegramWebhookService = (function () {
     if ((msg.photo && msg.photo.length > 0) || (msg.document && msg.document.mime_type && msg.document.mime_type.indexOf('image/') === 0)) {
       sendChatAction(telegramChatId, 'typing', opts);
       try {
-        var photoMeta = (msg.photo && msg.photo.length > 0)
-          ? msg.photo[msg.photo.length - 1]
-          : msg.document;
-
         var photoData = null;
         if (typeof opts.mockReceipt !== 'object') {
-          photoData = TelegramAudioService.downloadTelegramFileInMemory(photoMeta.file_id, photoMeta.mime_type || 'image/jpeg', opts);
+          if (msg.photo && msg.photo.length > 0) {
+            // Tenta obter o arquivo a partir da melhor resolução disponível (<= 20MB)
+            var candidates = msg.photo.slice().reverse();
+            var lastPhotoErr = null;
+            for (var c = 0; c < candidates.length; c++) {
+              var cand = candidates[c];
+              if (cand && cand.file_id) {
+                if (cand.file_size && cand.file_size > 19 * 1024 * 1024) continue;
+                try {
+                  photoData = TelegramAudioService.downloadTelegramFileInMemory(cand.file_id, 'image/jpeg', opts);
+                  if (photoData && photoData.base64) break;
+                } catch (cErr) {
+                  lastPhotoErr = cErr;
+                }
+              }
+            }
+            if (!photoData && lastPhotoErr) throw lastPhotoErr;
+          } else if (msg.document && msg.document.file_id) {
+            if (msg.document.file_size && msg.document.file_size > 19 * 1024 * 1024) {
+              throw new Error('A imagem enviada excede 20MB. Por favor, envie uma foto direta pela câmera do Telegram ou reduza a resolução.');
+            }
+            photoData = TelegramAudioService.downloadTelegramFileInMemory(msg.document.file_id, msg.document.mime_type || 'image/jpeg', opts);
+          }
+        }
+
+        if (!photoData && typeof opts.mockReceipt !== 'object') {
+          throw new Error('Não foi possível carregar a imagem do cupom.');
         }
 
         var receiptResult = GeminiService.extractReceiptFromImage(
