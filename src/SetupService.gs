@@ -961,11 +961,46 @@ function onOpen() {
     var ui = SpreadsheetApp.getUi();
     ui.createMenu('💰 Finanças Inteligentes')
       .addItem('🚀 1. Instalar / Verificar 21 Abas e Dados Iniciais', 'instalarTudoNaPlanilha')
-      .addItem('📱 2. Abrir Sistema Finanças Inteligentes (Modal)', 'abrirPainelNaPlanilha')
+      .addItem('📱 2. Abrir Sistema na Planilha (Modal)', 'abrirPainelNaPlanilha')
+      .addItem('🌐 3. Abrir Sistema em Tela Cheia (Navegador)', 'abrirEmTelaCheia')
       .addToUi();
   } catch (e) {
     // Ignorado quando executado fora do contexto de planilha aberta
   }
+}
+
+/**
+ * Abre o Web App em uma nova aba do navegador em tela cheia (100% Fullscreen).
+ */
+function abrirEmTelaCheia() {
+  var url = '';
+  try {
+    url = ScriptApp.getService().getUrl();
+  } catch (e) {}
+
+  if (!url) {
+    var props = typeof PropertiesService !== 'undefined' ? PropertiesService.getScriptProperties() : null;
+    url = props ? props.getProperty('WEB_APP_URL') : '';
+  }
+
+  if (!url) {
+    SpreadsheetApp.getUi().alert(
+      'ℹ️ Como abrir o Finpess em Tela Cheia no Navegador:\n\n' +
+      '1. No menu superior da planilha, vá em: Extensões > Apps Script.\n' +
+      '2. No topo direito, clique no botão azul: "Implantar" > "Nova implantação".\n' +
+      '3. Na engrenagem ⚙️ escolha "App da Web" e clique em "Implantar".\n' +
+      '4. O Google fornecerá um link que abre o sistema em 100% de tela cheia no computador ou celular!'
+    );
+    return;
+  }
+
+  var html = HtmlService.createHtmlOutput(
+    '<script>' +
+    'window.open("' + url + '", "_blank");' +
+    'google.script.host.close();' +
+    '</script>'
+  ).setWidth(50).setHeight(50);
+  SpreadsheetApp.getUi().showModalDialog(html, 'Abrindo Finpess em Tela Cheia...');
 }
 
 /**

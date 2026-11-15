@@ -553,6 +553,22 @@
       });
     }
 
+    function toggleFullscreen() {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(function () {});
+        } else if (document.documentElement.webkitRequestFullscreen) {
+          document.documentElement.webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(function () {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      }
+    }
+
     function navigate(moduleName) {
       state.currentModule = moduleName;
       var sections = document.querySelectorAll('.module-section');
@@ -11671,7 +11687,8 @@
       closeSimulatePurchaseModal: closeSimulatePurchaseModal,
       runPurchaseSimulation: runPurchaseSimulation,
       previewProfilePhotoInput: previewProfilePhotoInput,
-      updateUserAvatarDom: updateUserAvatarDom
+      updateUserAvatarDom: updateUserAvatarDom,
+      toggleFullscreen: toggleFullscreen
     };
   })();
 
