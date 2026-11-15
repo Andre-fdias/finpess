@@ -219,7 +219,15 @@ var TelegramLaunchService = (function () {
     }
     if (patchFields.conta_bancaria_id !== undefined) {
       var acc = SpreadsheetRepository.findById('CONTAS_BANCARIAS', patchFields.conta_bancaria_id, user.grupo_id);
-      if (!acc || acc.situacao !== 'ATIVA') {
+      if (!acc) {
+        acc = SpreadsheetRepository.findById('CONTAS_BANCARIAS', patchFields.conta_bancaria_id);
+      }
+      var isAccActive = acc && (function (s) {
+        var u = String(s || '').trim().toUpperCase();
+        return u === 'ATIVA' || u === 'ATIVO' || u === '';
+      })(acc.situacao);
+
+      if (!acc || !isAccActive) {
         throw new Error('Conta bancária selecionada inválida ou inativa.');
       }
       data.conta_bancaria_id = acc.id;

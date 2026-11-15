@@ -365,9 +365,27 @@ var TelegramParserService = (function () {
 
   function matchBankAccount(user, text) {
     var lower = String(text || '').toLowerCase();
-    var accounts = SpreadsheetRepository.findByGrupo('CONTAS_BANCARIAS', user.grupo_id, function (a) {
-      return a.situacao === 'ATIVA';
-    });
+    var isEligible = function (a) {
+      if (!a) return false;
+      var s = String(a.situacao || '').trim().toUpperCase();
+      return s === 'ATIVA' || s === 'ATIVO' || s === '';
+    };
+
+    var accounts = [];
+    if (user && user.grupo_id) {
+      try {
+        accounts = SpreadsheetRepository.findByGrupo('CONTAS_BANCARIAS', user.grupo_id, isEligible);
+      } catch (e) {
+        accounts = [];
+      }
+    }
+    if (!accounts || accounts.length === 0) {
+      try {
+        accounts = SpreadsheetRepository.findAll('CONTAS_BANCARIAS', isEligible);
+      } catch (e2) {
+        accounts = [];
+      }
+    }
 
     for (var i = 0; i < accounts.length; i++) {
       var acc = accounts[i];

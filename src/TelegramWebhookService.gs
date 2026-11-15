@@ -6,6 +6,34 @@
  */
 
 var TelegramWebhookService = (function () {
+  function getEligibleBankAccounts(user) {
+    if (!user) return [];
+    var isEligible = function (a) {
+      if (!a) return false;
+      var s = String(a.situacao || '').trim().toUpperCase();
+      return s === 'ATIVA' || s === 'ATIVO' || s === '';
+    };
+
+    var accounts = [];
+    if (user.grupo_id) {
+      try {
+        accounts = SpreadsheetRepository.findByGrupo('CONTAS_BANCARIAS', user.grupo_id, isEligible);
+      } catch (e) {
+        accounts = [];
+      }
+    }
+
+    if (!accounts || accounts.length === 0) {
+      try {
+        accounts = SpreadsheetRepository.findAll('CONTAS_BANCARIAS', isEligible);
+      } catch (e2) {
+        accounts = [];
+      }
+    }
+
+    return accounts || [];
+  }
+
   function buildInlineKeyboardForProposal(user, proc, extractedData) {
     var buttons = [];
     var hasPending = extractedData.campos_pendentes && extractedData.campos_pendentes.length > 0;
@@ -18,18 +46,20 @@ var TelegramWebhookService = (function () {
         }
       ]);
     } else if (extractedData.campos_pendentes.indexOf('conta_bancaria') !== -1) {
-      var accounts = SpreadsheetRepository.findByGrupo('CONTAS_BANCARIAS', user.grupo_id, function (a) {
-        return a.situacao === 'ATIVA';
-      });
-      var accRow = [];
-      for (var i = 0; i < Math.min(accounts.length, 3); i++) {
-        accRow.push({
+      var accounts = getEligibleBankAccounts(user);
+      var currentPair = [];
+      for (var i = 0; i < Math.min(accounts.length, 6); i++) {
+        currentPair.push({
           text: '🏦 ' + accounts[i].nome_identificacao,
           callback_data: 'SETACC:' + proc.id + ':' + accounts[i].id
         });
+        if (currentPair.length === 2) {
+          buttons.push(currentPair);
+          currentPair = [];
+        }
       }
-      if (accRow.length > 0) {
-        buttons.push(accRow);
+      if (currentPair.length > 0) {
+        buttons.push(currentPair);
       }
     }
 
@@ -1104,6 +1134,7 @@ var TelegramWebhookService = (function () {
     }
 
     if (action === 'SETACC') {
+      if (queryId) answerCallbackQuery(queryId, 'Conta selecionada!', false, options);
       var edited = TelegramLaunchService.editProposalFields(user, procId, {
         conta_bancaria_id: extraParam
       });
@@ -1117,6 +1148,7 @@ var TelegramWebhookService = (function () {
     }
 
     if (action === 'SETTYPE') {
+      if (queryId) answerCallbackQuery(queryId, 'Tipo atualizado!', false, options);
       var edited = TelegramLaunchService.editProposalFields(user, procId, {
         tipo: extraParam
       });
@@ -1130,12 +1162,11 @@ var TelegramWebhookService = (function () {
     }
 
     if (action === 'SETSTATUS') {
+      if (queryId) answerCallbackQuery(queryId, 'Situação atualizada!', false, options);
       var editedStatus = TelegramLaunchService.editProposalFields(user, procId, {
         situacao: extraParam
       });
-      var kbStatus = editedStatus.processamento.estado === 'AGUARDANDO_CONFIRMACAO'
-        ? buildConfirmationKeyboard(editedStatus.processamento)
-        : null;
+      var kbStatus = buildInlineKeyboardForProposal(user, editedStatus.processamento, editedStatus.dados_extraidos);
       return {
         status: editedStatus.processamento.estado,
         processamento: editedStatus.processamento,
@@ -1145,9 +1176,8 @@ var TelegramWebhookService = (function () {
     }
 
     if (action === 'EDITMENU') {
-      var accounts = SpreadsheetRepository.findByGrupo('CONTAS_BANCARIAS', user.grupo_id, function (a) {
-        return a.situacao === 'ATIVA';
-      });
+      if (queryId) answerCallbackQuery(queryId, 'Menu de edição', false, options);
+      var accounts = getEligibleBankAccounts(user);
       var inlineRows = [
         [
           { text: '🔴 Saída (Despesa)', callback_data: 'SETTYPE:' + procId + ':SAIDA' },
@@ -1158,9 +1188,20 @@ var TelegramWebhookService = (function () {
           { text: '✅ Marcar Já Pago', callback_data: 'SETSTATUS:' + procId + ':CONFIRMADO' }
         ]
       ];
-      accounts.slice(0, 4).forEach(function (a) {
-        inlineRows.push([{ text: 'Conta: ' + a.nome_identificacao, callback_data: 'SETACC:' + procId + ':' + a.id }]);
-      });
+      var currentPair = [];
+      for (var a = 0; a < Math.min(accounts.length, 6); a++) {
+        currentPair.push({
+          text: '🏦 ' + accounts[a].nome_identificacao,
+          callback_data: 'SETACC:' + procId + ':' + accounts[a].id
+        });
+        if (currentPair.length === 2) {
+          inlineRows.push(currentPair);
+          currentPair = [];
+        }
+      }
+      if (currentPair.length > 0) {
+        inlineRows.push(currentPair);
+      }
       inlineRows.push([{ text: '❌ Cancelar proposta', callback_data: 'CANCEL:' + procId }]);
       return {
         status: 'EDITANDO',
