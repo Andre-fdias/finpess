@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finpess — O Controle Financeiro Definitivo no seu Google Drive</title>
+  <meta name="description" content="Sistema financeiro pessoal e familiar com inteligência artificial, bot Telegram, controle de cartões e investimentos, 100% privado no seu próprio Google Drive.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --bg-card: #111827;
+      --bg-card-hover: #1e293b;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(16, 185, 129, 0.3);
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --primary-glow: rgba(16, 185, 129, 0.25);
+      --gold: #f59e0b;
+      --gold-glow: rgba(245, 158, 11, 0.2);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(9, 13, 22, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+    }
+
+    .nav-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-badge {
+      background: linear-gradient(135deg, #10b981, #059669);
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+      color: #ffffff;
+      box-shadow: 0 4px 16px var(--primary-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #ffffff;
+      box-shadow: 0 4px 16px var(--gold-glow);
+    }
+
+    .btn-gold:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(245, 158, 11, 0.4);
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 80px 0 60px;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero-glow {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(9, 13, 22, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--border-accent);
+      border-radius: 999px;
+      color: var(--primary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero h1 {
+      font-size: 3.2rem;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -1.5px;
+      margin-bottom: 24px;
+      max-width: 950px;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero h1 span.gradient-text {
+      background: linear-gradient(135deg, #34d399, #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      max-width: 760px;
+      margin: 0 auto 36px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 48px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badges {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .badge-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.03);
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    /* Comparison Section */
+    .section {
+      padding: 80px 0;
+      position: relative;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .section-title h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.8px;
+      margin-bottom: 12px;
+    }
+
+    .section-title p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .comp-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 24px;
+      transition: all 0.3s ease;
+    }
+
+    .comp-card.highlight {
+      border-color: var(--primary);
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.05) 0%, var(--bg-card) 100%);
+      box-shadow: 0 8px 32px rgba(16, 185, 129, 0.15);
+      position: relative;
+    }
+
+    .comp-card.highlight::before {
+      content: 'A ESCOLHA INTELIGENTE';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 4px 14px;
+      border-radius: 999px;
+      letter-spacing: 0.5px;
+    }
+
+    .comp-card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .comp-card ul {
+      list-style: none;
+    }
+
+    .comp-card ul li {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .comp-card ul li:last-child {
+      border-bottom: none;
+    }
+
+    /* Modules Section */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 20px;
+    }
+
+    .module-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      transition: all 0.25s ease;
+    }
+
+    .module-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(16, 185, 129, 0.4);
+      transform: translateY(-3px);
+    }
+
+    .module-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--border-accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 16px;
+    }
+
+    .module-card h4 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .module-card p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Pricing Section */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+
+    .price-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px 30px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .price-card.featured {
+      border: 2px solid var(--gold);
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.05) 0%, var(--bg-card) 100%);
+      transform: scale(1.04);
+      box-shadow: 0 12px 40px rgba(245, 158, 11, 0.15);
+    }
+
+    .price-badge {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 6px 16px;
+      border-radius: 999px;
+      letter-spacing: 0.5px;
+    }
+
+    .price-header h3 {
+      font-size: 1.35rem;
+      margin-bottom: 8px;
+    }
+
+    .price-header p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .price-val {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .price-val span.sub {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .price-features {
+      list-style: none;
+      margin-bottom: 32px;
+      flex-grow: 1;
+    }
+
+    .price-features li {
+      padding: 10px 0;
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .price-features li:last-child {
+      border-bottom: none;
+    }
+
+    .check-icon {
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    /* Steps Section */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    .step-number {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.2rem;
+      margin: 0 auto 20px;
+      box-shadow: 0 4px 16px var(--primary-glow);
+    }
+
+    .step-card h4 {
+      font-size: 1.15rem;
+      margin-bottom: 10px;
+    }
+
+    .step-card p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+    }
+
+    /* FAQ Accordion */
+    .faq-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .faq-question {
+      padding: 20px 24px;
+      font-weight: 600;
+      font-size: 1.05rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+
+    .faq-question:hover {
+      color: var(--primary);
+    }
+
+    .faq-answer {
+      padding: 0 24px 20px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      display: none;
+    }
+
+    .faq-item.active .faq-answer {
+      display: block;
+    }
+
+    .faq-item.active .faq-question span.arrow {
+      transform: rotate(180deg);
+    }
+
+    .faq-question span.arrow {
+      transition: transform 0.2s;
+    }
+
+    /* Guarantee Banner */
+    .guarantee-box {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(9, 13, 22, 0.8) 100%);
+      border: 1px solid var(--border-accent);
+      border-radius: 20px;
+      padding: 40px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      max-width: 880px;
+      margin: 60px auto 0;
+    }
+
+    .guarantee-seal {
+      font-size: 4rem;
+      flex-shrink: 0;
+    }
+
+    .guarantee-text h4 {
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+    }
+
+    .guarantee-text p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      max-width: 520px;
+      width: 100%;
+      padding: 36px;
+      position: relative;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .modal-close:hover {
+      color: #fff;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    .form-group input:focus {
+      border-color: var(--primary);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 60px 0 30px;
+      background: #060910;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-left: 20px;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--primary);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.85rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .hero h1 { font-size: 2.4rem; }
+      .comparison-grid, .pricing-grid, .steps-grid { grid-template-columns: 1fr; }
+      .price-card.featured { transform: none; }
+      .nav-links { display: none; }
+      .guarantee-box { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container nav-content">
+      <a href="#" class="logo">
+        <div class="logo-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+        </div>
+        Finpess
+      </a>
+      <div class="nav-links">
+        <a href="#funcionalidades">Funcionalidades</a>
+        <a href="#como-funciona">Como Funciona</a>
+        <a href="#planos">Planos & Preços</a>
+        <a href="#faq">Perguntas Frequentes</a>
+      </div>
+      <div>
+        <a href="#planos" class="btn btn-primary" onclick="openTrialModal()">Experimentar Grátis</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="container">
+      <div class="hero-pill">
+        <span>🛡️ 100% Privado no Seu Próprio Google Drive</span>
+      </div>
+      <h1>
+        O Controle Financeiro Definitivo para Você e Sua Família — <span class="gradient-text">Sem Mensalidades</span>.
+      </h1>
+      <p>
+        Sem compartilhar suas senhas com aplicativos de terceiros. A inteligência e praticidade de um software corporativo com a liberdade perpétua da sua própria planilha Google.
+      </p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" style="padding: 16px 36px; font-size: 1.05rem;" onclick="openTrialModal()">
+          🚀 Iniciar Teste Grátis de 14 Dias
+        </button>
+        <a href="#planos" class="btn btn-secondary" style="padding: 16px 28px; font-size: 1.05rem;">
+          Conhecer os Planos
+        </a>
+      </div>
+
+      <div class="hero-badges">
+        <div class="badge-item">🔒 Seus dados ficam no seu Drive</div>
+        <div class="badge-item">⚡ Instalação em 1 Clique</div>
+        <div class="badge-item">🤖 Oráculo IA para Análise Financeira</div>
+        <div class="badge-item">🎙️ Bot Telegram (Lançamento por Voz e Foto)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Section -->
+  <section class="section" style="background: rgba(255, 255, 255, 0.01);">
+    <div class="container">
+      <div class="section-title">
+        <h2>Por que o Finpess é a Melhor Escolha?</h2>
+        <p>Veja como o Finpess resolve as maiores dores das ferramentas financeiras tradicionais.</p>
+      </div>
+
+      <div class="comparison-grid">
+        <div class="comp-card">
+          <h3>❌ Aplicativos de Banco Tradicionais</h3>
+          <ul>
+            <li>Cobram R$ 30 a R$ 60 em mensalidades perpétuas.</li>
+            <li>Exigem conexão com senhas e dados dos seus bancos.</li>
+            <li>Seus dados ficam em servidores de terceiros.</li>
+            <li>Se cancelar a assinatura, você perde acesso aos seus relatórios.</li>
+          </ul>
+        </div>
+
+        <div class="comp-card highlight">
+          <h3>✅ Sistema Finpess</h3>
+          <ul>
+            <li><strong>Sem mensalidade:</strong> opção de licença vitalícia única.</li>
+            <li><strong>Privacidade Absoluta:</strong> tudo roda dentro do seu próprio Google Drive.</li>
+            <li><strong>Oráculo com Inteligência Artificial:</strong> diagnósticos e sugestões automáticas.</li>
+            <li><strong>Assistente Telegram:</strong> lance gastos por áudio ou foto de nota fiscal em segundos.</li>
+            <li><strong>Propriedade Perpétua:</strong> sua planilha é sua para sempre.</li>
+          </ul>
+        </div>
+
+        <div class="comp-card">
+          <h3>❌ Planilhas Manuais Simples</h3>
+          <ul>
+            <li>Exigem horas de digitação manual todo fim de semana.</li>
+            <li>Fórmulas quebram facilmente ao inserir novas linhas.</li>
+            <li>Sem integração com WhatsApp ou Telegram.</li>
+            <li>Não calculam regra de corte de cartão de crédito nem amortização real.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modules Section -->
+  <section class="section" id="funcionalidades">
+    <div class="container">
+      <div class="section-title">
+        <h2>14 Módulos Integrados em Uma Só Plataforma</h2>
+        <p>Tudo o que você precisa para dominar suas finanças pessoais e patrimônio familiar.</p>
+      </div>
+
+      <div class="modules-grid">
+        <div class="module-card">
+          <div class="module-icon">📊</div>
+          <h4>Dashboard Visão 360°</h4>
+          <p>Visão executiva em tempo real: saldo líquido, taxa de poupança, despesas do mês e patrimônio consolidado.</p>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">💳</div>
+          <h4>Cartões de Crédito & Faturas</h4>
+          <p>Cálculo exato de faturas, parcelamentos futuros, limite disponível e regra de corte (melhor dia de compra).</p>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">🔄</div>
+          <h4>Contas Recorrentes</h4>
+          <p>Automação de aluguel, condomínio, luz, internet e assinaturas com previsão de caixa sem duplicidades.</p>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">🎙️</div>
+          <h4>Assistente no Telegram</h4>
+          <p>Registre gastos na rua em 3 segundos enviando áudio no Telegram ("45 reais na padaria") ou foto do cupom.</p>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">🤖</div>
+          <h4>Oráculo IA Financeiro</h4>
+          <p>Diagnóstico inteligente sobre seus padrões de consumo, alertas de gargalos e simulações orçamentárias.</p>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">📈</div>
+          <h4>Radar de Investimentos</h4>
+          <p>Ações, FIIs, Renda Fixa e Cripto com cotações automáticas, preço médio e projeção de dividendos.</p>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">🎯</div>
+          <h4>Metas & Reserva de Emergência</h4>
+          <p>Cálculo do aporte mensal ideal para atingir seus objetivos de curto, médio e longo prazo.</p>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">📉</div>
+          <h4>Dívidas & Quitações</h4>
+          <p>Método bola de neve para amortização acelerada de dívidas com projeção de juros economizados.</p>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">🏦</div>
+          <h4>Empréstimos & Consignados</h4>
+          <p>Gestão de parcelas descontadas em folha salarial com separação clara de saldo líquido de caixa.</p>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">🔮</div>
+          <h4>Projeção de Fluxo de Caixa</h4>
+          <p>Visão antecipada do saldo das suas contas bancárias para os próximos 30, 90 e 360 dias.</p>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">📅</div>
+          <h4>Calendário Financeiro</h4>
+          <p>Visão em grade e lista de todos os vencimentos, faturas e entradas sincronizáveis ao Google Agenda.</p>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">👥</div>
+          <h4>Multiusuário Familiar</h4>
+          <p>Gerencie as finanças do casal com permissões individuais e privacidade configurável.</p>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">🔔</div>
+          <h4>Resumo Matinal Automático</h4>
+          <p>E-mail diário às 07:00h com as contas que vencem hoje para você nunca mais pagar juros por atraso.</p>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">📥</div>
+          <h4>Exportação & Backup em 1 Clique</h4>
+          <p>Exporte seus dados em CSV ou PDF a qualquer momento. Seus dados nunca ficam reféns de ninguém.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="section" id="como-funciona" style="background: rgba(255, 255, 255, 0.01);">
+    <div class="container">
+      <div class="section-title">
+        <h2>Como Começar em 3 Passos Simples</h2>
+        <p>Sem configurações complexas. Você começa a usar em menos de 2 minutos.</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h4>Crie Sua Cópia</h4>
+          <p>Ao iniciar o teste ou compra, você recebe o link direto para criar uma cópia limpa e oficial no seu próprio Google Drive.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h4>Ative em 1 Clique</h4>
+          <p>Abra a planilha, clique no menu superior "⚡ Finanças Inteligentes" e o assistente configura todas as 28 abas instantaneamente.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h4>Assuma o Controle</h4>
+          <p>Acesse pelo navegador no computador, celular ou conecte o Bot do Telegram para registrar despesas por áudio na palma da mão!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="section" id="planos">
+    <div class="container">
+      <div class="section-title">
+        <h2>Escolha o Plano Ideal para Suas Finanças</h2>
+        <p>Comece com 14 dias de teste grátis ou garanta a licença vitalícia com pagamento único.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Teste Grátis -->
+        <div class="price-card">
+          <div class="price-header">
+            <h3>Avaliação Gratuita</h3>
+            <p>Experimente todos os recursos</p>
+            <div class="price-val">
+              R$ 0
+              <span class="sub">/ 14 dias</span>
+            </div>
+          </div>
+          <ul class="price-features">
+            <li><span class="check-icon">✓</span> Acesso completo aos 14 módulos</li>
+            <li><span class="check-icon">✓</span> Assistente no Telegram (Áudio/Foto)</li>
+            <li><span class="check-icon">✓</span> Oráculo com Inteligência Artificial</li>
+            <li><span class="check-icon">✓</span> 100% privado no seu Google Drive</li>
+            <li><span class="check-icon">✓</span> Sem necessidade de cartão de crédito</li>
+          </ul>
+          <button class="btn btn-secondary" style="width: 100%;" onclick="openTrialModal()">
+            Iniciar Teste de 14 Dias
+          </button>
+        </div>
+
+        <!-- Vitalício (Destaque) -->
+        <div class="price-card featured">
+          <div class="price-badge">MAIS POPULAR • PAGAMENTO ÚNICO</div>
+          <div class="price-header">
+            <h3>Plano Vitalício</h3>
+            <p>Pague uma vez, use para sempre</p>
+            <div class="price-val" style="color: var(--gold);">
+              R$ 197
+              <span class="sub">pagamento único</span>
+            </div>
+          </div>
+          <ul class="price-features">
+            <li><span class="check-icon">✓</span> <strong>Acesso perpétuo</strong> sem mensalidades</li>
+            <li><span class="check-icon">✓</span> Todos os 14 módulos desbloqueados</li>
+            <li><span class="check-icon">✓</span> Bot Telegram ilimitado (Áudio + OCR)</li>
+            <li><span class="check-icon">✓</span> Oráculo IA completo liberado</li>
+            <li><span class="check-icon">✓</span> <strong>Atualizações vitalícias inclusas</strong></li>
+            <li><span class="check-icon">✓</span> Suporte prioritário via WhatsApp</li>
+            <li><span class="check-icon">✓</span> Garantia incondicional de 7 dias</li>
+          </ul>
+          <button class="btn btn-gold" style="width: 100%; font-size: 1.05rem;" onclick="openCheckoutModal('VITALICIO')">
+            Garantir Acesso Vitalício
+          </button>
+        </div>
+
+        <!-- Anual -->
+        <div class="price-card">
+          <div class="price-header">
+            <h3>Plano Anual</h3>
+            <p>Economia e tranquilidade</p>
+            <div class="price-val">
+              R$ 97
+              <span class="sub">/ ano</span>
+            </div>
+          </div>
+          <ul class="price-features">
+            <li><span class="check-icon">✓</span> Acesso completo por 12 meses</li>
+            <li><span class="check-icon">✓</span> Todos os 14 módulos liberados</li>
+            <li><span class="check-icon">✓</span> Bot Telegram e Oráculo IA inclusos</li>
+            <li><span class="check-icon">✓</span> Atualizações contínuas por 1 ano</li>
+            <li><span class="check-icon">✓</span> Suporte por e-mail e base de ajuda</li>
+            <li><span class="check-icon">✓</span> Garantia incondicional de 7 dias</li>
+          </ul>
+          <button class="btn btn-secondary" style="width: 100%;" onclick="openCheckoutModal('ANUAL')">
+            Assinar Plano Anual
+          </button>
+        </div>
+      </div>
+
+      <!-- Guarantee Banner -->
+      <div class="guarantee-box">
+        <div class="guarantee-seal">🛡️</div>
+        <div class="guarantee-text">
+          <h4>Garantia Incondicional de 7 Dias</h4>
+          <p>Adquira sua licença do Finpess com tranquilidade total. Se nos primeiros 7 dias você achar que o sistema não transformou a sua gestão financeira, basta nos enviar um e-mail e devolveremos 100% do seu dinheiro, sem burocracia nem perguntas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="section" id="faq" style="background: rgba(255, 255, 255, 0.01);">
+    <div class="container">
+      <div class="section-title">
+        <h2>Perguntas Frequentes</h2>
+        <p>Tire suas principais dúvidas sobre o funcionamento do Finpess.</p>
+      </div>
+
+      <div class="faq-container">
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            Preciso pagar alguma mensalidade no Plano Vitalício?
+            <span class="arrow">▼</span>
+          </div>
+          <div class="faq-answer">
+            Não! No plano vitalício você realiza um pagamento único de R$ 197,00 e tem direito ao uso perpétuo do sistema e a todas as melhorias e atualizações futuras, sem nenhuma cobrança recorrente.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            Meus dados financeiros ficam seguros e privados?
+            <span class="arrow">▼</span>
+          </div>
+          <div class="faq-answer">
+            Sim, 100%. Diferente dos aplicativos bancários tradicionais, o Finpess roda inteiramente dentro da sua própria conta do Google (no seu Google Drive). Nós não temos acesso a nenhuma informação financeira, nem ao saldo das suas contas, nem aos seus lançamentos.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            O que acontece se meu teste de 14 dias terminar?
+            <span class="arrow">▼</span>
+          </div>
+          <div class="faq-answer">
+            Você <strong>nunca perde seus dados</strong>. Se o período de teste expirar e você optar por não adquirir uma licença no momento, sua planilha permanece no seu Google Drive com todas as suas informações salvas, painéis e relatórios disponíveis para visualização e exportação. Apenas a gravação de novos lançamentos aguardará a ativação da licença.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            Posso gerenciar as finanças junto com meu cônjuge?
+            <span class="arrow">▼</span>
+          </div>
+          <div class="faq-answer">
+            Com certeza! O sistema possui suporte multiusuário com papéis de acesso. Você e seu parceiro(a) podem acessar o mesmo sistema e registrar despesas compartilhadas ou individuais em conjunto.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            Funciona no smartphone?
+            <span class="arrow">▼</span>
+          </div>
+          <div class="faq-answer">
+            Sim! O Web App possui interface 100% responsiva adaptada para qualquer celular, e você também conta com o Bot do Telegram para registrar despesas de forma ultra rápida por comando de voz ou foto de cupom fiscal enquanto estiver na rua.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal Iniciar Teste -->
+  <div class="modal-overlay" id="trialModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeTrialModal()">&times;</button>
+      <h3 style="font-size: 1.4rem; margin-bottom: 8px;">🚀 Inicie seu Teste de 14 Dias</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">
+        Informe seu e-mail Google para gerar sua instalação limpa e segura no seu próprio Google Drive.
+      </p>
+      <form onsubmit="handleTrialSubmit(event)">
+        <div class="form-group">
+          <label>Seu Nome Completo</label>
+          <input type="text" id="trialName" placeholder="Ex: André Silva" required>
+        </div>
+        <div class="form-group">
+          <label>Seu E-mail Google (Gmail)</label>
+          <input type="email" id="trialEmail" placeholder="seu-email@gmail.com" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem; margin-top: 10px;">
+          Criar Minha Instalação Gratuita
+        </button>
+      </form>
+      <div id="trialSuccess" style="display: none; margin-top: 20px; padding: 16px; background: rgba(16, 185, 129, 0.1); border: 1px solid var(--border-accent); border-radius: 10px; font-size: 0.9rem;">
+        ✅ <strong>Instalação Pronta!</strong><br>
+        Clique abaixo para abrir sua planilha modelo no Google Drive e clique em <em>Fazer uma cópia</em>:
+        <br><br>
+        <a href="https://docs.google.com/spreadsheets/d/1MLW8MLoAdPG8lYZhwwV0UHrSV5wIn2mHJjXgcYsyw9c/copy" target="_blank" class="btn btn-primary" style="width: 100%; font-size: 0.9rem;">
+          📋 Abrir e Copiar Planilha no Meu Drive
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Checkout -->
+  <div class="modal-overlay" id="checkoutModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeCheckoutModal()">&times;</button>
+      <h3 style="font-size: 1.4rem; margin-bottom: 8px;" id="checkoutPlanTitle">Finalizar Compra</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">
+        Seu serial comercial exclusivo será gerado e enviado instantaneamente para seu e-mail após a confirmação do pagamento.
+      </p>
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+          <span style="color: var(--text-muted);">Plano Selecionado:</span>
+          <strong id="checkoutPlanName">Vitalício</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 1.2rem;">
+          <span>Total:</span>
+          <strong style="color: var(--gold);" id="checkoutPlanPrice">R$ 197,00</strong>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <a href="https://pay.kiwify.com.br" target="_blank" class="btn btn-gold" style="width: 100%; padding: 14px; font-size: 1rem;">
+          ⚡ Pagar com Pix (Liberação Imediata)
+        </a>
+        <a href="https://pay.kiwify.com.br" target="_blank" class="btn btn-secondary" style="width: 100%; padding: 14px; font-size: 1rem;">
+          💳 Pagar com Cartão de Crédito em até 12x
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div>
+          <div class="logo" style="margin-bottom: 12px;">
+            <div class="logo-badge" style="width: 32px; height: 32px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+              </svg>
+            </div>
+            Finpess
+          </div>
+          <p style="max-width: 380px; font-size: 0.88rem;">
+            O ecossistema financeiro definitivo para quem valoriza privacidade inegociável, inteligência artificial e liberdade patrimonial.
+          </p>
+        </div>
+        <div class="footer-links">
+          <a href="#" onclick="alert('Consulte o documento POLITICA_DE_PRIVACIDADE.md na pasta commercial-site.'); return false;">Política de Privacidade</a>
+          <a href="#" onclick="alert('Consulte o documento TERMOS_DE_USO.md na pasta commercial-site.'); return false;">Termos de Uso</a>
+          <a href="mailto:suporte@finpess.com.br">Suporte Técnico</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2026 Finpess. Todos os direitos reservados. Google Sheets e Google Drive são marcas registradas da Google LLC.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function toggleFaq(el) {
+      const item = el.parentElement;
+      item.classList.toggle('active');
+    }
+
+    function openTrialModal() {
+      document.getElementById('trialModal').classList.add('active');
+    }
+
+    function closeTrialModal() {
+      document.getElementById('trialModal').classList.remove('active');
+    }
+
+    function handleTrialSubmit(e) {
+      e.preventDefault();
+      document.getElementById('trialSuccess').style.display = 'block';
+    }
+
+    function openCheckoutModal(plan) {
+      const title = document.getElementById('checkoutPlanTitle');
+      const name = document.getElementById('checkoutPlanName');
+      const price = document.getElementById('checkoutPlanPrice');
+
+      if (plan === 'ANUAL') {
+        title.innerText = 'Assinar Plano Anual';
+        name.innerText = 'Plano Anual (12 Meses)';
+        price.innerText = 'R$ 97,00';
+      } else {
+        title.innerText = 'Garantir Licença Vitalícia';
+        name.innerText = 'Plano Vitalício (Acesso Permanente)';
+        price.innerText = 'R$ 197,00';
+      }
+
+      document.getElementById('checkoutModal').classList.add('active');
+    }
+
+    function closeCheckoutModal() {
+      document.getElementById('checkoutModal').classList.remove('active');
+    }
+
+    window.onclick = function(event) {
+      const trialModal = document.getElementById('trialModal');
+      const checkoutModal = document.getElementById('checkoutModal');
+      if (event.target === trialModal) trialModal.classList.remove('active');
+      if (event.target === checkoutModal) checkoutModal.classList.remove('active');
+    }
+  </script>
+</body>
+</html>
