@@ -19,7 +19,7 @@ var LicenseService = (function () {
   // Apenas a chave pública fica embutida no cliente. A chave privada permanece 100% restrita ao servidor.
   var RSA_PUBLIC_KEY = {
     n: '6kFVAxGgReducqEAV16HhrTM2F_oSVZgRW-e7hrqtZ6U6T_piZZ51NpkeY67gjXTDsQs4HUanofmtuMLvv9XwvegcF7gy6lWUJmNYYeB6qpmOBJMWsYSKqu5gyexGGpd_01C7ZGLu5v5TPWozlT2mBZbnWB30_wwUim54aWdh_qk2Q9TgILRtJUoZuKf882iM88HLVqRQnnOShjANtDgOMmeLzLtpGogCnueJnKkmicoTPBLfdG28AJDvgWppjORgXkIiz5mS6T-sneVzU13TGc6kI8I1NFhRMqkXYMNsQDvjNENbhQuaYYBQEn-0z5Hfz6PsQ7UDg3fCXHVN9FeQQ',
-    e: 65537n
+    e: BigInt(65537)
   };
 
   function getProps() {
@@ -43,14 +43,17 @@ var LicenseService = (function () {
   }
 
   function modPow(base, exponent, modulus) {
-    if (modulus === 1n) return 0n;
-    var result = 1n;
+    var zero = BigInt(0);
+    var one = BigInt(1);
+    var two = BigInt(2);
+    if (modulus === one) return zero;
+    var result = one;
     base = base % modulus;
-    while (exponent > 0n) {
-      if (exponent % 2n === 1n) {
+    while (exponent > zero) {
+      if (exponent % two === one) {
         result = (result * base) % modulus;
       }
-      exponent = exponent / 2n;
+      exponent = exponent / two;
       base = (base * base) % modulus;
     }
     return result;
