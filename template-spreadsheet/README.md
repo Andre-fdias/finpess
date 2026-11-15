@@ -20,7 +20,7 @@ Para que o comprador crie sua própria instalação de forma independente e auto
 ### 3. Gerar o Link de Auto-Cópia (/copy)
 Substitua `/edit?usp=sharing` por `/copy`:
 ```text
-https://docs.google.com/spreadsheets/d/ID_DA_PLANILHA_MODELO/copy
+https://docs.google.com/spreadsheets/d/1l0I8289d89oXnVo2HJwN3RZZ9WrzkGX7sM2DOOijFTk/copy
 ```
 
 ### 4. Experiência do Comprador

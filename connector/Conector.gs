@@ -1,31 +1,53 @@
 /**
- * FINANÇAS INTELIGENTES — CONECTOR LEVE
- * Conecta a planilha ao servidor central desacoplado.
+ * ============================================================================
+ * FINPESS — CONECTOR LEVE PARA PLANILHA CLIENTE
+ * Biblioteca Central: FinpessLib (v68)
+ * ============================================================================
+ * Este conector permite que a planilha acesse todas as funcionalidades do Finpess
+ * sem expor nenhuma linha do código-fonte proprietário aos compradores.
  */
-var CENTRAL_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyzjzX7GYRl-IGmJ0S8kgoCfA9i3G9zC2AuAzUgXFyEYEmrt_ivlaxE2gyul7TCcaAM7g/exec';
 
-function onOpen() {
-  SpreadsheetApp.getUi()
-    .createMenu('🚀 Finanças Inteligentes')
-    .addItem('Abrir Painel em Tela Cheia', 'abrirPainelTelaCheia')
-    .addItem('Abrir Painel na Barra Lateral', 'abrirBarraLateral')
-    .addToUi();
+function onOpen(e) {
+  try {
+    FinpessLib.onOpen(e);
+  } catch (err) {
+    SpreadsheetApp.getUi()
+      .createMenu('💰 Finanças Inteligentes')
+      .addItem('🚀 1. Instalar / Verificar 21 Abas e Dados Iniciais', 'instalarTudoNaPlanilha')
+      .addItem('📱 2. Abrir Sistema na Planilha (Modal)', 'abrirPainelNaPlanilha')
+      .addItem('🌐 3. Abrir Sistema em Tela Cheia (Navegador)', 'abrirEmTelaCheia')
+      .addToUi();
+  }
 }
 
-function abrirPainelTelaCheia() {
-  var html = HtmlService.createHtmlOutput(
-    '<script>' +
-    '  window.open("' + CENTRAL_WEBAPP_URL + '", "_blank");' +
-    '  google.script.host.close();' +
-    '</script>'
-  ).setWidth(320).setHeight(90);
-  SpreadsheetApp.getUi().showModalDialog(html, 'Abrindo Finanças Inteligentes...');
+function instalarTudoNaPlanilha() {
+  return FinpessLib.instalarTudoNaPlanilha();
 }
 
-function abrirBarraLateral() {
-  var html = HtmlService.createHtmlOutput(
-    '<iframe src="' + CENTRAL_WEBAPP_URL + '" style="width:100%; height:100vh; border:none;"></iframe>'
-  ).setTitle('Finanças Inteligentes');
-  SpreadsheetApp.getUi().showSidebar(html);
+function abrirPainelNaPlanilha() {
+  return FinpessLib.abrirPainelNaPlanilha();
 }
 
+function abrirEmTelaCheia() {
+  return FinpessLib.abrirEmTelaCheia();
+}
+
+function apiCall(action, payload, authContext) {
+  return FinpessLib.apiCall(action, payload, authContext);
+}
+
+function doGet(e) {
+  return FinpessLib.doGet(e);
+}
+
+function doPost(e) {
+  return FinpessLib.doPost(e);
+}
+
+function executarEnvioMatinalNotificacoes() {
+  return FinpessLib.executarEnvioMatinalNotificacoes();
+}
+
+function configurarGatilhoMatinal() {
+  return FinpessLib.configurarGatilhoMatinal();
+}

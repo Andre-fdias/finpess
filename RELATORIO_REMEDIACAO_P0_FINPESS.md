@@ -109,3 +109,4 @@ Com a conclusão satisfatória de todos os requisitos do Plano de Remediação P
    - O arquivo de modelo disponibilizado aos compradores deve possuir o código da branch `feature-commercial-licensing` já compilado e configurado para direcionar chamadas de ativação para a URL de produção do servidor de licenciamento.
 3. **Merge Controlado**:
    - Autorizar a realização do merge da branch `feature-commercial-licensing` para `main` quando conveniente para a esteira de publicação oficial.
+

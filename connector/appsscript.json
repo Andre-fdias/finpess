@@ -1,7 +1,14 @@
 {
   "timeZone": "America/Sao_Paulo",
-  "dependencies": {},
+  "dependencies": {
+    "libraries": [
+      {
+        "userSymbol": "FinpessLib",
+        "libraryId": "1vL-0uJcDqttyZwtsktiMaiJU7lNYgwLiCQnx_ygPtT-kXwnEeMxYngDH",
+        "version": "68"
+      }
+    ]
+  },
   "exceptionLogging": "STACKDRIVER",
   "runtimeVersion": "V8"
 }
-
