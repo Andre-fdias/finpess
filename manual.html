@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual Oficial de Instalação e Configuração — Finpess</title>
+  <meta name="description" content="Guia definitivo passo a passo para instalar a planilha Finpess, configurar o bot do Telegram via BotFather, obter a chave da IA Gemini e ativar sua licença.">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card: #111827;
+      --card-hover: #1e293b;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(16, 185, 129, 0.3);
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --primary-glow: rgba(16, 185, 129, 0.2);
+      --gold: #f59e0b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      line-height: 1.7;
+      padding: 0;
+    }
+    header {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 16px 24px;
+    }
+    .header-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .logo-badge {
+      background: var(--primary);
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .back-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .back-link:hover { text-decoration: underline; }
+    
+    .hero {
+      max-width: 1000px;
+      margin: 40px auto 30px;
+      padding: 0 24px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--border-accent);
+      color: var(--primary);
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 14px;
+      color: #fff;
+    }
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto 60px;
+      padding: 0 24px;
+    }
+
+    /* Índice Rápido */
+    .toc-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 30px;
+      margin-bottom: 40px;
+    }
+    .toc-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+    }
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+    }
+    .toc-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-muted);
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid transparent;
+      font-size: 0.92rem;
+      transition: all 0.2s;
+    }
+    .toc-item:hover {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: var(--border-accent);
+      color: #fff;
+      transform: translateX(4px);
+    }
+    .toc-num {
+      width: 24px;
+      height: 24px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--primary);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    /* Seções */
+    .step-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      margin-bottom: 36px;
+      position: relative;
+    }
+    .step-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+    }
+    .step-badge {
+      background: var(--primary);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 800;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 15px var(--primary-glow);
+    }
+    .step-badge.gold {
+      background: var(--gold);
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);
+    }
+    .step-title-box h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .step-title-box p {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+    }
+
+    /* Subpassos */
+    .substep {
+      margin-bottom: 24px;
+      padding-left: 20px;
+      border-left: 2px solid rgba(16, 185, 129, 0.3);
+    }
+    .substep h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .substep p, .substep li {
+      color: #cbd5e1;
+      font-size: 0.96rem;
+      margin-bottom: 10px;
+    }
+    .substep ul, .substep ol {
+      padding-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    /* Caixas de destaque e comandos */
+    .code-box {
+      background: #060911;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-family: 'Courier New', Courier, monospace;
+      color: #34d399;
+      font-size: 0.92rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 12px 0 16px;
+      word-break: break-all;
+    }
+    .code-box pre {
+      margin: 0;
+      white-space: pre-wrap;
+    }
+    .btn-copy {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-weight: 600;
+      flex-shrink: 0;
+      margin-left: 12px;
+      transition: all 0.2s;
+    }
+    .btn-copy:hover {
+      background: var(--primary);
+    }
+
+    .alert {
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin: 16px 0;
+      font-size: 0.92rem;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .alert-tip {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid var(--border-accent);
+      color: #a7f3d0;
+    }
+    .alert-warning {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #fde68a;
+    }
+    .alert-danger {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 12px 24px;
+      border-radius: 10px;
+      text-decoration: none;
+      margin: 10px 0 16px;
+      transition: all 0.2s;
+    }
+    .btn-action:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px var(--primary-glow);
+    }
+    .btn-action.gold {
+      background: var(--gold);
+      color: #000;
+    }
+    .btn-action.gold:hover {
+      background: #d97706;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 30px 24px;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.88rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-badge">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+            <polyline points="16 7 22 7 22 13"></polyline>
+          </svg>
+        </div>
+        Finpess
+      </a>
+      <a href="index.html" class="back-link">
+        ← Voltar à Página Principal
+      </a>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-badge">📖 Guia Oficial para Usuários Leigos</div>
+    <h1>Manual Completo de Instalação & Configuração</h1>
+    <p>Aprenda em minutos como copiar sua planilha, integrar o Bot do Telegram com o BotFather, gerar sua chave gratuita da IA Gemini e ativar seu serial comercial.</p>
+  </div>
+
+  <div class="container">
+
+    <!-- ÍNDICE INTERATIVO -->
+    <div class="toc-card">
+      <div class="toc-title">
+        📌 O que você vai configurar neste guia:
+      </div>
+      <div class="toc-grid">
+        <a href="#etapa1" class="toc-item">
+          <span class="toc-num">1</span>
+          <span>Baixar e Abrir a Planilha (Trial 14D)</span>
+        </a>
+        <a href="#etapa2" class="toc-item">
+          <span class="toc-num">2</span>
+          <span>Como Ativar os Planos Pagos com Serial</span>
+        </a>
+        <a href="#etapa3" class="toc-item">
+          <span class="toc-num">3</span>
+          <span>Criar o Bot no Telegram (@BotFather)</span>
+        </a>
+        <a href="#etapa4" class="toc-item">
+          <span class="toc-num">4</span>
+          <span>Gerar Chave Gratuita da IA Gemini</span>
+        </a>
+        <a href="#etapa5" class="toc-item">
+          <span class="toc-num">5</span>
+          <span>Conectar Telegram e IA no Finpess</span>
+        </a>
+        <a href="#faq-suporte" class="toc-item">
+          <span class="toc-num">?</span>
+          <span>Dúvidas e Suporte Técnico</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- ETAPA 1: PLANILHA E TRIAL -->
+    <div class="step-section" id="etapa1">
+      <div class="step-header">
+        <div class="step-badge">1</div>
+        <div class="step-title-box">
+          <h2>Como Baixar e Instalar a Planilha (Versão Gratuita)</h2>
+          <p>Passo a passo para clonar a planilha para o seu próprio Google Drive e dar a primeira autorização.</p>
+        </div>
+      </div>
+
+      <div class="substep">
+        <h3>1.1. Faça uma cópia da Planilha Oficial</h3>
+        <p>Você não precisa de pen drive ou download de instalador. O Finpess roda 100% online no seu Google Drive. Clique no botão abaixo para gerar a sua cópia pessoal:</p>
+        
+        <a href="https://docs.google.com/spreadsheets/d/1l0I8289d89oXnVo2HJwN3RZZ9WrzkGX7sM2DOOijFTk/copy" target="_blank" class="btn-action">
+          📋 Clicar para Fazer Cópia da Planilha Oficial
+        </a>
+
+        <p>Ao abrir a página, o Google exibirá a tela azul: <strong>"Deseja fazer uma cópia de Finpess — Planilha Oficial?"</strong>. Clique no botão azul <strong>"Fazer uma cópia"</strong>.</p>
+      </div>
+
+      <div class="substep">
+        <h3>1.2. Primeira Autorização do Google (Procedimento Padrão de Segurança)</h3>
+        <p>Como a planilha possui scripts de automação criados por você para automatizar suas finanças, o Google pedirá uma autorização na primeira vez que você abrir:</p>
+        <ol>
+          <li>Aguarde cerca de 5 a 10 segundos até aparecer no topo da planilha o menu com ícone: <strong>💰 Finanças Inteligentes</strong>.</li>
+          <li>Clique no menu <strong>💰 Finanças Inteligentes</strong> e escolha <strong>📱 2. Abrir Sistema na Planilha (Modal)</strong>.</li>
+          <li>O Google exibirá um aviso dizendo: <em>"Autorização necessária: Este projeto precisa de sua permissão"</em>. Clique em <strong>Continuar</strong>.</li>
+          <li>Escolha a sua Conta Google.</li>
+          <li>Se o Google exibir a tela <em>"O Google não verificou este app"</em>, fique 100% tranquilo (isso é normal para scripts pessoais). Clique no link menor <strong>"Avançado"</strong> (no canto inferior esquerdo) e depois em <strong>"Acessar Finanças Inteligentes (não seguro)"</strong>.</li>
+          <li>Na tela seguinte, clique em <strong>"Permitir"</strong>.</li>
+        </ol>
+
+        <div class="alert alert-tip">
+          💡 <strong>Por que essa autorização é necessária?</strong> Ela concede permissão para o sistema ler e salvar suas receitas e despesas exclusivamente na sua própria planilha do Google Sheets. Nenhum dado sai da sua conta.
+        </div>
+      </div>
+
+      <div class="substep">
+        <h3>1.3. O Período de Teste Gratuito de 14 Dias</h3>
+        <p>Assim que você abre o Finpess, o sistema ativa automaticamente o seu <strong>Trial de 14 Dias</strong>. Você terá acesso irrestrito a todos os 14 módulos (Lançamentos, Cartões, Investimentos, Oráculo IA, etc.).</p>
+      </div>
+    </div>
+
+    <!-- ETAPA 2: ATIVAÇÃO COMERCIAL -->
+    <div class="step-section" id="etapa2">
+      <div class="step-header">
+        <div class="step-badge gold">2</div>
+        <div class="step-title-box">
+          <h2>Como Ativar os Planos Pagos (Anual ou Vitalício)</h2>
+          <p>Como pagar com segurança, obter seu Serial Exclusivo e ativá-lo sem perder nada do teste.</p>
+        </div>
+      </div>
+
+      <div class="substep">
+        <h3>2.1. Como Adquirir a Licença</h3>
+        <p>Na página principal do Finpess, escolha o plano desejado (Anual por R$ 97/ano ou Vitalício por R$ 197 taxa única) e clique em <strong>"Garantir Acesso"</strong>.</p>
+        <ul>
+          <li>O pagamento é processado via PIX instantâneo ou Cartão de Crédito com criptografia de ponta a ponta.</li>
+          <li>Assim que o pagamento for aprovado (o PIX leva menos de 30 segundos), você receberá um e-mail com o assunto <strong>"Parabéns pela aquisição do Finpess — Seu Serial de Ativação"</strong>.</li>
+        </ul>
+      </div>
+
+      <div class="substep">
+        <h3>2.2. Como Digitar o Serial no Sistema</h3>
+        <p>Você <strong>NÃO</strong> precisa recriar a planilha nem recomeçar do zero! Todos os lançamentos feitos no teste serão preservados:</p>
+        <ol>
+          <li>Abra o painel do Finpess na sua planilha.</li>
+          <li>No menu lateral, clique em <strong>⚙️ Configurações</strong>.</li>
+          <li>Selecione a aba <strong>🔑 Licença & Assinatura</strong>.</li>
+          <li>No campo <em>"Serial de Ativação"</em>, cole o código que você recebeu por e-mail (formato: <code>FINP-XXXX-XXXX-XXXX</code>).</li>
+          <li>Clique no botão <strong>"Ativar Licença Comercial"</strong>.</li>
+        </ol>
+
+        <div class="alert alert-tip">
+          ✅ <strong>Ativação Imediata:</strong> O sistema validará a assinatura criptográfica e liberará o selo <strong>ATIVO</strong> permanente no seu painel.
+        </div>
+      </div>
+    </div>
+
+    <!-- ETAPA 3: TELEGRAM BOT -->
+    <div class="step-section" id="etapa3">
+      <div class="step-header">
+        <div class="step-badge">3</div>
+        <div class="step-title-box">
+          <h2>Criar o Bot no Telegram do Início ao Fim (@BotFather)</h2>
+          <p>Como criar seu próprio assistente financeiro no Telegram em menos de 2 minutos.</p>
+        </div>
+      </div>
+
+      <div class="substep">
+        <h3>3.1. O que é o @BotFather?</h3>
+        <p>O <strong>@BotFather</strong> é o robô oficial do próprio Telegram responsável por criar e gerenciar todos os bots da plataforma. Ele tem um selo azul de verificação.</p>
+      </div>
+
+      <div class="substep">
+        <h3>3.2. Passo a Passo no Telegram</h3>
+        <ol>
+          <li>Abra o seu Telegram no celular ou computador.</li>
+          <li>Na barra de busca, pesquise por: <strong>@BotFather</strong> (certifique-se de escolher o perfil com o selo azul de verificado).</li>
+          <li>Clique em <strong>Começar</strong> ou envie o comando:
+            <div class="code-box">
+              <span>/newbot</span>
+              <button class="btn-copy" onclick="navigator.clipboard.writeText('/newbot'); this.innerText='Copiado!';">Copiar</button>
+            </div>
+          </li>
+          <li>O BotFather perguntará: <em>"Alright, a new bot. How are we going to call it? Please choose a name for your bot."</em><br>
+          👉 Digite um nome amigável para o seu bot (ex: <code>Meu Assistente Finpess</code> ou <code>Finanças da Família</code>).</li>
+          <li>Agora ele pedirá o nome de usuário (username): <em>"Good. Now let's choose a username for your bot. It must end in `bot`."</em><br>
+          👉 Digite um nome único que termine obrigatoriamente com a palavra <strong>bot</strong> (ex: <code>finpess_andre_bot</code> ou <code>gestor_dias_bot</code>).</li>
+          <li>Se o nome estiver disponível, o BotFather enviará uma mensagem de parabéns com o seu <strong>HTTP API Token</strong>!</li>
+        </ol>
+
+        <div class="alert alert-warning">
+          ⚠️ <strong>O que é o Token do Telegram?</strong> É uma chave parecida com: <br>
+          <code>7829104856:AAFlk90XyZbK...</code><br>
+          Copie essa mensagem inteira ou toque sobre o token para copiá-lo. Você vai colá-lo dentro do Finpess na Etapa 5.
+        </div>
+      </div>
+
+      <div class="substep">
+        <h3>3.3. Configuração de Privacidade Recomendada</h3>
+        <p>Para garantir que ninguém adicione seu bot financeiro em grupos públicos por engano, envie estes dois comandos rápidos ao @BotFather:</p>
+        <ol>
+          <li>Envie: <code>/setjoingroups</code></li>
+          <li>Selecione o seu bot recém-criado.</li>
+          <li>Escolha a opção: <strong>Disable</strong> (Desativar).</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- ETAPA 4: IA GEMINI -->
+    <div class="step-section" id="etapa4">
+      <div class="step-header">
+        <div class="step-badge">4</div>
+        <div class="step-title-box">
+          <h2>Como Gerar a Chave Gratuita da IA Google Gemini</h2>
+          <p>Acesso oficial à inteligência artificial do Google para ler fotos de notas fiscais e transcrever áudios.</p>
+        </div>
+      </div>
+
+      <div class="substep">
+        <h3>4.1. Onde Conseguir o Acesso Gratuito?</h3>
+        <p>O Google disponibiliza a API do Gemini gratuitamente para desenvolvedores e usuários pessoais através do <strong>Google AI Studio</strong>.</p>
+        
+        <a href="https://aistudio.google.com/" target="_blank" class="btn-action">
+          🌐 Acessar Google AI Studio Oficial
+        </a>
+      </div>
+
+      <div class="substep">
+        <h3>4.2. Passo a Passo para Gerar a Chave (Leva 1 minuto):</h3>
+        <ol>
+          <li>Acesse <a href="https://aistudio.google.com/" target="_blank" style="color:var(--primary); font-weight:700;">aistudio.google.com</a> e faça login com sua conta do Google (Gmail).</li>
+          <li>Se for seu primeiro acesso, aceite os termos de serviço gratuitos.</li>
+          <li>No menu lateral esquerdo (ou no topo), clique no botão azul: <strong>"Get API key"</strong> (Obter chave de API).</li>
+          <li>Clique no botão azul: <strong>"Create API key"</strong> (Criar chave de API).</li>
+          <li>Na janela que abrir, clique em <strong>"Create API key in new project"</strong> (Criar chave de API em novo projeto).</li>
+          <li>O Google gerará um código comprido começando com <strong>`AIzaSy...`</strong>.</li>
+          <li>Clique no ícone de cópia ao lado da chave para copiá-la.</li>
+        </ol>
+
+        <div class="alert alert-tip">
+          💰 <strong>Custa alguma coisa?</strong> Não! O plano gratuito da Google AI Studio permite milhares de requisições por mês, o que é mais do que suficiente para registrar centenas de despesas, áudios e cupons fiscais todos os dias com custo R$ 0,00.
+        </div>
+      </div>
+    </div>
+
+    <!-- ETAPA 5: CONECTANDO NO FINPESS -->
+    <div class="step-section" id="etapa5">
+      <div class="step-header">
+        <div class="step-badge">5</div>
+        <div class="step-title-box">
+          <h2>Conectar Telegram e IA no Finpess (1 Clique)</h2>
+          <p>Juntando tudo dentro do painel para começar a falar com seu assistente financeiro.</p>
+        </div>
+      </div>
+
+      <div class="substep">
+        <h3>5.1. Onde colar as chaves no Finpess</h3>
+        <ol>
+          <li>Abra o painel do Finpess na sua planilha.</li>
+          <li>No menu lateral, vá em <strong>⚙️ Configurações</strong>.</li>
+          <li>Clique na aba <strong>⚡ Integrações (Telegram & IA)</strong>.</li>
+          <li>No campo <strong>"Chave de API do Gemini"</strong>, cole a chave que começa com <code>AIzaSy...</code>.</li>
+          <li>Clique no botão <strong>"🧪 Testar Conexão IA"</strong> para verificar se está funcionando (aparecerá um aviso verde de Sucesso).</li>
+          <li>No campo <strong>"Token do Bot Telegram"</strong>, cole o token fornecido pelo BotFather (<code>782910...</code>).</li>
+          <li>Clique no botão <strong>"🧪 Testar Bot Telegram"</strong>.</li>
+          <li>Agora clique no botão verde principal: <strong>"⚡ Configuração Automática em 1 Clique"</strong>.</li>
+        </ol>
+
+        <div class="alert alert-tip">
+          ✨ <strong>O que esse botão de 1 clique faz?</strong> Ele configura automaticamente a comunicação segura (Webhook) entre o Telegram e a sua planilha do Google, sem que você precise programar nada!
+        </div>
+      </div>
+
+      <div class="substep">
+        <h3>5.2. Fazendo seu Primeiro Lançamento por Voz ou Texto</h3>
+        <ol>
+          <li>Abra o seu aplicativo do Telegram.</li>
+          <li>Entre na conversa com o seu bot recém-criado e envie: <code>/start</code>.</li>
+          <li>O bot responderá se apresentando com a lista de comandos!</li>
+          <li>Agora teste mandar uma mensagem de texto simples, como:
+            <div class="code-box">
+              <span>Almoço no restaurante 48 reais no débito</span>
+            </div>
+          </li>
+          <li>Ou segure o microfone e fale um áudio:
+            <em>"Paguei a conta de energia da Enel de 145 reais hoje pelo Nubank"</em>.</li>
+          <li>O bot processará a frase com a IA Gemini e apresentará uma <strong>prévia com botões interativos</strong> (Confirmar ✅ ou Cancelar ❌).</li>
+          <li>Ao clicar em Confirmar, o lançamento cai <strong>instantaneamente</strong> na sua planilha e atualiza seu saldo!</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- FAQ E SUPORTE -->
+    <div class="step-section" id="faq-suporte">
+      <div class="step-header">
+        <div class="step-badge" style="background:#6366f1;">?</div>
+        <div class="step-title-box">
+          <h2>Perguntas Frequentes & Resolução de Problemas</h2>
+          <p>Respostas rápidas para as dúvidas mais comuns de instalação.</p>
+        </div>
+      </div>
+
+      <div class="substep">
+        <h3>Enviei uma mensagem no Telegram e o bot não respondeu nada. O que pode ser?</h3>
+        <p>Geralmente isso ocorre se o webhook não foi ativado com sucesso. Volte em <strong>Configurações > ⚡ Integrações</strong> e clique novamente no botão <strong>"⚡ Configuração Automática em 1 Clique"</strong>. Certifique-se de que o token do bot foi copiado exatamente como fornecido pelo BotFather.</p>
+      </div>
+
+      <div class="substep">
+        <h3>Posso usar o Finpess sem o Telegram, só no computador?</h3>
+        <p><strong>Sim, com certeza!</strong> O Telegram é um assistente complementar para agilizar compras na rua. O painel web completo na planilha possui todos os 14 módulos (gráficos, metas, dívidas, cartões, faturas e relatórios).</p>
+      </div>
+
+      <div class="substep">
+        <h3>Precisa de ajuda ou suporte técnico?</h3>
+        <p>Nossa equipe está pronta para te atender:</p>
+        <p>📧 E-mail Oficial de Suporte: <a href="mailto:suporte@finpess.com.br" style="color:var(--primary); font-weight:700;">suporte@finpess.com.br</a></p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    Finpess © 2026. Todos os direitos reservados. Google Sheets, Google Drive e Google Gemini são marcas registradas da Google LLC.
+  </footer>
+
+</body>
+</html>
